@@ -1,8 +1,10 @@
 \documentclass{article}
 
 \renewcommand{\contentsname}{Indice}
+\newcommand{\invio}{\hspace{0pt}\\}
 
 \begin{document}
+\raggedright
 \tableofcontents
 \section{Abstract}
 Il progetto definisce un'architettura di database per la gestione delle competizioni di Formula 1, con l'obiettivo di organizzare i dati di piloti, scuderie e asset tecnici. Il sistema modella i Veicoli distinguendo le Auto da Gara dai Mezzi di Soccorso, tracciandone le statistiche di utilizzo e l'affiliazione dei piloti alle rispettive squadre durante le varie sessioni di gara.
@@ -20,9 +22,17 @@ Questa base di dati serve a gestire le informazioni relative alle gare del campi
     \item L' \textbf{Anno di produzione}.
 \end{itemize}
 I veicoli si suddividono in \textbf{Auto da Gara} e \textbf{Mezzi di Soccorso}.
-\\\textbf{Auto da Gara}. Oltre alle informazioni dei veicoli, l'entita prevede anche:
+\invio\invio
+\textbf{Auto da Gara}. Oltre alle informazioni dei veicoli, l'entita prevede anche:
 
-\#insereire gli attributi specifici quandosaranno definiti
+\#inserire gli attributi specifici quando saranno definiti
+\invio\invio
+\textbf{Mezzi di Soccorso}. Oltre alle informazioni dei veicoli, l'entita prevede anche:
+\begin{itemize}
+    \item La \textbf{Categoria} del veicolo di soccorso.
+    \item La \textbf{Targa} del veicolo.
+\end{itemize}
+\invio\textbf{Componente}. ciccio
 \subsubsection{Questo è un H3 (Sotto-sottosezione)}
-LaTeX di default numera fino a questo livello (es. 1.1.1).
+LaTeX di default numera fino a questo livello (es. 1.1.1).hell
 \end{document}

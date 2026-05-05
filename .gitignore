@@ -5,4 +5,4 @@
 *.gz
 *.fdb_latexmk
 *.toc
-.vscode
+.vscode/
