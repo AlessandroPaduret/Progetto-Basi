@@ -1,5 +1,28 @@
 \documentclass{article}
+
+\renewcommand{\contentsname}{Indice}
+
 \begin{document}
-Ciao Arch Linux!
-asdfasfasdf
+\tableofcontents
+\section{Abstract}
+Il progetto definisce un'architettura di database per la gestione delle competizioni di Formula 1, con l'obiettivo di organizzare i dati di piloti, scuderie e asset tecnici. Il sistema modella i Veicoli distinguendo le Auto da Gara dai Mezzi di Soccorso, tracciandone le statistiche di utilizzo e l'affiliazione dei piloti alle rispettive squadre durante le varie sessioni di gara.
+\\Il database gestisce la sicurezza e la regolarità in pista registrando i Rilevamenti cronometrici e le Infrazioni. Queste ultime vengono segnalate dai Marshal e valutate da un collegio di Steward che varia per ogni sessione, garantendo così un archivio storico delle decisioni e delle sanzioni applicate ai partecipanti in base alle segnalazioni ricevute.
+\\Infine, viene monitorata la logistica dei soccorsi attraverso il tracciamento dei mezzi di emergenza presenti durante le sessioni. Il sistema cataloga gli Interventi specifici a cui ogni mezzo partecipa, assicurando una cronologia precisa delle operazioni di assistenza e permettendo di gestire in modo coordinato le risorse di sicurezza disponibili sul tracciato.
+
+\section{Analisi dei requisiti}
+Questa base di dati serve a gestire le informazioni relative alle gare del campionato
+\\\textbf{Veicolo}. Essi sono distinti da un codice univoco che gli identifica in pista e sono descritte tramite le seguenti informazioni:
+
+\begin{itemize}
+    \item L' \textbf{Id del Veicolo} ovvero il codice univoco.
+    \item Il \textbf{Brand} del veicolo.
+    \item Il \textbf{Modello} del veicolo.
+    \item L' \textbf{Anno di produzione}.
+\end{itemize}
+I veicoli si suddividono in \textbf{Auto da Gara} e \textbf{Mezzi di Soccorso}.
+\\\textbf{Auto da Gara}. Oltre alle informazioni dei veicoli, l'entita prevede anche:
+
+\#insereire gli attributi specifici quandosaranno definiti
+\subsubsection{Questo è un H3 (Sotto-sottosezione)}
+LaTeX di default numera fino a questo livello (es. 1.1.1).
 \end{document}
