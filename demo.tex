@@ -1,38 +1,198 @@
-\documentclass{article}
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{graphicx}
+\usepackage[top=0.8in, bottom=0.8in, left=1in, right=1in]{geometry}
 
 \renewcommand{\contentsname}{Indice}
 \newcommand{\invio}{\hspace{0pt}\\}
 
 \begin{document}
+% pagina 1
+\begin{figure}[h]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{logo_unipd.png}}
+\end{figure}
+\hrule
+\begin{center}
+    \Huge
+    \textbf{Basi di Dati per la Gestione di un Simulatore di Formula 1}
+\end{center}
+\hrule
+\begin{center}
+    PROGETTO DI BASE DI DATI (2025-2026) \invio
+    Dipartimento di Matematica
+\end{center}
+\hrule
+\invio\invio
+Alessandro Paduret (2150445) \hfill Stefano Andreas Marian Ghetu (2103473)
 \raggedright
+
+% pagina 2
+\newpage
+\thispagestyle{plain}
+\vspace*{\fill}
 \tableofcontents
+\vspace*{\fill}
+\newpage
+
+% pagina 3
 \section{Abstract}
-Il progetto definisce un'architettura di database per la gestione delle competizioni di Formula 1, con l'obiettivo di organizzare i dati di piloti, scuderie e asset tecnici. Il sistema modella i Veicoli distinguendo le Auto da Gara dai Mezzi di Soccorso, tracciandone le statistiche di utilizzo e l'affiliazione dei piloti alle rispettive squadre durante le varie sessioni di gara.
-\\Il database gestisce la sicurezza e la regolarità in pista registrando i Rilevamenti cronometrici e le Infrazioni. Queste ultime vengono segnalate dai Marshal e valutate da un collegio di Steward che varia per ogni sessione, garantendo così un archivio storico delle decisioni e delle sanzioni applicate ai partecipanti in base alle segnalazioni ricevute.
-\\Infine, viene monitorata la logistica dei soccorsi attraverso il tracciamento dei mezzi di emergenza presenti durante le sessioni. Il sistema cataloga gli Interventi specifici a cui ogni mezzo partecipa, assicurando una cronologia precisa delle operazioni di assistenza e permettendo di gestire in modo coordinato le risorse di sicurezza disponibili sul tracciato.
+Il progetto definisce un'architettura di database per la gestione di un simulatore
+di corse automobilistiche ispirato alla Formula 1. L'obiettivo è fornire al giocatore
+gli strumenti per gestire una scuderia in modo completo, dalla parte manageriale
+alla partecipazione attiva alle gare.
+\\Il sistema modella la componente manageriale attraverso la gestione del personale,
+distinguendo Piloti e Tecnici, e tracciandone i contratti con le scuderie nel tempo.
+I Tecnici possono sviluppare i Componenti della vettura e supervisionarne la
+configurazione tecnica durante le sessioni, mentre i Piloti vengono ingaggiati
+per competere nei campionati.
+\\La parte sportiva gestisce Campionati, Sessioni e Circuiti, registrando per ogni
+gara i giri percorsi da ciascun pilota con i relativi tempi e le gomme utilizzate,
+fino al risultato finale. Ogni campionato adotta una specifica versione del
+Regolamento tecnico FIA, che definisce i vincoli a cui tutte le vetture devono
+conformarsi durante la stagione.
 
-\section{Analisi dei requisiti}
-Questa base di dati serve a gestire le informazioni relative alle gare del campionato
-\\\textbf{Veicolo}. Essi sono distinti da un codice univoco che gli identifica in pista e sono descritte tramite le seguenti informazioni:
+\section{Analisi dei Requisiti}
 
+Questa base di dati serve a gestire le informazioni relative a un simulatore di corse
+automobilistiche ispirato alla Formula 1, in cui il giocatore gestisce una scuderia,
+sviluppa la vettura e partecipa a campionati.
+
+\invio
+\textbf{Persona}.
+Le persone sono tutte le figure umane che operano all'interno di una scuderia.
+Sono identificate da un codice fiscale e descritte dalle seguenti informazioni:
 \begin{itemize}
-    \item L' \textbf{Id del Veicolo} ovvero il codice univoco.
-    \item Il \textbf{Brand} del veicolo.
-    \item Il \textbf{Modello} del veicolo.
-    \item L' \textbf{Anno di produzione}.
+    \item Il \textbf{Codice Fiscale} che identifica univocamente la persona.
+    \item Il \textbf{Nome} e il \textbf{Cognome}.
+    \item La \textbf{Nazionalità}.
+    \item Lo \textbf{Stipendio} percepito.
 \end{itemize}
-I veicoli si suddividono in \textbf{Auto da Gara} e \textbf{Mezzi di Soccorso}.
-\invio\invio
-\textbf{Auto da Gara}. Oltre alle informazioni dei veicoli, l'entita prevede anche:
+Le persone si dividono in Piloti e Tecnici.
 
-\#inserire gli attributi specifici quando saranno definiti
-\invio\invio
-\textbf{Mezzi di Soccorso}. Oltre alle informazioni dei veicoli, l'entita prevede anche:
+\invio
+\textbf{Pilota}.
+Oltre alle informazioni generali delle persone, un pilota è caratterizzato da:
 \begin{itemize}
-    \item La \textbf{Categoria} del veicolo di soccorso.
-    \item La \textbf{Targa} del veicolo.
+    \item Lo \textbf{Stile di Guida}, ovvero l'approccio alla guida
+          (Aggressivo, Conservativo, Bilanciato).
+    \item Il livello di \textbf{Esperienza}, che influenza le prestazioni in gara.
 \end{itemize}
-\invio\textbf{Componente}. ciccio
-\subsubsection{Questo è un H3 (Sotto-sottosezione)}
-LaTeX di default numera fino a questo livello (es. 1.1.1).hell
+
+\textbf{Tecnico}.
+Oltre alle informazioni generali delle persone, un tecnico è caratterizzato da:
+\begin{itemize}
+    \item La \textbf{Specializzazione} tecnica (Aerodinamica, Motore, Gomme).
+\end{itemize}
+
+\textbf{Scuderia}.
+La scuderia rappresenta il team gestito dal giocatore. È descritta da:
+\begin{itemize}
+    \item Il \textbf{Nome} che la identifica univocamente.
+    \item La \textbf{Sede} geografica del team.
+    \item Il \textbf{Numero di Titoli Vinti}, attributo ridondante rispetto al conteggio
+          dei campionati vinti, mantenuto per un accesso rapido in classifica.
+\end{itemize}
+Una persona è legata a una scuderia tramite un \textbf{Contratto}, descritto da:
+\begin{itemize}
+    \item L'\textbf{Anno di Inizio} e l'\textbf{Anno di Fine} del contratto.
+    \item Il \textbf{Ruolo} ricoperto, che copre sia i ruoli dei piloti che dei tecnici.
+\end{itemize}
+
+% pagina 4
+\textbf{Componente}.
+I componenti sono le parti tecniche che compongono una vettura e ne determinano
+le prestazioni. Sono descritti da:
+\begin{itemize}
+    \item Un \textbf{Id} univoco.
+    \item Il \textbf{Nome} del componente.
+    \item Il \textbf{Peso} in chilogrammi.
+    \item Il \textbf{Costo} di sviluppo.
+    \item Il livello di \textbf{Usura}, che aumenta con l'utilizzo in gara.
+\end{itemize}
+I tecnici possono lavorare allo sviluppo dei componenti. Lo sviluppo è descritto da:
+\begin{itemize}
+    \item La \textbf{Data di Inizio} e l'eventuale \textbf{Data di Fine} del lavoro.
+\end{itemize}
+
+\textbf{Vettura}.
+Ogni scuderia sviluppa una o più vetture nel corso delle stagioni. Una vettura
+è descritta da:
+\begin{itemize}
+    \item Un \textbf{Id} univoco.
+    \item Il \textbf{Modello} della vettura (es. SF-24, W15).
+    \item La \textbf{Scuderia} proprietaria.
+\end{itemize}
+Per ogni sessione, una vettura monta una combinazione specifica di componenti
+che ne definisce il \textbf{setup} (\textit{Configurazione}). La configurazione
+è descritta da:
+\begin{itemize}
+    \item Il \textbf{Peso Totale} della vettura configurata, attributo ridondante
+          rispetto alla somma dei pesi dei componenti montati.
+\end{itemize}
+I tecnici possono supervisionare una vettura durante una sessione. La supervisione
+è descritta da eventuali \textbf{Note} tecniche rilevate.
+
+\textbf{Circuito}.
+I circuiti sono le piste su cui si svolgono le sessioni di gara. Sono descritti da:
+\begin{itemize}
+    \item Il \textbf{Nome} che lo identifica univocamente.
+    \item Il \textbf{Paese} in cui si trova.
+    \item La \textbf{Lunghezza} in chilometri.
+    \item Il \textbf{Numero di Curve}.
+    \item Il \textbf{Tipo} di circuito (Cittadino, Permanente, Misto).
+\end{itemize}
+
+\textbf{Regolamento}.
+Ogni campionato è regolato da una versione specifica del regolamento tecnico FIA.
+Il regolamento è descritto da:
+\begin{itemize}
+    \item La \textbf{Versione} che lo identifica univocamente.
+    \item Il \textbf{Peso Massimo} e il \textbf{Peso Minimo} consentiti per le vetture.
+    \item L'abilitazione del \textbf{DRS}, ovvero se il sistema di riduzione della
+          resistenza aerodinamica è consentito.
+    \item La \textbf{Data di Rilascio}, ovvero quando la FIA ha pubblicato
+          questa versione.
+\end{itemize}
+
+\textbf{Campionato}.
+Il campionato rappresenta una stagione di gare. È identificato univocamente dalla
+combinazione di \textbf{Nome} e \textbf{Anno}, ed è descritto da:
+\begin{itemize}
+    \item Il \textbf{Nome} del campionato (Mondiale Costruttori, Mondiale Piloti).
+    \item L'\textbf{Anno} di svolgimento.
+    \item Il \textbf{Budget Cap}, ovvero il limite di spesa imposto dalla FIA
+          per quella stagione, uguale per tutte le scuderie.
+    \item Il \textbf{Montepremi} totale distribuito alle scuderie a fine stagione.
+    \item Il \textbf{Regolamento} adottato per quella stagione.
+\end{itemize}
+
+% pagina 5
+\textbf{Sessione}.
+Una sessione rappresenta una singola attività di gara su un circuito. È descritta da:
+\begin{itemize}
+    \item Un \textbf{Id} univoco.
+    \item Il \textbf{Tipo} di sessione (Prove Libere, Qualifica, Gara).
+    \item Il \textbf{Circuito} su cui si svolge.
+    \item Il \textbf{Campionato} di appartenenza.
+    \item Le \textbf{Condizioni Meteo} (Soleggiato, Nuvoloso, Pioggia).
+    \item La \textbf{Temperatura} dell'asfalto.
+\end{itemize}
+I piloti partecipano alle sessioni al volante di una vettura. Ogni giro percorso
+da un pilota durante una sessione viene tracciato come \textbf{Giro}, descritto da:
+\begin{itemize}
+    \item Il \textbf{Numero del Giro}.
+    \item Il \textbf{Tempo} totale del giro.
+    \item I tempi parziali \textbf{Settore 1}, \textbf{Settore 2} e \textbf{Settore 3}.
+    \item La \textbf{Gomma Utilizzata} in quel giro (Soft, Medium, Hard, Intermedie, Wet).
+\end{itemize}
+Al termine di ogni sessione viene registrato il \textbf{Risultato} di ogni pilota,
+descritto da:
+\begin{itemize}
+    \item La \textbf{Posizione} finale, nulla in caso di ritiro.
+    \item I \textbf{Punti} ottenuti, nulli in caso di ritiro.
+    \item L'eventuale \textbf{Causa del Ritiro}
+          (Incidente, Guasto meccanico, Squalifica, Abbandono).
+\end{itemize}
+
 \end{document}
