@@ -2,6 +2,7 @@
 
 \usepackage{graphicx}
 \usepackage[top=0.8in, bottom=0.8in, left=1in, right=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
 
 \renewcommand{\contentsname}{Indice}
 \newcommand{\invio}{\hspace{0pt}\\}
@@ -110,7 +111,7 @@ le prestazioni. Sono descritti da:
     \item Il \textbf{Costo} di sviluppo.
     \item Il livello di \textbf{Usura}, che aumenta con l'utilizzo in gara.
 \end{itemize}
-I tecnici possono lavorare allo sviluppo dei componenti. Lo sviluppo è descritto da:
+I tecnici possono lavorare allo sviluppo dei componenti. Lo \textbf{sviluppo} è descritto da:
 \begin{itemize}
     \item La \textbf{Data di Inizio} e l'eventuale \textbf{Data di Fine} del lavoro.
 \end{itemize}
@@ -121,16 +122,15 @@ Ogni scuderia sviluppa una o più vetture nel corso delle stagioni. Una vettura
 \begin{itemize}
     \item Un \textbf{Id} univoco.
     \item Il \textbf{Modello} della vettura (es. SF-24, W15).
-    \item La \textbf{Scuderia} proprietaria.
 \end{itemize}
 Per ogni sessione, una vettura monta una combinazione specifica di componenti
-che ne definisce il \textbf{setup} (\textit{Configurazione}). La configurazione
+che ne definisce la configurazione. La \textbf{configurazione}
 è descritta da:
 \begin{itemize}
     \item Il \textbf{Peso Totale} della vettura configurata, attributo ridondante
           rispetto alla somma dei pesi dei componenti montati.
 \end{itemize}
-I tecnici possono supervisionare una vettura durante una sessione. La supervisione
+I tecnici possono supervisionare una vettura durante una sessione. La \textbf{supervisione}
 è descritta da eventuali \textbf{Note} tecniche rilevate.
 
 \textbf{Circuito}.
@@ -173,8 +173,6 @@ Una sessione rappresenta una singola attività di gara su un circuito. È descri
 \begin{itemize}
     \item Un \textbf{Id} univoco.
     \item Il \textbf{Tipo} di sessione (Prove Libere, Qualifica, Gara).
-    \item Il \textbf{Circuito} su cui si svolge.
-    \item Il \textbf{Campionato} di appartenenza.
     \item Le \textbf{Condizioni Meteo} (Soleggiato, Nuvoloso, Pioggia).
     \item La \textbf{Temperatura} dell'asfalto.
 \end{itemize}
@@ -194,5 +192,30 @@ descritto da:
     \item L'eventuale \textbf{Causa del Ritiro}
           (Incidente, Guasto meccanico, Squalifica, Abbandono).
 \end{itemize}
+
+\section{Progettazione Concettuale}
+\subsection{Lista Entità}
+\subsection{Lista Realazioni}
+\subsection{Lista Generalizzazioni}
+\subsection{Schema E-R}
+\begin{figure}
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Versione2_E-R.drawio.png}}
+\end{figure}
+\invio
+
+\section{Progettazione Logica}
+\subsection{Analisi delle Ridondanze}
+\subsection{Eliminazione delle Generalizzazioni}
+\subsection{Diagramma E-R Ristrutturato}
+\subsection{Schema Rellazionale}
+\subsection{Vincoli referenziali non deducibili dallo schema E-R}
+
+
+\section{Query}
+\subsection{Definizione delle Query}
+\subsection{Creazione degli Indici}
+
+\section{Applicazione Software}
 
 \end{document}
