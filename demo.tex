@@ -1,5 +1,401 @@
-\documentclass{article}
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{graphicx}
+\usepackage[top=0.8in, bottom=0.8in, left=1in, right=1in]{geometry}
+\usepackage[hidelinks]{hyperref}
+
+\renewcommand{\contentsname}{Indice}
+\newcommand{\invio}{\hspace{0pt}\\}
+
 \begin{document}
-Ciao Arch Linux!
-asdfasfasdf
-\end{document}
+% pagina 1
+\begin{figure}[h]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{logo_unipd.png}}
+\end{figure}
+\hrule
+\begin{center}
+    \Huge
+    \textbf{Basi di Dati per la Gestione di un Simulatore di Formula 1}
+\end{center}
+\hrule
+\begin{center}
+    PROGETTO DI BASE DI DATI (2025-2026) \invio
+    Dipartimento di Matematica
+\end{center}
+\hrule
+\invio\invio
+Alessandro Paduret (2150445) \hfill Stefano Andreas Marian Ghetu (2103473)
+\raggedright
+
+% pagina 2
+\newpage
+\thispagestyle{plain}
+\vspace*{\fill}
+\tableofcontents
+\vspace*{\fill}
+\newpage
+
+% pagina 3
+\section{Abstract}
+Il progetto definisce un'architettura di database semplificata per la gestione di un simulatore
+di corse automobilistiche ispirato alla Formula 1. L'obiettivo è fornire una struttura
+essenziale e scalabile per tracciare scuderie, piloti, vetture e i risultati delle competizioni.
+\\Il sistema modella la gestione del personale attraverso persone (piloti e tecnici) e i loro contratti
+con le scuderie nel tempo.
+\\La parte sportiva gestisce Campionati, Sessioni e Circuiti, registrando i risultati finali
+di ogni pilota in ogni sessione. Ogni campionato adotta una specifica versione del Regolamento
+tecnico FIA, che definisce i vincoli a cui le vetture devono conformarsi durante la stagione.
+
+\section{Analisi dei Requisiti}
+
+Questa base di dati serve a gestire le informazioni relative a un simulatore di corse
+automobilistiche ispirato alla Formula 1, in cui il giocatore gestisce una scuderia,
+sviluppa la vettura e partecipa a campionati.
+
+\invio
+\textbf{Persona}.
+Le persone sono tutte le figure umane che operano all'interno di una scuderia.
+Sono identificate da un codice fiscale e descritte dalle seguenti informazioni:
+\begin{itemize}
+    \item Il \textbf{Codice Fiscale} che identifica univocamente la persona.
+    \item Il \textbf{Nome} e il \textbf{Cognome}.
+    \item La \textbf{Nazionalità}.
+\end{itemize}
+Le persone si dividono in Piloti e Tecnici.
+
+\invio
+\textbf{Pilota}.
+Oltre alle informazioni generali delle persone, un pilota è caratterizzato da:
+\begin{itemize}
+    \item Lo \textbf{Stile di Guida}, ovvero l'approccio alla guida
+          (Aggressivo, Conservativo, Bilanciato).
+    \item Il livello di \textbf{Esperienza}, che influenza le prestazioni in gara.
+\end{itemize}
+
+\textbf{Tecnico}.
+Oltre alle informazioni generali delle persone, un tecnico è caratterizzato da:
+\begin{itemize}
+    \item La \textbf{Specializzazione} tecnica (Aerodinamica, Motore, Gomme).
+\end{itemize}
+
+\textbf{Scuderia}.
+La scuderia rappresenta il team gestito dal giocatore. È descritta da:
+\begin{itemize}
+    \item Il \textbf{Nome} che la identifica univocamente.
+    \item La \textbf{Sede} geografica del team.
+\end{itemize}
+Una persona è legata a una scuderia tramite un \textbf{Contratto}, descritto da:
+\begin{itemize}
+    \item L'\textbf{Anno di Inizio} e l'\textbf{Anno di Fine} del contratto.
+    \item Il \textbf{Stipendio} percepito.
+\end{itemize}
+
+% pagina 4
+\textbf{Vettura}.
+Ogni scuderia sviluppa una o più vetture nel corso delle stagioni. Una vettura
+è descritta da:
+\begin{itemize}
+    \item Il \textbf{Modello} della vettura (es. SF-24, W15).
+    \item La \textbf{Peso} che usa la macchina.
+    \item L' \textbf{accelerazione} della macchina
+\end{itemize}
+
+\textbf{Circuito}.
+I circuiti sono le piste su cui si svolgono le sessioni di gara. Sono descritti da:
+\begin{itemize}
+    \item Il \textbf{Nome} che lo identifica univocamente.
+    \item Il \textbf{Paese} in cui si trova.
+    \item La \textbf{Lunghezza} in chilometri.
+    \item Il \textbf{Numero di Curve}.
+    \item Il \textbf{Tipo} di circuito (Cittadino, Permanente, Misto).
+\end{itemize}
+
+\textbf{Regolamento}.
+Ogni campionato è regolato da una versione specifica del regolamento tecnico FIA.
+Il regolamento è descritto da:
+\begin{itemize}
+    \item La \textbf{Versione} che lo identifica univocamente.
+    \item Il \textbf{Peso Massimo} e il \textbf{Peso Minimo} consentiti per le vetture.
+    \item L'abilitazione del \textbf{DRS}, ovvero se il sistema di riduzione della
+          resistenza aerodinamica è consentito.
+    \item La \textbf{Data di Rilascio}, ovvero quando la FIA ha pubblicato
+          questa versione.
+\end{itemize}
+
+\textbf{Campionato}.
+Il campionato rappresenta una stagione di gare. È identificato univocamente dalla
+combinazione di \textbf{Nome} e \textbf{Anno}, ed è descritto da:
+\begin{itemize}
+    \item Il \textbf{Nome} del campionato (Mondiale Costruttori, Mondiale Piloti).
+    \item L'\textbf{Anno} di svolgimento.
+    \item Il \textbf{Budget Cap}, ovvero il limite di spesa imposto dalla FIA
+          per quella stagione, uguale per tutte le scuderie.
+    \item Il \textbf{Montepremi} totale distribuito alle scuderie a fine stagione.
+\end{itemize}
+
+% pagina 5
+\textbf{Gara}.
+Una sessione rappresenta una singola attività di gara su un circuito. È descritta da:
+\begin{itemize}
+    \item La \textbf{Data} in cui avviene la corsa.
+    \item Le \textbf{Condizioni Meteo} (Soleggiato, Nuvoloso, Pioggia).
+    \item La \textbf{Temperatura} dell'asfalto.
+\end{itemize}
+I piloti partecipano alle sessioni al volante di una vettura. Ogni giro percorso
+da un pilota durante una sessione viene tracciato come \textbf{Giro}, descritto da:
+\begin{itemize}
+    \item Il \textbf{Numero del Giro}.
+    \item Il \textbf{Tempo} totale del giro.
+    \item I tempi parziali \textbf{Settore 1}, \textbf{Settore 2} e \textbf{Settore 3}.
+    \item La \textbf{Gomma Utilizzata} in quel giro (Soft, Medium, Hard, Intermedie, Wet).
+\end{itemize}
+Al termine di ogni sessione viene registrato il \textbf{Risultato} di ogni pilota,
+descritto da:
+\begin{itemize}
+    \item La \textbf{Posizione} finale, nulla in caso di ritiro.
+    \item I \textbf{Punti} ottenuti, nulli in caso di ritiro.
+    \item L'eventuale \textbf{Causa del Squalifica}
+          (Incidente, Guasto meccanico, Squalifica, Abbandono).
+\end{itemize}
+
+\section{Progettazione Concettuale}
+\subsection{Lista Entità}
+Il database è formato dalle seguenti entità:
+ 
+\begin{itemize}
+    \item \textbf{Persona}
+    \begin{itemize}
+        \item \underline{CodiceFiscale: varchar}
+        \item Nome: varchar
+        \item Cognome: varchar
+        \item Nazionalità: varchar
+        \item Stipendio: int
+        \begin{itemize}
+            \item Stipendio $\ge$ 0
+        \end{itemize}
+    \end{itemize}
+ 
+    \item \textbf{Pilota} (figlia di Persona)
+    \begin{itemize}
+        \item StileGuida: enum
+        \item Esperienza: int
+        \begin{itemize}
+            \item Esperienza $\ge$ 0
+        \end{itemize}
+    \end{itemize}
+ 
+    \item \textbf{Tecnico} (figlia di Persona)
+    \begin{itemize}
+        \item Specializzazione: enum
+    \end{itemize}
+ 
+    \item \textbf{Scuderia}
+    \begin{itemize}
+        \item \underline{Nome: varchar}
+        \item Sede: varchar
+        \item NumTitoliVinti: int
+        \begin{itemize}
+            \item NumTitoliVinti $\ge$ 0
+            \item Attributo ridondante rispetto al conteggio dei campionati vinti
+        \end{itemize}
+    \end{itemize}
+ 
+    \item \textbf{Vettura}
+    \begin{itemize}
+        \item \underline{Modello: varchar}
+        \item Livrea: varchar
+    \end{itemize}
+ 
+    \item \textbf{Circuito}
+    \begin{itemize}
+        \item \underline{Nome: varchar}
+        \item Paese: varchar
+        \item Lunghezza: float
+        \begin{itemize}
+            \item Lunghezza $>$ 0
+        \end{itemize}
+        \item NumeroCurve: int
+        \begin{itemize}
+            \item NumeroCurve $\ge$ 1
+        \end{itemize}
+        \item Tipo: enum
+    \end{itemize}
+ 
+    \item \textbf{Regolamento}
+    \begin{itemize}
+        \item \underline{Versione: varchar}
+        \item PesoMassimo: float
+        \item PesoMinimo: float
+        \begin{itemize}
+            \item PesoMassimo $>$ 0 e PesoMinimo $>$ 0
+            \item PesoMassimo $>$ PesoMinimo
+        \end{itemize}
+        \item DRSConsentito: boolean
+        \item DataRilascio: date
+    \end{itemize}
+ 
+    \item \textbf{Campionato}
+    \begin{itemize}
+        \item \underline{Nome: enum (Composta con Anno)}
+        \item \underline{Anno: int (Composta con Nome)}
+        \begin{itemize}
+            \item Anno $\ge$ 1950
+        \end{itemize}
+        \item BudgetCap: int
+        \begin{itemize}
+            \item BudgetCap $\ge$ 0
+        \end{itemize}
+        \item Montepremi: int
+        \begin{itemize}
+            \item Montepremi $\ge$ 0
+        \end{itemize}
+    \end{itemize}
+ 
+    \item \textbf{Sessione}
+    \begin{itemize}
+        \item \underline{IdSessione: int}
+        \item Tipo: enum
+        \item Meteo: enum
+        \item Temperatura: float
+    \end{itemize}
+ 
+\end{itemize}
+
+\subsection{Lista Relazioni}
+Il database è formato dalle seguenti relazioni:
+
+\begin{itemize}
+
+    \item \textbf{Persona-Scuderia}: Contratto (1:N)
+    \begin{itemize}
+        \item Una persona può stipulare contratti con una sola scuderia alla volta
+        \item Una scuderia può avere più persone sotto contratto
+        \begin{itemize}
+            \item AnnoInizio: int
+            \item AnnoFine: int
+            \begin{itemize}
+                \item AnnoFine $>$ AnnoInizio
+                \item AnnoFine ammette valore nullo
+            \end{itemize}
+            \item Ruolo: varchar
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Tecnico-Vettura-Sessione}: Controlla (N:M)
+    \begin{itemize}
+        \item Un tecnico può supervisionare più vetture in più sessioni
+        \item Una vettura può essere supervisionata da più tecnici in una sessione
+        \begin{itemize}
+            \item Note: varchar
+            \begin{itemize}
+                \item Note ammette valore nullo
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Pilota-Vettura}: Guida (N:M)
+    \begin{itemize}
+        \item Un pilota può guidare più vetture
+        \item Una vettura può essere guidata da più piloti
+    \end{itemize}
+
+    \item \textbf{Vettura-Sessione}: Partecipa (N:M)
+    \begin{itemize}
+        \item Una vettura partecipa a più sessioni
+        \item Una sessione accoglie più vetture
+    \end{itemize}
+
+    \item \textbf{Pilota-Sessione}: Giro (N:M)
+    \begin{itemize}
+        \item Un pilota percorre giri in più sessioni
+        \item Una sessione registra i giri di più piloti
+        \begin{itemize}
+            \item NumeroGiro: int
+            \begin{itemize}
+                \item NumeroGiro $\geq$ 1
+            \end{itemize}
+            \item Tempo: time
+            \item Settore1: time
+            \item Settore2: time
+            \item Settore3: time
+            \item GommaUsata: enum
+        \end{itemize}
+    \end{itemize}
+
+    \item \textbf{Pilota-Sessione}: Risultato (N:M)
+    \begin{itemize}
+        \item Un pilota ottiene un risultato per ogni sessione a cui partecipa
+        \item Una sessione registra il risultato di tutti i piloti partecipanti
+        \begin{itemize}
+            \item Posizione: int
+            \begin{itemize}
+                \item Posizione $\geq$ 1
+                \item Posizione ammette valore nullo
+            \end{itemize}
+            \item Punti: int
+            \begin{itemize}
+                \item Punti $\geq$ 0
+                \item Punti ammette valore nullo
+            \end{itemize}
+            \item CausaRitiro: enum
+            \begin{itemize}
+                \item CausaRitiro ammette valore nullo
+            \end{itemize}
+        \end{itemize}
+    \end{itemize}
+
+
+    \item \textbf{Campionato-Regolamento}: Adotta (1:1)
+    \begin{itemize}
+        \item Un campionato adotta una sola versione del regolamento
+        \item Una versione del regolamento è adottata da un solo campionato
+    \end{itemize}
+
+    \item \textbf{Scuderia-Vettura}: Schiera (1:N)
+    \begin{itemize}
+        \item Una scuderia schiera più vetture nel corso delle stagioni
+        \item Una vettura appartiene a una sola scuderia
+    \end{itemize}
+
+    \item \textbf{Circuito-Sessione}: Ospita (1:N)
+    \begin{itemize}
+        \item Un circuito ospita più sessioni nel tempo
+        \item Una sessione si tiene su un solo circuito
+    \end{itemize}
+
+    \item \textbf{Campionato-Sessione}: Include (0:N)
+    \begin{itemize}
+        \item Un campionato include più sessioni
+        \item Una sessione appartiene a un solo campionato
+    \end{itemize}
+
+\end{itemize}
+
+\subsection{Lista Generalizzazioni}
+\begin{itemize}
+    \item Persona è una generalizzazione parziale ed esclusiva di Pilota e Tecnico
+\end{itemize}
+
+\subsection{Schema E-R}
+\begin{figure}[h]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Versione2_E-R.drawio.png}}
+\end{figure}
+\invio
+
+\section{Progettazione Logica}
+\subsection{Analisi delle Ridondanze}
+\subsection{Eliminazione delle Generalizzazioni}
+\subsection{Diagramma E-R Ristrutturato}
+\subsection{Schema Rellazionale}
+\subsection{Vincoli referenziali non deducibili dallo schema E-R}
+
+
+\section{Query}
+\subsection{Definizione delle Query}
+\subsection{Creazione degli Indici}
+
+\section{Applicazione Software}
+
+G\end{document}
