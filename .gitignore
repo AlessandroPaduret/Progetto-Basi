@@ -6,5 +6,5 @@
 *.gz
 *.fdb_latexmk
 *.toc
-.vscode/
-.pdf
+*.vscode
+*.pdf
