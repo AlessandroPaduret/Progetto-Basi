@@ -38,20 +38,14 @@ Alessandro Paduret (2150445) \hfill Stefano Andreas Marian Ghetu (2103473)
 
 % pagina 3
 \section{Abstract}
-Il progetto definisce un'architettura di database per la gestione di un simulatore
-di corse automobilistiche ispirato alla Formula 1. L'obiettivo è fornire al giocatore
-gli strumenti per gestire una scuderia in modo completo, dalla parte manageriale
-alla partecipazione attiva alle gare.
-\\Il sistema modella la componente manageriale attraverso la gestione del personale,
-distinguendo Piloti e Tecnici, e tracciandone i contratti con le scuderie nel tempo.
-I Tecnici possono sviluppare i Componenti della vettura e supervisionarne la
-configurazione tecnica durante le sessioni, mentre i Piloti vengono ingaggiati
-per competere nei campionati.
-\\La parte sportiva gestisce Campionati, Sessioni e Circuiti, registrando per ogni
-gara i giri percorsi da ciascun pilota con i relativi tempi e le gomme utilizzate,
-fino al risultato finale. Ogni campionato adotta una specifica versione del
-Regolamento tecnico FIA, che definisce i vincoli a cui tutte le vetture devono
-conformarsi durante la stagione.
+Il progetto definisce un'architettura di database semplificata per la gestione di un simulatore
+di corse automobilistiche ispirato alla Formula 1. L'obiettivo è fornire una struttura
+essenziale e scalabile per tracciare scuderie, piloti, vetture e i risultati delle competizioni.
+\\Il sistema modella la gestione del personale attraverso persone (piloti e tecnici) e i loro contratti
+con le scuderie nel tempo.
+\\La parte sportiva gestisce Campionati, Sessioni e Circuiti, registrando i risultati finali
+di ogni pilota in ogni sessione. Ogni campionato adotta una specifica versione del Regolamento
+tecnico FIA, che definisce i vincoli a cui le vetture devono conformarsi durante la stagione.
 
 \section{Analisi dei Requisiti}
 
@@ -67,7 +61,6 @@ Sono identificate da un codice fiscale e descritte dalle seguenti informazioni:
     \item Il \textbf{Codice Fiscale} che identifica univocamente la persona.
     \item Il \textbf{Nome} e il \textbf{Cognome}.
     \item La \textbf{Nazionalità}.
-    \item Lo \textbf{Stipendio} percepito.
 \end{itemize}
 Le persone si dividono in Piloti e Tecnici.
 
@@ -91,46 +84,22 @@ La scuderia rappresenta il team gestito dal giocatore. È descritta da:
 \begin{itemize}
     \item Il \textbf{Nome} che la identifica univocamente.
     \item La \textbf{Sede} geografica del team.
-    \item Il \textbf{Numero di Titoli Vinti}, attributo ridondante rispetto al conteggio
-          dei campionati vinti, mantenuto per un accesso rapido in classifica.
 \end{itemize}
 Una persona è legata a una scuderia tramite un \textbf{Contratto}, descritto da:
 \begin{itemize}
     \item L'\textbf{Anno di Inizio} e l'\textbf{Anno di Fine} del contratto.
-    \item Il \textbf{Ruolo} ricoperto, che copre sia i ruoli dei piloti che dei tecnici.
+    \item Il \textbf{Stipendio} percepito.
 \end{itemize}
 
 % pagina 4
-\textbf{Componente}.
-I componenti sono le parti tecniche che compongono una vettura e ne determinano
-le prestazioni. Sono descritti da:
-\begin{itemize}
-    \item Un \textbf{Id} univoco.
-    \item Il \textbf{Nome} del componente.
-    \item Il \textbf{Peso} in chilogrammi.
-    \item Il \textbf{Costo} di sviluppo.
-\end{itemize}
-I tecnici possono lavorare allo sviluppo dei componenti. Lo \textbf{sviluppo} è descritto da:
-\begin{itemize}
-    \item La \textbf{Data di Inizio} e l'eventuale \textbf{Data di Fine} del lavoro.
-\end{itemize}
-
 \textbf{Vettura}.
 Ogni scuderia sviluppa una o più vetture nel corso delle stagioni. Una vettura
 è descritta da:
 \begin{itemize}
     \item Il \textbf{Modello} della vettura (es. SF-24, W15).
-    \item La \textbf{Livrea} che usa la macchina.
+    \item La \textbf{Peso} che usa la macchina.
+    \item L' \textbf{accelerazione} della macchina
 \end{itemize}
-Per ogni sessione, una vettura monta una combinazione specifica di componenti
-che ne definisce la configurazione. La \textbf{configurazione}
-è descritta da:
-\begin{itemize}
-    \item Il \textbf{Peso Totale} della vettura configurata, attributo ridondante
-          rispetto alla somma dei pesi dei componenti montati.
-\end{itemize}
-I tecnici possono supervisionare una vettura durante una sessione. La \textbf{supervisione}
-è descritta da eventuali \textbf{Note} tecniche rilevate.
 
 \textbf{Circuito}.
 I circuiti sono le piste su cui si svolgono le sessioni di gara. Sono descritti da:
@@ -163,15 +132,13 @@ combinazione di \textbf{Nome} e \textbf{Anno}, ed è descritto da:
     \item Il \textbf{Budget Cap}, ovvero il limite di spesa imposto dalla FIA
           per quella stagione, uguale per tutte le scuderie.
     \item Il \textbf{Montepremi} totale distribuito alle scuderie a fine stagione.
-    \item Il \textbf{Regolamento} adottato per quella stagione.
 \end{itemize}
 
 % pagina 5
-\textbf{Sessione}.
+\textbf{Gara}.
 Una sessione rappresenta una singola attività di gara su un circuito. È descritta da:
 \begin{itemize}
-    \item Un \textbf{Id} univoco.
-    \item Il \textbf{Tipo} di sessione (Prove Libere, Qualifica, Gara).
+    \item La \textbf{Data} in cui avviene la corsa.
     \item Le \textbf{Condizioni Meteo} (Soleggiato, Nuvoloso, Pioggia).
     \item La \textbf{Temperatura} dell'asfalto.
 \end{itemize}
@@ -188,7 +155,7 @@ descritto da:
 \begin{itemize}
     \item La \textbf{Posizione} finale, nulla in caso di ritiro.
     \item I \textbf{Punti} ottenuti, nulli in caso di ritiro.
-    \item L'eventuale \textbf{Causa del Ritiro}
+    \item L'eventuale \textbf{Causa del Squalifica}
           (Incidente, Guasto meccanico, Squalifica, Abbandono).
 \end{itemize}
 
@@ -231,20 +198,6 @@ Il database è formato dalle seguenti entità:
         \begin{itemize}
             \item NumTitoliVinti $\ge$ 0
             \item Attributo ridondante rispetto al conteggio dei campionati vinti
-        \end{itemize}
-    \end{itemize}
- 
-    \item \textbf{Componente}
-    \begin{itemize}
-        \item \underline{IdComponente: int}
-        \item Nome: varchar
-        \item Peso: float
-        \begin{itemize}
-            \item Peso $>$ 0
-        \end{itemize}
-        \item Costo: int
-        \begin{itemize}
-            \item Costo $\ge$ 0
         \end{itemize}
     \end{itemize}
  
@@ -329,20 +282,6 @@ Il database è formato dalle seguenti relazioni:
         \end{itemize}
     \end{itemize}
 
-    \item \textbf{Tecnico-Componente}: Sviluppa (N:M)
-    \begin{itemize}
-        \item Un tecnico può sviluppare più componenti
-        \item Un componente può essere sviluppato da più tecnici
-        \begin{itemize}
-            \item DataInizio: timestamp
-            \item DataFine: timestamp
-            \begin{itemize}
-                \item DataFine $>$ DataInizio
-                \item DataFine ammette valore nullo
-            \end{itemize}
-        \end{itemize}
-    \end{itemize}
-
     \item \textbf{Tecnico-Vettura-Sessione}: Controlla (N:M)
     \begin{itemize}
         \item Un tecnico può supervisionare più vetture in più sessioni
@@ -355,19 +294,16 @@ Il database è formato dalle seguenti relazioni:
         \end{itemize}
     \end{itemize}
 
-    \item \textbf{Vettura-Componente}: Configurazione (N:M)
+    \item \textbf{Pilota-Vettura}: Guida (N:M)
     \begin{itemize}
-        \item Una vettura può montare più componenti
-        \item Un componente può essere montato su più vetture
-        \begin{itemize}
-            \item PesoTot: int
-        \end{itemize}
+        \item Un pilota può guidare più vetture
+        \item Una vettura può essere guidata da più piloti
     \end{itemize}
 
-    \item \textbf{Pilota-Vettura-Sessione}: Guida (N:M)
+    \item \textbf{Vettura-Sessione}: Partecipa (N:M)
     \begin{itemize}
-        \item Un pilota può guidare più vetture in più sessioni
-        \item Una vettura può essere guidata da più piloti in sessioni diverse
+        \item Una vettura partecipa a più sessioni
+        \item Una sessione accoglie più vetture
     \end{itemize}
 
     \item \textbf{Pilota-Sessione}: Giro (N:M)
