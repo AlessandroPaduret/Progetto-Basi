@@ -9,10 +9,8 @@
 \usepackage{titlesec}
 
 \usepackage[utf8]{inputenc}
-\usepackage[italian]{babel}
 \usepackage{listings}
 \usepackage{xcolor}
-\usepackage{hyperref}
 
 \titleclass{\subsubsubsection}{straight}[\subsubsection]
 \newcounter{subsubsubsection}[subsubsection]
@@ -620,7 +618,11 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
     showtabs=false,                  
     tabsize=2,
     frame=single,
-    rulecolor=\color{codegray!50}
+    rulecolor=\color{codegray!50},
+    % FONDAMENTALE PER GLI UNDERSCORE:
+    literate={_}{{\textunderscore}}1,
+    extendedchars=true,
+    inputencoding=utf8
 }
 
 
@@ -642,7 +644,7 @@ ORDER BY Part.GaraData DESC, P.Cognome ASC;
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{query-1.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-1.png}}
 \end{figure}
 
 \subsubsection{2. Classifica Mondiale Storica dei Piloti}
@@ -661,7 +663,7 @@ ORDER BY PuntiTotali DESC;
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{query-2.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-2.png}}
 \end{figure}
 
 \subsubsection{3. Analisi Finanziaria e Risorse delle Scuderie}
@@ -681,7 +683,7 @@ ORDER BY SpesaStipendiTotale DESC;
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{query-3.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-3.png}}
 \end{figure}
 
 \subsubsection{4. Circuiti più Frequenti nei Campionati}
@@ -701,7 +703,7 @@ ORDER BY NumeroGareOspitate DESC;
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{query-4.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-4.png}}
 \end{figure}
 
 \subsubsection{5. Performance dei Pneumatici in Base all'Esperienza}
@@ -723,7 +725,7 @@ ORDER BY P.Cognome ASC, TempoMedio_Settore1 ASC;
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{query-5.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-5.png}}
 \end{figure}
 
 \subsection{Creazione degli Indici}
