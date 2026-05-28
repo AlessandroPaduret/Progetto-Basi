@@ -8,6 +8,12 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{titlesec}
 
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+
 \titleclass{\subsubsubsection}{straight}[\subsubsection]
 \newcounter{subsubsubsection}[subsubsection]
 \renewcommand{\thesubsubsubsection}{\thesubsubsection.\arabic{subsubsubsection}}
@@ -583,6 +589,138 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
 
 \section{Query}
 \subsection{Definizione delle Query}
+
+% --- CONFIGURAZIONE STILE CODICE SQL ---
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codeblue}{rgb}{0.0,0.4,0.7}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.96}
+
+\lstset{
+    language=SQL,
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen}\itshape,
+    keywordstyle=\color{codeblue}\bfseries,
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{purple},
+    basicstyle=\ttfamily\small,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=8pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2,
+    frame=single,
+    rulecolor=\color{codegray!50}
+}
+
+
+\subsubsection{1. Dettaglio delle Partecipazioni alle Gare}
+\textbf{Obiettivo:} Mostrare l'elenco completo di tutte le gare a cui i piloti hanno partecipato, indicando il nome e cognome del pilota, la vettura guidata e i dettagli della gara (data e circuito). Enfatizza le relazioni tra iscrizioni, vetture e anagrafica persone.
+
+\begin{lstlisting}[language=SQL, caption={Query di selezione con JOIN multipli}]
+SELECT 
+    P.Nome, 
+    P.Cognome, 
+    Part.Vettura, 
+    Part.GaraCircuito AS Circuito, 
+    Part.GaraData AS DataGara
+FROM Partecipazione Part
+JOIN Pilota Pi ON Part.Pilota = Pi.Persona
+JOIN Persona P ON Pi.Persona = P.CF
+ORDER BY Part.GaraData DESC, P.Cognome ASC;
+\end{lstlisting}
+
+\begin{figure}[!ht]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{query-1.png}}
+\end{figure}
+
+\subsubsection{2. Classifica Mondiale Storica dei Piloti}
+\textbf{Obiettivo:} Calcolare la somma totale dei punti accumulati da ciascun pilota in tutte le gare disputate nel simulatore, ordinando la classifica dal pilota più vincente. Utilizza operatori di aggregazione fondamentali per le classifiche sportive.
+
+\begin{lstlisting}[language=SQL, caption={Query con GROUP BY e operatore aggregato SUM}]
+SELECT 
+    P.Nome, 
+    P.Cognome, 
+    SUM(R.Punti) AS PuntiTotali
+FROM Risultato R
+JOIN Persona P ON R.Pilota = P.CF
+GROUP BY R.Pilota, P.Nome, P.Cognome
+ORDER BY PuntiTotali DESC;
+\end{lstlisting}
+
+\begin{figure}[!ht]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{query-2.png}}
+\end{figure}
+
+\subsubsection{3. Analisi Finanziaria e Risorse delle Scuderie}
+\textbf{Obiettivo:} Fornire una panoramica gestionale per ogni scuderia, mostrando il numero totale di contratti attivi o storici stipulati e il budget totale speso in stipendi per il personale.
+
+\begin{lstlisting}[language=SQL, caption={Query con funzioni aggregate multiple (COUNT, SUM)}]
+SELECT 
+    S.Nome AS Scuderia, 
+    S.Sede, 
+    COUNT(C.Persona) AS NumeroTotaleContratti, 
+    SUM(C.Stipendio) AS SpesaStipendiTotale
+FROM Scuderia S
+JOIN Contratto C ON S.Nome = C.Scuderia
+GROUP BY S.Nome, S.Sede
+ORDER BY SpesaStipendiTotale DESC;
+\end{lstlisting}
+
+\begin{figure}[!ht]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{query-3.png}}
+\end{figure}
+
+\subsubsection{4. Circuiti più Frequenti nei Campionati}
+\textbf{Obiettivo:} Trovare esclusivamente i circuiti storici o più popolari che hanno ospitato più di 1 gare all'interno del simulatore, ordinandoli dal più attivo.
+
+\begin{lstlisting}[language=SQL, caption={Query con clausola HAVING per il filtraggio dei gruppi}]
+SELECT 
+    C.Nome AS NomeCircuito, 
+    C.Paese, 
+    COUNT(G.Data) AS NumeroGareOspitate
+FROM Circuito C
+JOIN Gara G ON C.Nome = G.Circuito
+GROUP BY C.Nome, C.Paese
+HAVING COUNT(G.Data) > 1
+ORDER BY NumeroGareOspitate DESC;
+\end{lstlisting}
+
+\begin{figure}[!ht]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{query-4.png}}
+\end{figure}
+
+\subsubsection{5. Performance dei Pneumatici in Base all'Esperienza}
+\textbf{Obiettivo:} Calcolare il tempo medio registrato nel primo settore (\texttt{Settore1}) per ogni mescola di gomma utilizzata, considerando solo le performance dei piloti veterani (con livello di esperienza superiore a 5).
+
+\begin{lstlisting}[language=SQL, caption={Query complessa con WHERE, GROUP BY e AVG}]
+SELECT 
+    P.Nome, 
+    P.Cognome, 
+    G.GommaUsata, 
+    AVG(G.Settore1) AS TempoMedio_Settore1
+FROM Giro G
+JOIN Pilota Pi ON G.Pilota = Pi.Persona
+JOIN Persona P ON Pi.Persona = P.CF
+WHERE Pi.Esperienza > 5
+GROUP BY G.Pilota, P.Nome, P.Cognome, G.GommaUsata
+ORDER BY P.Cognome ASC, TempoMedio_Settore1 ASC;
+\end{lstlisting}
+
+\begin{figure}[!ht]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{query-5.png}}
+\end{figure}
+
 \subsection{Creazione degli Indici}
 
 \section{Applicazione Software}
