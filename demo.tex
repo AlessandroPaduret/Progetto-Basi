@@ -116,7 +116,7 @@ Ogni scuderia sviluppa una o più vetture nel corso delle stagioni. Una vettura
 è descritta da:
 \begin{itemize}
     \item Il \textbf{Modello} della vettura (es. SF-24, W15).
-    \item Il \textbf{Peso} che usa la macchina.
+    \item Il \textbf{Peso} in kg della macchina.
     \item L'\textbf{Accelerazione} della macchina.
     \item La \textbf{Velocità} massima che il veicolo può raggiungere.
 \end{itemize}
@@ -156,7 +156,7 @@ combinazione di \textbf{Nome} e \textbf{Anno}, ed è descritto da:
 \end{itemize}
 
 \textbf{Gara}.
-Una sessione rappresenta una singola attività di gara su un circuito. È descritta da:
+Rappresenta una singola attività di gara su un circuito. È descritta da:
 \begin{itemize}
     \item La \textbf{Data} in cui avviene la corsa.
     \item Le \textbf{Condizioni Meteo} (Soleggiato, Nuvoloso, Pioggia).
@@ -180,7 +180,7 @@ descritto da:
 
 \textbf{Partecipazione}. La partecipazione modella l'iscrizione e la presenza effettiva di un pilota e della sua rispettiva vettura a una specifica gara del campionato.
  È identificato univocamente dalla
-combinazione di \textbf{Pilota} e \textbf{Gara}, ed è descritto da:
+combinazione di \textbf{Pilota} e \textbf{Gara}, ed è caratterizzata da:
 \begin{itemize}
     \item La \textbf{Posizione di Partenza} del pilota in una determinata gara.
 \end{itemize}
@@ -195,7 +195,7 @@ Il database è formato dalle seguenti entità:
 \begin{itemize}
     \item \textbf{Persona}
     \begin{itemize}
-        \item \underline{CodiceFiscale: varchar}
+        \item \underline{CF: varchar}
         \item Nome: varchar
         \item Cognome: varchar
         \item Nazionalità: varchar
@@ -231,6 +231,10 @@ Il database è formato dalle seguenti entità:
         \item Accelerazione: float
         \begin{itemize}
             \item Accelerazione $>$ 0
+        \end{itemize}
+        \item Velocita: float
+        \begin{itemize}
+            \item Velocita $>$ 0
         \end{itemize}
     \end{itemize}
  
@@ -282,7 +286,7 @@ Il database è formato dalle seguenti entità:
     \item \textbf{Gara}
     \begin{itemize}
         \item \underline{IdGara: int}
-        \item Data: date
+        \item \underline{Data: date}
         \item CondizioniMeteo: enum (Soleggiato, Nuvoloso, Pioggia)
         \item TemperaturaAsfalto: float
     \end{itemize}
@@ -381,9 +385,12 @@ entità/relazioni Giro e Risultato. La posizione finale presente in Risultato po
 essere teoricamente derivati dal calcolo e dalla somma dei tempi parziali (Settore1, Settore2, Settore3) 
 di tutti i giri effettuati da ciascun pilota durante una determinata gara. Riassumendo le operazioni:
 \begin{itemize}
-    \item Operazione 1 (100 volte al giorno): Aggiunta di un nuovo record in Giro.
-    \item Operazione 2 (30 volte al giorno): Visualizzazione del riepilogo giornaliero delle classifiche.
+    \item Operazione 1 (4500 volte al giorno): Aggiunta di un nuovo record in Giro.
+    \item Operazione 2 (90 volte al giorno): Visualizzazione delle classifiche delle partite fatte quel giorno.
 \end{itemize}
+Durante una gara ci sono 16 piloti per gara e la durata di una gara sara determinata dal suo numero di giri che in media è di 57.\\
+Quindi per ogni gara dovrò andare ad inserire: $16*57 = 912 \ \mathrm{giri.}$ Assumendo che un giocatore va a fare almeno 5 gare al giorno ho
+circa 4500 inserimenti di giri al giorno. \\
 
 Si assumono i seguenti volumi nella base di dati: 
 \begin{table}
@@ -394,15 +401,15 @@ Si assumono i seguenti volumi nella base di dati:
 \begin{tabular}{|l|c|r|}
     \hline
     \textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\ \hline
-    Risultato & R & 1000 \\ \hline
+    Risultato & R & 32000 \\ \hline
     Gara & E & 200 \\ \hline
-    Giro & R & 3000 \\ \hline
+    Giro & R & 1.824.000 \\ \hline
 \end{tabular}
 
 \vspace{0.3cm}
 \begin{minipage}{\linewidth}
     \textbf{Numero medio di giri per pilota in una gara stimato:}
-    3000/1000 = 3 giri in media.\\
+    1.824.000/32000 = 57 giri in media.\\
     Si nota anche che dato che \textbf{Giro} quando deve essere registrato deve andare a \textbf{scrivere} su tutti e tre i settori 
     avro sempre di base 3 accessi. 
 \end{minipage}
