@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS Campionato;
 DROP TABLE IF EXISTS Circuito;
 DROP TABLE IF EXISTS Regolamento;
  
--- Drop enum (Corretto GommaUtilizzata in Gomma)
+-- Drop enum
 DROP TYPE IF EXISTS CausaRitiro;
 DROP TYPE IF EXISTS Gomma;
 DROP TYPE IF EXISTS CondizioniMeteo;
@@ -34,149 +34,155 @@ CREATE TYPE TipoCircuito AS ENUM ('Cittadino', 'Permanente', 'Misto');
 CREATE TYPE CondizioniMeteo AS ENUM ('Soleggiato', 'Nuvoloso', 'Pioggia');
 CREATE TYPE Gomma AS ENUM ('Soft', 'Medium', 'Hard', 'Intermedie', 'Wet');
 CREATE TYPE CausaRitiro AS ENUM ('Incidente', 'Guasto meccanico', 'Squalifica', 'Abbandono');
-
+ 
 -- ============================================================
 -- Creazione Tabelle
 -- ============================================================
-
+ 
 CREATE TABLE Regolamento (
-    Versione   FLOAT   PRIMARY KEY,
-    PesoMax   FLOAT   NOT NULL,
-    PesoMin   FLOAT   NOT NULL,
+    Versione        FLOAT     PRIMARY KEY,
+    PesoMax         FLOAT     NOT NULL,
+    PesoMin         FLOAT     NOT NULL,
     DRSConsentito   BOOLEAN   NOT NULL,
-    DataRilascio   DATE   NOT NULL,
+    DataRilascio    DATE      NOT NULL,
     CHECK (PesoMax > 0 AND PesoMin > 0),
     CHECK (PesoMax > PesoMin)
 );
-
+ 
 CREATE TABLE Campionato (
-    Nome   VARCHAR(30)   NOT NULL,
-    Anno   INT   NOT NULL,
-    BudgetCap   INT   NOT NULL,
-    Montepremi   INT   NOT NULL,
-    Regolamento   FLOAT   NOT NULL,
+    Nome        VARCHAR(30)   NOT NULL,
+    Anno        INT           NOT NULL,
+    BudgetCap   INT           NOT NULL,
+    Montepremi  INT           NOT NULL,
+    Regolamento FLOAT         NOT NULL,
     PRIMARY KEY (Nome, Anno),
     CHECK (Anno >= 1950),
     CHECK (BudgetCap >= 0),
     CHECK (Montepremi >= 0),
-    FOREIGN KEY (Regolamento) REFERENCES Regolamento(Versione)
+    -- Blocca la cancellazione del regolamento se usato da un campionato
+    FOREIGN KEY (Regolamento) REFERENCES Regolamento(Versione) ON UPDATE CASCADE ON DELETE RESTRICT
 );
-
+ 
 CREATE TABLE Circuito (
-    Nome   VARCHAR(20)   PRIMARY KEY,
-    Paese   VARCHAR(20)   NOT NULL,
-    Lunghezza   FLOAT   NOT NULL,
-    NumeroCurve   INT   NOT NULL,
-    Tipo   TipoCircuito   NOT NULL,
-    CHECK (NumeroCurve >= 1),
+    Nome         VARCHAR(20)   PRIMARY KEY,
+    Paese        VARCHAR(20)   NOT NULL,
+    Lunghezza    FLOAT         NOT NULL,
+    NCurve  INT           NOT NULL,
+    Tipo         TipoCircuito  NOT NULL,
+    CHECK (NCurve >= 1),
     CHECK (Lunghezza > 0)
 );
-
+ 
 CREATE TABLE Gara (
-    Data   DATE   NOT NULL,
-    Circuito   VARCHAR(20)   NOT NULL,
-    Meteo   CondizioniMeteo   NOT NULL,
-    Temperatura   FLOAT   NOT NULL,
-    CampionatoNome   VARCHAR(30)   NOT NULL,
-    CampionatoAnno   INT   NOT NULL,
+    Data           DATE          NOT NULL,
+    Circuito       VARCHAR(20)   NOT NULL,
+    Meteo          CondizioniMeteo NOT NULL,
+    Temperatura    FLOAT         NOT NULL,
+    CampionatoNome VARCHAR(30)   NOT NULL,
+    CampionatoAnno INT           NOT NULL,
     PRIMARY KEY (Data, Circuito),
-    FOREIGN KEY (CampionatoNome, CampionatoAnno) REFERENCES Campionato(Nome, Anno),
-    FOREIGN KEY (Circuito) REFERENCES Circuito(Nome)
+    FOREIGN KEY (CampionatoNome, CampionatoAnno) REFERENCES Campionato(Nome, Anno) ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (Circuito) REFERENCES Circuito(Nome) ON UPDATE CASCADE ON DELETE RESTRICT
 );
-
+ 
 CREATE TABLE Scuderia (
-    Nome   VARCHAR(20)   PRIMARY KEY,
-    Sede   VARCHAR(20)   NOT NULL
+    Nome  VARCHAR(20)   PRIMARY KEY,
+    Sede  VARCHAR(20)   NOT NULL
 );
-
+ 
 CREATE TABLE Vettura (
     Modello   VARCHAR(10)   PRIMARY KEY,
-    Peso   FLOAT   NOT NULL,
-    Accelerazione   FLOAT   NOT NULL,
-    Velocita   FLOAT   NOT NULL,
-    Scuderia   VARCHAR(20)   NOT NULL,
+    Peso      FLOAT         NOT NULL,
+    Accelerazione FLOAT     NOT NULL,
+    Velocita  FLOAT         NOT NULL,
+    Scuderia  VARCHAR(20)   NOT NULL,
     CHECK (Peso > 0 AND Accelerazione > 0 AND Velocita > 0),
-    FOREIGN KEY (Scuderia) REFERENCES Scuderia(Nome)
+    FOREIGN KEY (Scuderia) REFERENCES Scuderia(Nome) ON UPDATE CASCADE ON DELETE RESTRICT
 );
-
+ 
 CREATE TABLE Persona (
-    CF   VARCHAR(16)   PRIMARY KEY,
-    Nome   VARCHAR(20)   NOT NULL,
-    Cognome   VARCHAR(20)   NOT NULL,
-    Nazionalita   VARCHAR(20)   NOT NULL
+    CF           VARCHAR(16)   PRIMARY KEY,
+    Nome         VARCHAR(20)   NOT NULL,
+    Cognome      VARCHAR(20)   NOT NULL,
+    Nazionalita  VARCHAR(20)   NOT NULL
 );
-
+ 
 CREATE TABLE Pilota (
-    Persona   VARCHAR(16)   PRIMARY KEY,
-    StileGuida   StileGuida   NOT NULL,
-    Esperienza   INT   NOT NULL,
+    Persona     VARCHAR(16)   PRIMARY KEY,
+    StileGuida  StileGuida    NOT NULL,
+    Esperienza  INT           NOT NULL,
     CHECK (Esperienza >= 0),
-    FOREIGN KEY (Persona) REFERENCES Persona(CF)
+    -- Relazione ISA: Se elimino la persona, elimino automaticamente il profilo pilota
+    FOREIGN KEY (Persona) REFERENCES Persona(CF) ON UPDATE CASCADE ON DELETE CASCADE
 );
-
+ 
 CREATE TABLE Tecnico (
-    Persona   VARCHAR(16)   PRIMARY KEY,
-    Specializzazione   Specializzazione   NOT NULL,
-    FOREIGN KEY (Persona) REFERENCES Persona(CF)
+    Persona          VARCHAR(16)      PRIMARY KEY,
+    Specializzazione Specializzazione NOT NULL,
+    -- Relazione ISA: Se elimino la persona, elimino automaticamente il profilo tecnico
+    FOREIGN KEY (Persona) REFERENCES Persona(CF) ON UPDATE CASCADE ON DELETE CASCADE
 );
-
+ 
 CREATE TABLE Contratto (
-    Persona   VARCHAR(16)   NOT NULL,
-    Scuderia   VARCHAR(20)   NOT NULL,
-    AnnoInizio   INT   NOT NULL,
-    AnnoFine   INT,
-    Stipendio   INT   NOT NULL,
+    Persona     VARCHAR(16)   NOT NULL,
+    Scuderia    VARCHAR(20)   NOT NULL,
+    AnnoInizio  INT           NOT NULL,
+    AnnoFine    INT,
+    Stipendio   INT           NOT NULL,
     PRIMARY KEY (Persona, Scuderia, AnnoInizio),
     CHECK (AnnoFine >= AnnoInizio),
     CHECK (Stipendio >= 0),
-    FOREIGN KEY (Persona) REFERENCES Persona(CF),
-    FOREIGN KEY (Scuderia) REFERENCES Scuderia(Nome)
+    FOREIGN KEY (Persona) REFERENCES Persona(CF) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (Scuderia) REFERENCES Scuderia(Nome) ON UPDATE CASCADE ON DELETE RESTRICT
 );
-
+ 
 CREATE TABLE Partecipazione (
-    Pilota   VARCHAR(16)   NOT NULL,
-    Vettura   VARCHAR(10)   NOT NULL,
-    GaraData   DATE   NOT NULL,
-    GaraCircuito   VARCHAR(20)   NOT NULL,
-    Tecnico    VARCHAR(16)   NOT NULL,
-    PosPartenza   INT   NOT NULL,
-    Note   VARCHAR(100),
+    Pilota       VARCHAR(16)   NOT NULL,
+    Vettura      VARCHAR(10)   NOT NULL,
+    GaraData     DATE          NOT NULL,
+    GaraCircuito VARCHAR(20)   NOT NULL,
+    Tecnico      VARCHAR(16)   NOT NULL,
+    PosPartenza  INT           NOT NULL,
+    Note         VARCHAR(100),
     PRIMARY KEY (Pilota, Vettura, GaraCircuito, GaraData),
-    FOREIGN KEY (Pilota) REFERENCES Pilota(Persona),
-    FOREIGN KEY (Vettura) REFERENCES Vettura(Modello),
-    FOREIGN KEY (GaraData, GaraCircuito) REFERENCES Gara(Data, Circuito),
-    FOREIGN KEY (Tecnico) REFERENCES Tecnico(Persona),
+    -- Se un pilota o una gara vengono rimossi, le relative partecipazioni decadono a cascata
+    FOREIGN KEY (Pilota) REFERENCES Pilota(Persona) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (Vettura) REFERENCES Vettura(Modello) ON UPDATE CASCADE ON DELETE RESTRICT,
+    FOREIGN KEY (GaraData, GaraCircuito) REFERENCES Gara(Data, Circuito) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (Tecnico) REFERENCES Tecnico(Persona) ON UPDATE CASCADE ON DELETE RESTRICT,
     CHECK (PosPartenza > 0),
     UNIQUE (PosPartenza, GaraCircuito, GaraData)
 );
-
+ 
 CREATE TABLE Giro (
-    Pilota   VARCHAR(16)   NOT NULL,
-    GaraData   DATE   NOT NULL,
-    GaraCircuito   VARCHAR(20)   NOT NULL,
-    NGiro   INT   NOT NULL,
-    Settore1   TIME   NOT NULL DEFAULT '00:00:00',
-    Settore2   TIME   NOT NULL DEFAULT '00:00:00',
-    Settore3   TIME   NOT NULL DEFAULT '00:00:00',
-    GommaUsata   Gomma   NOT NULL,
+    Pilota       VARCHAR(16)   NOT NULL,
+    GaraData     DATE          NOT NULL,
+    GaraCircuito VARCHAR(20)   NOT NULL,
+    NGiro        INT           NOT NULL,
+    Settore1     TIME          NOT NULL DEFAULT '00:00:00',
+    Settore2     TIME          NOT NULL DEFAULT '00:00:00',
+    Settore3     TIME          NOT NULL DEFAULT '00:00:00',
+    GommaUsata   Gomma         NOT NULL,
     PRIMARY KEY (Pilota, GaraData, GaraCircuito, NGiro),
     CHECK (NGiro >= 1),
-    FOREIGN KEY (Pilota) REFERENCES Pilota(Persona),
-    FOREIGN KEY (GaraData, GaraCircuito) REFERENCES Gara(Data, Circuito)
+    -- Dati storici legati direttamente alla presenza di pilota e gara
+    FOREIGN KEY (Pilota) REFERENCES Pilota(Persona) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (GaraData, GaraCircuito) REFERENCES Gara(Data, Circuito) ON UPDATE CASCADE ON DELETE CASCADE
 );
-
+ 
 CREATE TABLE Risultato (
-    Pilota   VARCHAR(16)   NOT NULL,
-    GaraData   DATE   NOT NULL,
-    GaraCircuito   VARCHAR(20)   NOT NULL,
-    Posizione   INT,
-    Punti   INT,
-    Ritiro   CausaRitiro,
+    Pilota       VARCHAR(16)   NOT NULL,
+    GaraData     DATE          NOT NULL,
+    GaraCircuito VARCHAR(20)   NOT NULL,
+    Posizione    INT,
+    Punti        INT,
+    Ritiro       CausaRitiro,
     PRIMARY KEY (Pilota, GaraData, GaraCircuito),
     CHECK (Posizione >= 1),
     CHECK (Punti >= 0),
-    FOREIGN KEY (Pilota) REFERENCES Pilota(Persona),
-    FOREIGN KEY (GaraData, GaraCircuito) REFERENCES Gara(Data, Circuito)
+    -- Se un pilota o una gara non esistono più, scompare anche il rispettivo piazzamento
+    FOREIGN KEY (Pilota) REFERENCES Pilota(Persona) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (GaraData, GaraCircuito) REFERENCES Gara(Data, Circuito) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- ============================================================
@@ -197,7 +203,7 @@ INSERT INTO Campionato (Nome, Anno, BudgetCap, Montepremi, Regolamento) VALUES
 ('Formula 1 World Championship', 2025, 140000000, 110000000, 4.0),
 ('Formula 1 World Championship', 2026, 142000000, 115000000, 5.0);
 
-INSERT INTO Circuito (Nome, Paese, Lunghezza, NumeroCurve, Tipo) VALUES
+INSERT INTO Circuito (Nome, Paese, Lunghezza, NCurve, Tipo) VALUES
 ('Sakhir', 'Bahrain', 5.412, 15, 'Permanente'),
 ('Jeddah', 'Arabia Saudita', 6.174, 27, 'Cittadino'),
 ('Albert Park', 'Australia', 5.278, 14, 'Cittadino'),
