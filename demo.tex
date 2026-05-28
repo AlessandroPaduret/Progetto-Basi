@@ -2,10 +2,27 @@
 
 \usepackage{graphicx}
 \usepackage{array}
-\usepackage{tabularx}
+\usepackage{ltablex}
 \usepackage{ragged2e}
 \usepackage[top=0.8in, bottom=0.8in, left=0.9in, right=0.9in]{geometry}
 \usepackage[hidelinks]{hyperref}
+\usepackage{titlesec}
+
+\titleclass{\subsubsubsection}{straight}[\subsubsection]
+\newcounter{subsubsubsection}[subsubsection]
+\renewcommand{\thesubsubsubsection}{\thesubsubsection.\arabic{subsubsubsection}}
+\titleformat{\subsubsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
+\titlespacing*{\subsubsubsection}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+\makeatletter
+\def\toclevel@subsubsubsection{4} % Livello numerico 4
+\def\l@subsubsubsection{\@dottedtocline{4}{7.0em}{4.1em}} % Rientro nell'indice e punti di sospensione
+\makeatother
+\setcounter{secnumdepth}{4} 
+\setcounter{tocdepth}{4}
+\keepXColumns
+\newcolumntype{C}[1]{>{\Centering\arraybackslash\hsize=#1\hsize\linewidth=\hsize}X}
+\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash\hsize=#1\hsize\linewidth=\hsize}X}
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
 
 \renewcommand{\contentsname}{Indice}
 \newcommand{\invio}{\hspace{0pt}\\}
@@ -33,7 +50,7 @@ Alessandro Paduret (2150445) \hfill Stefano Andreas Marian Ghetu (2103473)
 
 % pagina 2
 \newpage
-\thispagestyle{plain}
+\thispagestyle{plain} 
 \vspace*{\fill}
 \tableofcontents
 \vspace*{\fill}
@@ -94,7 +111,6 @@ Una persona è legata a una scuderia tramite un \textbf{Contratto}, descritto da
     \item Il \textbf{Stipendio} percepito.
 \end{itemize}
 
-% pagina 4
 \textbf{Vettura}.
 Ogni scuderia sviluppa una o più vetture nel corso delle stagioni. Una vettura
 è descritta da:
@@ -105,6 +121,7 @@ Ogni scuderia sviluppa una o più vetture nel corso delle stagioni. Una vettura
     \item La \textbf{Velocità} massima che il veicolo può raggiungere.
 \end{itemize}
 
+% pagina 4
 \textbf{Circuito}.
 I circuiti sono le piste su cui si svolgono le sessioni di gara. Sono descritti da:
 \begin{itemize}
@@ -138,7 +155,6 @@ combinazione di \textbf{Nome} e \textbf{Anno}, ed è descritto da:
     \item Il \textbf{Montepremi} totale distribuito alle scuderie a fine stagione.
 \end{itemize}
 
-% pagina 5
 \textbf{Gara}.
 Una sessione rappresenta una singola attività di gara su un circuito. È descritta da:
 \begin{itemize}
@@ -162,12 +178,15 @@ descritto da:
           (Incidente, Guasto meccanico, Squalifica, Abbandono).
 \end{itemize}
 
-\textbf{Partecipazione}. È identificato univocamente dalla
+\textbf{Partecipazione}. La partecipazione modella l'iscrizione e la presenza effettiva di un pilota e della sua rispettiva vettura a una specifica gara del campionato.
+ È identificato univocamente dalla
 combinazione di \textbf{Pilota} e \textbf{Gara}, ed è descritto da:
 \begin{itemize}
     \item La \textbf{Posizione di Partenza} del pilota in una determinata gara.
 \end{itemize}
+\newpage
 
+%pagina 5
 \section{Progettazione Concettuale}
 \subsection{Lista Entità}
 
@@ -223,9 +242,9 @@ Il database è formato dalle seguenti entità:
         \begin{itemize}
             \item Lunghezza $>$ 0
         \end{itemize}
-        \item NumeroCurve: int
+        \item NCurve: int
         \begin{itemize}
-            \item NumeroCurve $\ge$ 1
+            \item NCurve $\ge$ 1
         \end{itemize}
         \item Tipo: enum (Cittadino, Permanente, Misto)
     \end{itemize}
@@ -281,134 +300,21 @@ Il database è formato dalle seguenti entità:
 \subsection{Lista Relazioni}
 Il database è formato dalle seguenti relazioni:
 
-\begin{itemize}
-
-    \item \textbf{Persona-Scuderia}: Contratto (1:N)
-    \begin{itemize}
-        \item Una persona firma contratti con una sola scuderia nel tempo
-        \item Una scuderia ha più persone sotto contratto
-        \begin{itemize}
-            \item AnnoInizio: int
-            \item AnnoFine: int
-            \begin{itemize}
-                \item AnnoFine $\ge$ AnnoInizio
-            \end{itemize}
-            \item Stipendio: int
-            \begin{itemize}
-                \item Stipendio $\ge$ 0
-            \end{itemize}
-        \end{itemize}
-    \end{itemize}
-
-    \item \textbf{Scuderia-Vettura}: Appartiene (1:N)
-    \begin{itemize}
-        \item Una scuderia possiede più vetture nel corso delle stagioni
-        \item Una vettura appartiene a una sola scuderia
-    \end{itemize}
-
-    \item \textbf{Campionato-Regolamento}: Adozione (1:1)
-    \begin{itemize}
-        \item Un campionato adotta una sola versione del regolamento
-        \item Una versione del regolamento è adottata da un solo campionato
-    \end{itemize}
-
-    \item \textbf{Campionato-Gara}: Inclusione (1:N)
-    \begin{itemize}
-        \item Un campionato include più gare nel corso della stagione
-        \item Una gara appartiene a un solo campionato
-    \end{itemize}
-
-    \item \textbf{Circuito-Gara}: Svolgimento (1:N)
-    \begin{itemize}
-        \item Un circuito ospita lo svolgimento di più gare nel tempo
-        \item Una gara si svolge su un solo circuito
-    \end{itemize}
-
-    \item \textbf{Pilota-Partecipazione}: Iscrizione (1:N)
-    \begin{itemize}
-        \item Un pilota può iscriversi a più partecipazioni (gare) nel tempo
-        \item Una specifica partecipazione fa riferimento a un solo pilota iscritto
-    \end{itemize}
-
-    \item \textbf{Vettura-Partecipazione}: Utilizzo (1:N)
-    \begin{itemize}
-        \item Una vettura può essere utilizzata per più partecipazioni
-        \item Una specifica partecipazione prevede l'utilizzo di una sola vettura
-    \end{itemize}
-
-    \item \textbf{Gara-Partecipazione}: Riferimento (1:N)
-    \begin{itemize}
-        \item Una gara ha come riferimento più partecipazioni di piloti e vetture
-        \item Una specifica partecipazione si riferisce a una sola gara
-    \end{itemize}
-
-    \item \textbf{Pilota-Gara}: Giro (N:M)
-    \begin{itemize}
-        \item Un pilota percorre più giri durante una gara
-        \item Una gara registra i giri di tutti i piloti partecipanti
-        \begin{itemize}
-            \item NumeroGiro: int
-            \begin{itemize}
-                \item NumeroGiro $\ge$ 1
-            \end{itemize}
-            \item TempoGiro: time
-            \item Settore1: time
-            \item Settore2: time
-            \item Settore3: time
-            \item GommaUsata: enum (Soft, Medium, Hard, Intermedie, Wet)
-        \end{itemize}
-    \end{itemize}
-
-    \item \textbf{Pilota-Gara}: Risultato (N:M)
-    \begin{itemize}
-        \item Un pilota ottiene un risultato finale per ogni gara a cui partecipa
-        \item Una gara registra il risultato finale di ogni pilota partecipante
-        \begin{itemize}
-            \item Posizione: int
-            \begin{itemize}
-                \item Posizione $\ge$ 1
-                \item Posizione ammette valore nullo in caso di ritiro
-            \end{itemize}
-            \item Punti: int
-            \begin{itemize}
-                \item Punti $\ge$ 0
-                \item Punti ammette valore nullo in caso di ritiro
-            \end{itemize}
-            \item CausaSqualifica: enum (Incidente, Guasto meccanico, Squalifica, Abbandono)
-            \begin{itemize}
-                \item CausaSqualifica ammette valore nullo
-            \end{itemize}
-        \end{itemize}
-    \end{itemize}
-    \item \textbf{Tecnico-Partecipazione}: Controllo (1:N)
-    \begin{itemize}
-       \item Un tecnico può controllare o supervisionare più partecipazioni nel tempo (più combinazioni di vetture e gare)
-        \item Una specifica partecipazione (ovvero l'impiego di una determinata vettura in una determinata gara) viene controllata da un solo tecnico\begin{itemize}
-            \item Note: varchar
-            \begin{itemize}
-                \item Note ammette valore nullo
-            \end{itemize}
-        \end{itemize}
-    \end{itemize}
-
-\end{itemize}
-
-
-\begin{table}[!ht]
-\noindent
 \setlength{\tabcolsep}{4pt} 
 
-% Definiamo i tipi di colonna con la correzione geometrica standard
-\newcolumntype{C}[1]{>{\Centering\arraybackslash\hsize=#1\hsize\linewidth=\hsize}X}
-\newcolumntype{L}[1]{>{\RaggedRight\arraybackslash\hsize=#1\hsize\linewidth=\hsize}X}
+% Forziamo ltablex a mantenere il comportamento originale delle colonne X di tabularx
+\keepXColumns
 
 \renewcommand{\tabularxcolumn}[1]{m{#1}} 
 
-% TRUCCO DEFINITIVO: Forziamo la tabella a stare dentro la riga di testo, assorbendo il micro-sforo
-\resizebox{\textwidth}{!}{%
 \begin{tabularx}{\textwidth}{| C{1.10} | C{0.85} | L{1.25} | C{0.80} |}
     \hline
     \textbf{Relazione} & \textbf{Entità Coinvolte} & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
+    \endfirsthead % <--- Intestazione della PRIMA pagina
+    
+    \hline
+    \textbf{Relazione} & \textbf{Entità Coinvolte} & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
+    \endhead % <--- Intestazione che si ripeterà sulle pagine SUCCESSIVE
     
     Contratto (N:N) & Persona(1:N) - Scuderia(1:N) & 
     -- Una persona firma contratti con una sola scuderia alla volta. \newline
@@ -420,16 +326,16 @@ Il database è formato dalle seguenti relazioni:
     -- Una vettura appartiene a una sola scuderia. &  / \\ \hline
 
     Utilizzo(0,N) & Vettura(0,N) - \newline Partecipazione(1,1) & 
-    -- \newline
-    -- &  / \\ \hline
+    -- Una vettura può essere utilizzata in più partecipazioni nel tempo. \newline
+    -- Una specifica partecipazione prevede l'utilizzo di una sola vettura. &  / \\ \hline
 
     Iscrizione(1,N) & Pilota(1,N) - \newline Partecipazione(1,1) & 
-    -- \newline
-    -- & Note \\ \hline
+    -- Un pilota può iscriversi a più partecipazioni nel corso della stagione. \newline
+    -- Una specifica partecipazione fa riferimento a un solo pilota iscritto. &  / \\ \hline
 
     Riferimento(1,N) & Gara(1,N) - \newline Partecipazione(1,1) & 
-    -- \newline
-    -- &  / \\ \hline
+    -- Una gara ha più partecipazioni di piloti e vetture associate. \newline
+    -- Una specifica partecipazione si riferisce a una sola gara. &  / \\ \hline
 
     Svolgimento(1,N) & Gara(1,1) - Circuito(1,N) & 
     -- Un circuito ospita lo svolgimento di più gare nel tempo. \newline
@@ -442,7 +348,7 @@ Il database è formato dalle seguenti relazioni:
     Risultato(N,M) & Pilota(0,N) - \newline Gara(0,N) & 
     -- Un pilota ottiene un risultato finale per ogni gara a cui partecipa. \newline
     -- Una gara registra il risultato finale di ogni pilota partecipante. & 
-    Posizione, \newline Punti, \newline CausaSqualifica \\ \hline
+    Posizione, \newline Punti, \newline Ritiro \\ \hline
 
     Giro(N,M) & Pilota(1,N) - \newline Gara(1,N) & 
     -- Un pilota percorre più giri durante una gara. \newline
@@ -450,35 +356,157 @@ Il database è formato dalle seguenti relazioni:
     NumeroGiro, \newline TempoGiro, \newline Settore1, \newline Settore2, \newline Settore3 \\ \hline
 
     Controlla(1,N) & Tecnico(0,N) - \newline Partecipazione(1,1) & 
-    -- \newline
-    -- &  Note \\ \hline
-\end{tabularx}% <--- Non togliere questo % serve a non creare spazi spuri
-}
-\end{table}
+    -- Un tecnico può controllare più partecipazioni nel tempo, oppure nessuna. \newline
+    -- Un veicolo di una specifica partecipazione viene sempre controllata da un tecnico. &  Note \\ \hline
+\end{tabularx}
 
-\newpage
 \subsection{Lista Generalizzazioni}
 \begin{itemize}
-    \item Persona è una generalizzazione parziale ed exclusiva di Pilota e Tecnico
+    \item Persona è una generalizzazione parziale ed esclusiva di Pilota e Tecnico
 \end{itemize}
 
-\clearpage
+\newpage
+%pagina 8
 \subsection{Schema E-R}
 \begin{figure}[!ht]
     \centering
     \makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{er.png}}
 \end{figure}
-\invio
+
 
 \section{Progettazione Logica}
-
 \subsection{Analisi delle Ridondanze}
+Analizzando lo schema E-R e la successiva traduzione relazionale, si nota una potenziale ridondanza informativa tra le 
+entità/relazioni Giro e Risultato. La posizione finale presente in Risultato potrebbero infatti 
+essere teoricamente derivati dal calcolo e dalla somma dei tempi parziali (Settore1, Settore2, Settore3) 
+di tutti i giri effettuati da ciascun pilota durante una determinata gara. Riassumendo le operazioni:
+\begin{itemize}
+    \item Operazione 1 (100 volte al giorno): Aggiunta di un nuovo record in Giro.
+    \item Operazione 2 (30 volte al giorno): Visualizzazione del riepilogo giornaliero delle classifiche.
+\end{itemize}
+
+Si assumono i seguenti volumi nella base di dati: 
+\begin{table}
+    \centering
+\setlength{\tabcolsep}{12pt} % Ottimizza lo spazio interno delle colonne
+\renewcommand{\arraystretch}{1.2} % Rende la tabella più leggibile verticalmente
+
+\begin{tabular}{|l|c|r|}
+    \hline
+    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\ \hline
+    Risultato & R & 1000 \\ \hline
+    Gara & E & 200 \\ \hline
+    Giro & R & 3000 \\ \hline
+\end{tabular}
+
+\vspace{0.3cm}
+\begin{minipage}{\linewidth}
+    \textbf{Numero medio di giri per pilota in una gara stimato:}
+    3000/1000 = 3 giri in media.\\
+    Si nota anche che dato che \textbf{Giro} quando deve essere registrato deve andare a \textbf{scrivere} su tutti e tre i settori 
+    avro sempre di base 3 accessi. 
+\end{minipage}
+\end{table}
+
+\newpage
+\subsubsection{Confronto delle Strategie}
+\subsubsubsection{Strategia A: Con Ridondanza}
+\vspace{0.3cm}
+\noindent
+\textbf{Tabella degli Accessi - Operazione 1}a
+\vspace{0.1cm}
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo} \\ \hline
+    Giro & R & 3 & S \rlap{\hspace{30pt}$\times\,100$} \\ \hline
+    Gara & E & 1 & L \rlap{\hspace{30pt}$\times\,100$} \\ \hline
+\end{tabular}
+\end{center}
+
+\vspace{0.1cm}
+\noindent
+\textbf{Costo Operazione 1:} $2 \times (3\times100) + 100= \mathbf{700}$ accessi/giorno.
+
+\vspace{0.5cm}
+\noindent
+\textbf{Tabella degli Accessi - Operazione 2}
+\vspace{0.1cm}
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo} \\ \hline
+    Risultato & R & 1 & L \rlap{\hspace{30pt}$\times\,30$} \\ \hline
+    Gara & E & 1 & L \rlap{\hspace{30pt}$\times\,30$} \\ \hline
+\end{tabular}
+\end{center}
+
+\vspace{0.1cm}
+\noindent
+\textbf{Costo Operazione 2:} $2 \times 30 = \mathbf{60}$ accessi/giorno.
+
+\vspace{0.3cm}
+\noindent
+\textbf{Costo Totale Strategia A:} $700 + 60 = \mathbf{760}$ accessi/giorno.
+
+\subsubsubsection{Strategia B: Senza Ridondanza}
+\vspace{0.3cm}
+\noindent
+\textbf{Tabella degli Accessi - Operazione 1}
+\vspace{0.1cm}
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo} \\ \hline
+    Giro & R & 3 & S \rlap{\hspace{30pt}$\times\,100$} \\ \hline
+    Gara & E & 1 & L \rlap{\hspace{30pt}$\times\,100$} \\ \hline
+\end{tabular}
+\end{center}
+
+\vspace{0.1cm}
+\noindent
+\textbf{Costo Operazione 1:} $2 \times (3\times100) + 100= \mathbf{700}$ accessi/giorno.
+
+\vspace{0.5cm}
+\noindent
+\textbf{Tabella degli Accessi - Operazione 2}
+\vspace{0.1cm}
+\begin{center}
+\renewcommand{\arraystretch}{1.2}
+\begin{tabular}{|l|c|c|c|}
+    \hline
+    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo} \\ \hline
+    Giro & R & 9 & L \rlap{\hspace{30pt}$\times\,30$} \\ \hline
+    Gara & E & 1 & L \rlap{\hspace{30pt}$\times\,30$} \\ \hline
+\end{tabular}
+\end{center}
+
+\vspace{0.1cm}
+\noindent
+\textbf{Costo Operazione 2:} $(9\times30) + 30 = \mathbf{300}$ accessi/giorno.\\
+Qua gli accessi sono 9 perche ci sono i 3 accessi base si Giro $\times$ il numero medio di giri che è 3.
+
+\vspace{0.3cm}
+\noindent
+\textbf{Costo Totale Strategia B:} $700 + 300 = \mathbf{1000}$ accessi/giorno. \\
+\subsubsection{Analisi Risultati}
+Andando quindi a controllare i due casi ho:
+\begin{itemize}
+    \item Con ridondanza il costo è: $\mathbf{760}$ accessi/giorno
+    \item Senza ridondanza il costo è: $\mathbf{1000}$ accessi/giorno
+\end{itemize}
+Possiamo notare che il costo senza ridondanza è maggiore rispetto a quella con ridondanza, quindi la posizione in risultato deve rimanere.
+
+
 \subsection{Eliminazione delle Generalizzazioni}
 \subsection{Diagramma E-R Ristrutturato}
 \subsection{Schema Relazionale}
 Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome degli attributi indica quelli che ammettono valori nulli. 
 \begin{itemize}
-    \item Persona (\underline{CF}, Nome, Cognome, Nazionalita)
+\item Persona (\underline{CF}, Nome, Cognome, Nazionalita)
     
     \item Pilota (\underline{Persona}, Esperienza, StileGuida)
     \begin{itemize}
@@ -490,7 +518,7 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
         \item Tecnico.Persona $\to$ Persona.CF 
     \end{itemize}
 
-    \item Contratto (\underline{Persona, Scuderia}, Stipendio, AnnoInizio, AnnoFine)
+    \item Contratto (\underline{Persona, Scuderia, AnnoInizio}, Stipendio, AnnoFine*)
     \begin{itemize}
         \item Contratto.Persona $\to$ Persona.CF
         \item Contratto.Scuderia $\to$ Scuderia.Nome 
@@ -510,7 +538,7 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
         \item Campionato.Regolamento $\to$ Regolamento.Versione
     \end{itemize}
 
-    \item Circuito (\underline{Nome}, Paese, Lunghezza, N\_Curve, Tipo)
+    \item Circuito (\underline{Nome}, Paese, Lunghezza, NCurve, Tipo)
     
     \item Gara (\underline{Circuito, Data}, Temperatura, Meteo, CampionatoNome, CampionatoAnno)
     \begin{itemize}
@@ -519,14 +547,14 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
         \item Gara.CampionatoAnno $\to$ Campionato.Anno
     \end{itemize}
 
-    \item Giro (\underline{Pilota, GaraCircuito, GaraData}, Settore1, Settore2, Settore3, GommaUsata, NGiro)
+    \item Giro (\underline{Pilota, GaraCircuito, GaraData, NGiro}, Settore1, Settore2, Settore3, GommaUsata)
     \begin{itemize}
         \item Giro.Pilota $\to$ Pilota.Persona
         \item Giro.GaraData $\to$ Gara.Data
         \item Giro.GaraCircuito $\to$ Gara.Circuito
     \end{itemize}
 
-    \item Risultato (\underline{Pilota, GaraCircuito, GaraData}, Posizione, Punti, CausaSqualifica)
+    \item Risultato (\underline{Pilota, GaraCircuito, GaraData}, Posizione*, Punti*, Ritiro*)
     \begin{itemize}
         \item Risultato.Pilota $\to$ Pilota.Persona
         \item Risultato.GaraData $\to$ Gara.Data
@@ -539,6 +567,7 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
         \item Partecipazione.GaraData $\to$ Gara.Data
         \item Partecipazione.GaraCircuito $\to$ Gara.Circuito
         \item Partecipazione.Vettura $\to$ Vettura.Modello
+        \item Partecipazione.Tecnico $\to$ Tecnico.Persona
     \end{itemize}
 \end{itemize}
 
