@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <libpq-fe.h> // Libreria per PostgreSQL
 
-#define CONNECTION "user=postgres password=password dbname=progetto_basi host=localhost"
+#define CONNECTION "user=postgres password=password dbname=f1_db host=localhost"
 
 static void exit_with_error(PGconn *conn, const char *context) {
     if (context && *context) {

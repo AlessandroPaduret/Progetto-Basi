@@ -4,8 +4,8 @@ services:
     container_name: f1_simulator_db
     restart: always
     environment:
-      POSTGRES_USER: user_f1
-      POSTGRES_PASSWORD: password_f1
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
       POSTGRES_DB: f1_db
     ports:
       - "5432:5432"
