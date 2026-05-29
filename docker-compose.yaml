@@ -1,0 +1,19 @@
+services:
+  db-f1:
+    image: postgres:15-alpine
+    container_name: f1_simulator_db
+    restart: always
+    environment:
+      POSTGRES_USER: user_f1
+      POSTGRES_PASSWORD: password_f1
+      POSTGRES_DB: f1_db
+    ports:
+      - "5432:5432"
+    volumes:
+      # Mappa la cartella locale con gli script SQL nella cartella di init di Postgres
+      - ./init-db:/docker-entrypoint-initdb.d
+      # Volume per persistere i dati anche se spegni il container
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
