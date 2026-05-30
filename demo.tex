@@ -44,7 +44,7 @@ Alessandro Paduret (2150445) \hfill Stefano Andreas Marian Ghetu (2103473)
 
 % pagina 2
 \newpage
-\thispagestyle{plain} 
+\thispagestyle{plain}
 \vspace*{\fill}
 \tableofcontents
 \vspace*{\fill}
@@ -173,7 +173,7 @@ descritto da:
 \end{itemize}
 
 \textbf{Partecipazione}. La partecipazione modella l'iscrizione e la presenza effettiva di un pilota e della sua rispettiva vettura a una specifica gara del campionato.
- È identificato univocamente dalla
+È identificato univocamente dalla
 combinazione di \textbf{Pilota} e \textbf{Gara}, ed è caratterizzata da:
 \begin{itemize}
     \item La \textbf{Posizione di Partenza} del pilota in una determinata gara.
@@ -187,126 +187,126 @@ Il database è formato dalle seguenti entità:
 
 \begin{tabularx}{\linewidth}{| C{0.85} | L{1.10} | C{0.95} | C{0.90} |}
     \hline
-    \textbf{Entità} & \textbf{Descrizione} & \textbf{Attributi} & \textbf{Identificatore} \\ \hline
-    \endfirsthead 
-    
+    \textbf{Entità}                                                                                     & \textbf{Descrizione} & \textbf{Attributi} & \textbf{Identificatore} \\ \hline
+    \endfirsthead
+
     \hline
-    \textbf{Entità} & \textbf{Descrizione} & \textbf{Attributi} & \textbf{Identificatore} \\ \hline
-    \endhead 
-    
-    \textbf{Persona} & 
-    Rappresenta i membri fisici del personale della Formula 1 (padre di Pilota e Tecnico). & 
-    CF, Nome, Cognome, Nazionalità & 
-    CF \\ \hline
+    \textbf{Entità}                                                                                     & \textbf{Descrizione} & \textbf{Attributi} & \textbf{Identificatore} \\ \hline
+    \endhead
 
-    \textbf{Pilota} & 
-    Entità specializzata che estende Persona. Contiene i dati di guida e l'esperienza del pilota. & 
-    StileGuida, Esperienza & 
-    CF \\ \hline
+    \textbf{Persona}                                                                                    &
+    Rappresenta i membri fisici del personale della Formula 1 (padre di Pilota e Tecnico).              &
+    CF, Nome, Cognome, Nazionalità                                                                      &
+    CF                                                                                                                                                                        \\ \hline
 
-    \textbf{Tecnico} & 
-    Entità specializzata che estende Persona. Rappresenta gli ingegneri e i meccanici del team. & 
-    Specializzazione & 
-    CF \\ \hline
+    \textbf{Pilota}                                                                                     &
+    Entità specializzata che estende Persona. Contiene i dati di guida e l'esperienza del pilota.       &
+    StileGuida, Esperienza                                                                              &
+    CF                                                                                                                                                                        \\ \hline
 
-    \textbf{Scuderia} & 
-    Rappresenta i costruttori o i team ufficiali che partecipano al campionato. & 
-    Nome, Sede & 
-    Nome \\ \hline
+    \textbf{Tecnico}                                                                                    &
+    Entità specializzata che estende Persona. Rappresenta gli ingegneri e i meccanici del team.         &
+    Specializzazione                                                                                    &
+    CF                                                                                                                                                                        \\ \hline
 
-    \textbf{Vettura} & 
-    Rappresenta le monoposto sviluppate dalle scuderie per la competizione. & 
-    Modello, Peso, Accelerazione, Velocità & 
-    Modello \\ \hline
+    \textbf{Scuderia}                                                                                   &
+    Rappresenta i costruttori o i team ufficiali che partecipano al campionato.                         &
+    Nome, Sede                                                                                          &
+    Nome                                                                                                                                                                      \\ \hline
 
-    \textbf{Circuito} & 
-    Rappresenta gli autodromi o i tracciati cittadini dove si svolgono i gran premi. & 
-    Nome, Paese, Lunghezza, NCurve, Tipo & 
-    Nome \\ \hline
+    \textbf{Vettura}                                                                                    &
+    Rappresenta le monoposto sviluppate dalle scuderie per la competizione.                             &
+    Modello, Peso, Accelerazione, Velocità                                                              &
+    Modello                                                                                                                                                                   \\ \hline
 
-    \textbf{Regolamento} & 
-    Definisce i vincoli tecnici e i parametri legali imposti dalla federazione. & 
-    Versione, PesoMassimo, PesoMinimo, DRSConsentito, DataRilascio & 
-    Versione \\ \hline
+    \textbf{Circuito}                                                                                   &
+    Rappresenta gli autodromi o i tracciati cittadini dove si svolgono i gran premi.                    &
+    Nome, Paese, Lunghezza, NCurve, Tipo                                                                &
+    Nome                                                                                                                                                                      \\ \hline
 
-    \textbf{Campionato} & 
-    Rappresenta la stagione annuale competitiva regolata da un budget cap. & 
-    Nome, Anno, BudgetCap, Montepremi & 
-    Nome, Anno \\ \hline
+    \textbf{Regolamento}                                                                                &
+    Definisce i vincoli tecnici e i parametri legali imposti dalla federazione.                         &
+    Versione, PesoMassimo, PesoMinimo, DRSConsentito, DataRilascio                                      &
+    Versione                                                                                                                                                                  \\ \hline
 
-    \textbf{Gara} & 
-    Rappresenta il singolo evento del gran premio associato a un circuito e a una data. & 
-    IdGara, Data, CondizioniMeteo, TemperaturaAsfalto & 
-    IdGara, Data \\ \hline
+    \textbf{Campionato}                                                                                 &
+    Rappresenta la stagione annuale competitiva regolata da un budget cap.                              &
+    Nome, Anno, BudgetCap, Montepremi                                                                   &
+    Nome, Anno                                                                                                                                                                \\ \hline
 
-    \textbf{Partecipazione} & 
-    Entità di supporto che formalizza la presenza di un pilota e di una vettura a una determinata gara. & 
-    PosPartenza & 
-    / \\ \hline
+    \textbf{Gara}                                                                                       &
+    Rappresenta il singolo evento del gran premio associato a un circuito e a una data.                 &
+    IdGara, Data, CondizioniMeteo, TemperaturaAsfalto                                                   &
+    IdGara, Data                                                                                                                                                              \\ \hline
+
+    \textbf{Partecipazione}                                                                             &
+    Entità di supporto che formalizza la presenza di un pilota e di una vettura a una determinata gara. &
+    PosPartenza                                                                                         &
+    /                                                                                                                                                                         \\ \hline
 \end{tabularx}
 \newpage
 
 \subsection{Lista Relazioni}
 Il database è formato dalle seguenti relazioni:
 
-\setlength{\tabcolsep}{4pt} 
+\setlength{\tabcolsep}{4pt}
 
 % Forziamo ltablex a mantenere il comportamento originale delle colonne X di tabularx
 \keepXColumns
 
-\renewcommand{\tabularxcolumn}[1]{m{#1}} 
+\renewcommand{\tabularxcolumn}[1]{m{#1}}
 
 \begin{tabularx}{\textwidth}{| C{1.10} | C{0.85} | L{1.25} | C{0.80} |}
     \hline
-    \textbf{Relazione} & \textbf{Entità Coinvolte} & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
+    \textbf{Relazione}                                                                    & \textbf{Entità Coinvolte}                   & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
     \endfirsthead % <--- Intestazione della PRIMA pagina
-    
+
     \hline
-    \textbf{Relazione} & \textbf{Entità Coinvolte} & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
+    \textbf{Relazione}                                                                    & \textbf{Entità Coinvolte}                   & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
     \endhead % <--- Intestazione che si ripeterà sulle pagine SUCCESSIVE
-    
-    Contratto (N:N) & Persona(1:N) - Scuderia(1:N) & 
+
+    Contratto (N:N)                                                                       & Persona(1:N) - Scuderia(1:N)                &
     -- Una persona firma contratti con una sola scuderia alla volta. \newline
-    -- Una scuderia ha più persone sotto contratto. & 
-    AnnoInizio, \newline AnnoFine, \newline Stipendio \\ \hline
+    -- Una scuderia ha più persone sotto contratto.                                       &
+    AnnoInizio, \newline AnnoFine, \newline Stipendio                                                                                                                               \\ \hline
 
-    Appartenenza(1,N) & Scuderia(1,N) - Vettura(1,1) &
+    Appartenenza(1,N)                                                                     & Scuderia(1,N) - Vettura(1,1)                &
     -- Una scuderia possiede più vetture nel corso delle stagioni. \newline
-    -- Una vettura appartiene a una sola scuderia. &  / \\ \hline
+    -- Una vettura appartiene a una sola scuderia.                                        & /                                                                                       \\ \hline
 
-    Utilizzo(0,N) & Vettura(0,N) - \newline Partecipazione(1,1) & 
+    Utilizzo(0,N)                                                                         & Vettura(0,N) - \newline Partecipazione(1,1) &
     -- Una vettura può essere utilizzata in più partecipazioni nel tempo. \newline
-    -- Una specifica partecipazione prevede l'utilizzo di una sola vettura. &  / \\ \hline
+    -- Una specifica partecipazione prevede l'utilizzo di una sola vettura.               & /                                                                                       \\ \hline
 
-    Iscrizione(1,N) & Pilota(1,N) - \newline Partecipazione(1,1) & 
+    Iscrizione(1,N)                                                                       & Pilota(1,N) - \newline Partecipazione(1,1)  &
     -- Un pilota può iscriversi a più partecipazioni nel corso della stagione. \newline
-    -- Una specifica partecipazione fa riferimento a un solo pilota iscritto. &  / \\ \hline
+    -- Una specifica partecipazione fa riferimento a un solo pilota iscritto.             & /                                                                                       \\ \hline
 
-    Riferimento(1,N) & Gara(1,N) - \newline Partecipazione(1,1) & 
+    Riferimento(1,N)                                                                      & Gara(1,N) - \newline Partecipazione(1,1)    &
     -- Una gara ha più partecipazioni di piloti e vetture associate. \newline
-    -- Una specifica partecipazione si riferisce a una sola gara. &  / \\ \hline
+    -- Una specifica partecipazione si riferisce a una sola gara.                         & /                                                                                       \\ \hline
 
-    Svolgimento(1,N) & Gara(1,1) - Circuito(1,N) & 
+    Svolgimento(1,N)                                                                      & Gara(1,1) - Circuito(1,N)                   &
     -- Un circuito ospita lo svolgimento di più gare nel tempo. \newline
-    -- Una gara si svolge su un solo circuito. &  / \\ \hline
+    -- Una gara si svolge su un solo circuito.                                            & /                                                                                       \\ \hline
 
-    Inclusione(0,N) & Gara(1,1) - Campionato(1,N) & 
+    Inclusione(0,N)                                                                       & Gara(1,1) - Campionato(1,N)                 &
     -- Un campionato include più gare nel corso della stagione. \newline
-    -- Una gara appartiene a un solo campionato. &  / \\ \hline
+    -- Una gara appartiene a un solo campionato.                                          & /                                                                                       \\ \hline
 
-    Risultato(N,M) & Pilota(0,N) - \newline Gara(0,N) & 
+    Risultato(N,M)                                                                        & Pilota(0,N) - \newline Gara(0,N)            &
     -- Un pilota ottiene un risultato finale per ogni gara a cui partecipa. \newline
-    -- Una gara registra il risultato finale di ogni pilota partecipante. & 
-    Posizione, \newline Punti, \newline Ritiro \\ \hline
+    -- Una gara registra il risultato finale di ogni pilota partecipante.                 &
+    Posizione, \newline Punti, \newline Ritiro                                                                                                                                      \\ \hline
 
-    Giro(N,M) & Pilota(1,N) - \newline Gara(1,N) & 
+    Giro(N,M)                                                                             & Pilota(1,N) - \newline Gara(1,N)            &
     -- Un pilota percorre più giri durante una gara. \newline
-    -- Una gara registra i giri di tutti i piloti partecipanti. &  
-    NumeroGiro, \newline TempoGiro, \newline Settore1, \newline Settore2, \newline Settore3 \\ \hline
+    -- Una gara registra i giri di tutti i piloti partecipanti.                           &
+    NumeroGiro, \newline TempoGiro, \newline Settore1, \newline Settore2, \newline Settore3                                                                                         \\ \hline
 
-    Controlla(1,N) & Tecnico(0,N) - \newline Partecipazione(1,1) & 
+    Controlla(1,N)                                                                        & Tecnico(0,N) - \newline Partecipazione(1,1) &
     -- Un tecnico può controllare più partecipazioni nel tempo, oppure nessuna. \newline
-    -- Un veicolo di una specifica partecipazione viene sempre controllata da un tecnico. &  Note \\ \hline
+    -- Un veicolo di una specifica partecipazione viene sempre controllata da un tecnico. & Note                                                                                    \\ \hline
 \end{tabularx}
 
 \subsection{Lista Generalizzazioni}
@@ -437,7 +437,7 @@ Costo Totale con Ridondanza: $31500 + 160 = \mathbf{31660}$ accessi/giorno.
               \end{tabular}
           \end{center}
 
-          \vspace{0.1cm} 
+          \vspace{0.1cm}
           \noindent
           Costo Operazione 2: $(171\times80) + 80 = \mathbf{13.760}$ accessi/giorno.\\
           Qua gli accessi sono 171 perche ci sono i 3 accessi base si Giro $\times$ il numero medio di giri che è 57.
@@ -453,38 +453,24 @@ Andando quindi a controllare i due casi ho:
     \item Senza ridondanza il costo è: $\mathbf{45260}$ accessi/giorno.
 \end{itemize}
 Possiamo notare che il costo senza ridondanza è maggiore rispetto a quella con ridondanza di quasi 15000 accessi,
- quindi la posizione in risultato deve rimanere per mantenere l'efficenza che l'attributo porta con se.
-
-
-\vspace{0.3cm}
-\noindent
-\textbf{Costo Totale Strategia B:} $700 + 300 = \mathbf{1000}$ accessi/giorno. \\
-\subsubsection{Analisi Risultati}
-Andando quindi a controllare i due casi ho:
-\begin{itemize}
-    \item Con ridondanza il costo è: $\mathbf{760}$ accessi/giorno
-    \item Senza ridondanza il costo è: $\mathbf{1000}$ accessi/giorno
-\end{itemize}
-Possiamo notare che il costo senza ridondanza è maggiore rispetto a quella con ridondanza, quindi la posizione in risultato deve rimanere.
-
+quindi la posizione in risultato deve rimanere per mantenere l'efficenza che l'attributo porta con se.
 
 \subsection{Eliminazione delle Generalizzazioni}
-Persona: La generalizzazione totale ed esclusiva di Persona viene mantenuta nel database 
-relazionale attraverso la creazione di tabelle distinte per l'entità padre (Persona) e per 
-le entità figlie (Pilota e Tecnico), collegate tramite relazioni $1:1$. La scelta proviene 
-dal fatto che le entità condividono un nucleo importante di attributi comuni (CF, Nome, 
-Cognome, Nazionalità), ma presentano al contempo proprietà e associazioni pesantemente 
-distinte nel dominio della Formula 1 (il Pilota traccia i dati di guida e i tempi sul giro, 
-mentre il Tecnico è legato a mansioni di officina e sviluppo). Questo approccio basato su 
-relazioni $1:1$ è l'ideale poiché permette di normalizzare il database al massimo livello, 
-evitando la ridondanza dei dati ed eliminando completamente l'introduzione di campi nulli 
-che si avrebbero accorpando tutto in un'unica tabella. Inoltre, preservare l'entità Persona 
-facilita enormemente la scalabilità futura del sistema (ad esempio, l'aggiunta di nuove figure 
-come "Dirigente" o "Addetto Stampa") e permette di gestire in modo centralizzato operazioni 
-globali come il pagamento degli stipendi o le anagrafiche del personale, senza dover 
-interrogare tabelle separate. Si utilizza la chiave primaria di Persona (CF) come chiave 
-primaria e foreign key inserita con vincolo di unicità ($1:1$) in Pilota e Tecnico per 
-garantirne l'identità univoca.
+Le generalizzazioni presenti nel modello e rappresentate nel diagramma E-R sono
+state ristrutturate in modo da ridurre al minimo i valori nulli presenti e poter
+semplificare la successiva implementazione nel database in SQL:
+\begin{itemize}
+    \item
+          \textbf{Persona}: La generalizzazione totale ed esclusiva di Persona viene rimossa includendo le relazioni Qualifica
+          e Abilitazione, collegate tramite relazioni $1:1$. La scelta proviene dal fatto che sia l’entità Pilota che l’entità Tecnico
+          hanno delle relazioni particolari che renderebbero il database molto più complesso se entrambe fossero collassate in Persona
+          (sarebbe stato necessario controllare che le transazioni fossero effettuate tra Pilota e Tecnico, e avrebbe reso la relazione
+          Partecipazione-Persona 0:N invece che 1:N). Inoltre, questo metodo evita l’introduzione di ulteriori campi nulli ridondanti, separando le informazioni
+          univoche. Si utilizza la chiave di Persona per identificare univocamente anche Pilota e Tecnico.
+\end{itemize}
+
+\newpage
+
 \subsection{Diagramma E-R Ristrutturato}
 \begin{figure}[!ht]
     \centering
@@ -492,75 +478,74 @@ garantirne l'identità univoca.
 \end{figure}
 
 \subsection{Schema Relazionale}
-Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome degli attributi indica quelli che ammettono valori nulli. 
+Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome degli attributi indica quelli che ammettono valori nulli.
 \begin{itemize}
-\item Persona (\underline{CF}, Nome, Cognome, Nazionalita)
-    
+    \item Persona (\underline{CF}, Nome, Cognome, Nazionalita)
+
     \item Pilota (\underline{Persona}, Esperienza, StileGuida)
-    \begin{itemize}
-        \item Pilota.Persona $\to$ Persona.CF
-    \end{itemize}
+          \begin{itemize}
+              \item Pilota.Persona $\to$ Persona.CF
+          \end{itemize}
 
     \item Tecnico (\underline{Persona}, Specializzazione)
-    \begin{itemize}
-        \item Tecnico.Persona $\to$ Persona.CF 
-    \end{itemize}
+          \begin{itemize}
+              \item Tecnico.Persona $\to$ Persona.CF
+          \end{itemize}
 
     \item Contratto (\underline{Persona, Scuderia, AnnoInizio}, Stipendio, AnnoFine*)
-    \begin{itemize}
-        \item Contratto.Persona $\to$ Persona.CF
-        \item Contratto.Scuderia $\to$ Scuderia.Nome 
-    \end{itemize}
+          \begin{itemize}
+              \item Contratto.Persona $\to$ Persona.CF
+              \item Contratto.Scuderia $\to$ Scuderia.Nome
+          \end{itemize}
 
     \item Scuderia (\underline{Nome}, Sede)
-    
+
     \item Vettura (\underline{Modello}, Accelerazione, Velocità, Peso, Scuderia)
-    \begin{itemize}
-        \item Vettura.Scuderia $\to$ Scuderia.Nome
-    \end{itemize}
+          \begin{itemize}
+              \item Vettura.Scuderia $\to$ Scuderia.Nome
+          \end{itemize}
 
     \item Regolamento (\underline{Versione}, PesoMin, PesoMax, DataRilascio, DRSConsentito)
-    
-    \item Campionato (\underline{Nome, Anno}, BudgetCap, Montepremi, Regolamento) 
-    \begin{itemize}
-        \item Campionato.Regolamento $\to$ Regolamento.Versione
-    \end{itemize}
+
+    \item Campionato (\underline{Nome, Anno}, BudgetCap, Montepremi, Regolamento)
+          \begin{itemize}
+              \item Campionato.Regolamento $\to$ Regolamento.Versione
+          \end{itemize}
 
     \item Circuito (\underline{Nome}, Paese, Lunghezza, NCurve, Tipo)
-    
+
     \item Gara (\underline{Circuito, Data}, Temperatura, Meteo, CampionatoNome, CampionatoAnno)
-    \begin{itemize}
-        \item Gara.Circuito $\to$ Circuito.Nome
-        \item Gara.CampionatoNome $\to$ Campionato.Nome
-        \item Gara.CampionatoAnno $\to$ Campionato.Anno
-    \end{itemize}
+          \begin{itemize}
+              \item Gara.Circuito $\to$ Circuito.Nome
+              \item Gara.CampionatoNome $\to$ Campionato.Nome
+              \item Gara.CampionatoAnno $\to$ Campionato.Anno
+          \end{itemize}
 
     \item Giro (\underline{Pilota, GaraCircuito, GaraData, NGiro}, Settore1, Settore2, Settore3, GommaUsata)
-    \begin{itemize}
-        \item Giro.Pilota $\to$ Pilota.Persona
-        \item Giro.GaraData $\to$ Gara.Data
-        \item Giro.GaraCircuito $\to$ Gara.Circuito
-    \end{itemize}
+          \begin{itemize}
+              \item Giro.Pilota $\to$ Pilota.Persona
+              \item Giro.GaraData $\to$ Gara.Data
+              \item Giro.GaraCircuito $\to$ Gara.Circuito
+          \end{itemize}
 
     \item Risultato (\underline{Pilota, GaraCircuito, GaraData}, Posizione*, Punti*, Ritiro*)
-    \begin{itemize}
-        \item Risultato.Pilota $\to$ Pilota.Persona
-        \item Risultato.GaraData $\to$ Gara.Data
-        \item Risultato.GaraCircuito $\to$ Gara.Circuito
-    \end{itemize}
+          \begin{itemize}
+              \item Risultato.Pilota $\to$ Pilota.Persona
+              \item Risultato.GaraData $\to$ Gara.Data
+              \item Risultato.GaraCircuito $\to$ Gara.Circuito
+          \end{itemize}
 
     \item Partecipazione (\underline{Pilota, GaraCircuito, GaraData}, Vettura, Tecnico, PosPartenza, Note*)
-    \begin{itemize}
-        \item Partecipazione.Pilota $\to$ Pilota.Persona
-        \item Partecipazione.GaraData $\to$ Gara.Data
-        \item Partecipazione.GaraCircuito $\to$ Gara.Circuito
-        \item Partecipazione.Vettura $\to$ Vettura.Modello
-        \item Partecipazione.Tecnico $\to$ Tecnico.Persona
-    \end{itemize}
+          \begin{itemize}
+              \item Partecipazione.Pilota $\to$ Pilota.Persona
+              \item Partecipazione.GaraData $\to$ Gara.Data
+              \item Partecipazione.GaraCircuito $\to$ Gara.Circuito
+              \item Partecipazione.Vettura $\to$ Vettura.Modello
+              \item Partecipazione.Tecnico $\to$ Tecnico.Persona
+          \end{itemize}
 \end{itemize}
 
 \subsection{Vincoli referenziali non deducibili dallo schema E-R}
-
 
 \section{Query}
 \subsection{Definizione delle Query}
@@ -579,15 +564,15 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
     numberstyle=\tiny\color{codegray},
     stringstyle=\color{purple},
     basicstyle=\ttfamily\small,
-    breakatwhitespace=false,         
-    breaklines=true,                 
-    captionpos=b,                    
-    keepspaces=true,                 
-    numbers=left,                    
-    numbersep=8pt,                  
-    showspaces=false,                
+    breakatwhitespace=false,
+    breaklines=true,
+    captionpos=b,
+    keepspaces=true,
+    numbers=left,
+    numbersep=8pt,
+    showspaces=false,
     showstringspaces=false,
-    showtabs=false,                  
+    showtabs=false,
     tabsize=2,
     frame=single,
     rulecolor=\color{codegray!50},
@@ -597,7 +582,7 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
 }
 
 \subsubsection{Giro più veloce per ogni pilota in una gara}
-\textbf{Obiettivo:} Trovare, per una gara (es. 29 Marzo 2026 a Monza), il miglior giro assoluto realizzato da ciascun pilota, insieme al dettaglio della vettura, gomma, settore e tempo totale. 
+\textbf{Obiettivo:} Trovare, per una gara (es. 29 Marzo 2026 a Monza), il miglior giro assoluto realizzato da ciascun pilota, insieme al dettaglio della vettura, gomma, settore e tempo totale.
 Questo si usa nelle gare di qualifica per decidere l'ordine di partenza della nuova gara.
 
 \begin{lstlisting}[
