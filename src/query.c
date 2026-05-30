@@ -3,9 +3,6 @@
 
 #include "dbf1.h"
 
-#define CONNECTION \
-    "user=postgres password=password dbname=Simulatore_F1 host=localhost"
-
 static void show_menu(void)
 {
     printf("\033[2J\033[H"); /* clear screen + home (ANSI) */
@@ -40,8 +37,13 @@ static int read_choice(void)
 
 int main(void)
 {
+    const char *conn_str = getenv("DB_CONN");
+    if (conn_str == NULL) {
+        conn_str = "user=postgres password=password dbname=Simulatore_F1 host=localhost";
+    }
+
     DBF1 db;
-    if (dbf1_connect(&db, CONNECTION) != 0) {
+    if (dbf1_connect(&db, conn_str) != 0) {
         fprintf(stderr, "%s\n", db.error_msg);
         return 1;
     }
@@ -68,7 +70,7 @@ int main(void)
 
         case 4: {
             char circuito[128], data[32];
-            if (dbf1_choose_track_then_date(&db,
+            if (dbf1_choose_track_then_date_prepared(&db,
                     circuito, sizeof(circuito),
                     data,     sizeof(data)))
                 dbf1_query_fastest_laps(&db, circuito, data);
@@ -77,7 +79,7 @@ int main(void)
 
         case 5: {
             char circuito[128], data[32];
-            if (dbf1_choose_track_then_date(&db,
+            if (dbf1_choose_track_then_date_prepared(&db,
                     circuito, sizeof(circuito),
                     data,     sizeof(data)))
                 dbf1_query_live_standings(&db, circuito, data);

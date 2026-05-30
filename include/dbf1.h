@@ -75,13 +75,32 @@ int dbf1_choose_from_pool(DBF1 *self,
                           size_t out_len);
 
 /**
+ * Versione Prepared di choose_from_pool.
+ * @param stmtName Nome dello statement precedentemente preparato con PQprepare.
+ * @param nParams Numero di parametri.
+ * @param paramValues Array di stringhe dei parametri.
+ * @param col_display_idx Indice della colonna da mostrare all'utente e restituire.
+ */
+int dbf1_choose_from_pool_prepared(DBF1 *self,
+                                   const char *title,
+                                   const char *stmtName,
+                                   int nParams,
+                                   const char *const *paramValues,
+                                   int col_display_idx,
+                                   char *out,
+                                   size_t out_len);
+
+
+/**
  * Guida l'utente a scegliere prima un circuito poi una data.
  * Scrive i valori scelti in out_track e out_date.
  * @return 1 successo, 0 se non ci sono dati disponibili.
  */
-int dbf1_choose_track_then_date(DBF1 *self,
-                                char *out_track, size_t out_track_len,
-                                char *out_date,  size_t out_date_len);
+int dbf1_choose_track_then_date_prepared(DBF1 *self, 
+                                         char *out_track, 
+                                         size_t out_track_len, 
+                                         char *out_date, 
+                                         size_t out_date_len);
 
 /* -----------------------------------------------------------------------
  * Query di dominio (le 5 voci del menu)
