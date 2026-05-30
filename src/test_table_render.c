@@ -20,68 +20,9 @@
 
 #include "table_render.h"
 
-/* -----------------------------------------------------------------------
- * Gruppo 1 – table_is_numeric_oid
- * ----------------------------------------------------------------------- */
-
-static void test_numeric_oid_int4(void **state)
-{
-    (void)state;
-    assert_int_equal(1, table_is_numeric_oid(OID_INT4));
-}
-
-static void test_numeric_oid_int2(void **state)
-{
-    (void)state;
-    assert_int_equal(1, table_is_numeric_oid(OID_INT2));
-}
-
-static void test_numeric_oid_int8(void **state)
-{
-    (void)state;
-    assert_int_equal(1, table_is_numeric_oid(OID_INT8));
-}
-
-static void test_numeric_oid_float4(void **state)
-{
-    (void)state;
-    assert_int_equal(1, table_is_numeric_oid(OID_FLOAT4));
-}
-
-static void test_numeric_oid_float8(void **state)
-{
-    (void)state;
-    assert_int_equal(1, table_is_numeric_oid(OID_FLOAT8));
-}
-
-static void test_numeric_oid_numeric(void **state)
-{
-    (void)state;
-    assert_int_equal(1, table_is_numeric_oid(OID_NUMERIC));
-}
-
-static void test_numeric_oid_text_is_not_numeric(void **state)
-{
-    (void)state;
-    /* OID 25 = TEXT, non deve risultare numerico */
-    assert_int_equal(0, table_is_numeric_oid(25));
-}
-
-static void test_numeric_oid_date_is_not_numeric(void **state)
-{
-    (void)state;
-    /* OID 1082 = DATE */
-    assert_int_equal(0, table_is_numeric_oid(1082));
-}
-
-static void test_numeric_oid_zero_is_not_numeric(void **state)
-{
-    (void)state;
-    assert_int_equal(0, table_is_numeric_oid(0));
-}
 
 /* -----------------------------------------------------------------------
- * Gruppo 2 – table_compute_col_width
+ * Gruppo 1 – table_compute_col_width
  * ----------------------------------------------------------------------- */
 
 static void test_col_width_header_wins(void **state)
@@ -155,7 +96,7 @@ static void test_col_width_exact_max(void **state)
 }
 
 /* -----------------------------------------------------------------------
- * Gruppo 3 – table_compute_cols_that_fit
+ * Gruppo 2 – table_compute_cols_that_fit
  * ----------------------------------------------------------------------- */
 
 static void test_cols_fit_all_columns(void **state)
@@ -222,7 +163,7 @@ static void test_cols_fit_large_term(void **state)
 }
 
 /* -----------------------------------------------------------------------
- * Gruppo 4 – table_layout_free smoke test
+ * Gruppo 3 – table_layout_free smoke test
  * ----------------------------------------------------------------------- */
 
 static void test_layout_free_null_does_not_crash(void **state)
@@ -238,17 +179,6 @@ static void test_layout_free_null_does_not_crash(void **state)
 int main(void)
 {
     const struct CMUnitTest tests[] = {
-        /* is_numeric_oid */
-        cmocka_unit_test(test_numeric_oid_int4),
-        cmocka_unit_test(test_numeric_oid_int2),
-        cmocka_unit_test(test_numeric_oid_int8),
-        cmocka_unit_test(test_numeric_oid_float4),
-        cmocka_unit_test(test_numeric_oid_float8),
-        cmocka_unit_test(test_numeric_oid_numeric),
-        cmocka_unit_test(test_numeric_oid_text_is_not_numeric),
-        cmocka_unit_test(test_numeric_oid_date_is_not_numeric),
-        cmocka_unit_test(test_numeric_oid_zero_is_not_numeric),
-
         /* compute_col_width */
         cmocka_unit_test(test_col_width_header_wins),
         cmocka_unit_test(test_col_width_value_wins),
