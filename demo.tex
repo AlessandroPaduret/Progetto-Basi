@@ -57,8 +57,8 @@ di corse automobilistiche ispirato alla Formula 1. L'obiettivo è fornire una st
 essenziale e scalabile per tracciare scuderie, piloti, vetture e i risultati delle competizioni.
 \\Il sistema modella la gestione del personale attraverso persone (piloti e tecnici) e i loro contratti
 con le scuderie nel tempo.
-\\La parte sportiva gestisce Campionati, Sessioni e Circuiti, registrando i risultati finali
-di ogni pilota in ogni sessione. Ogni campionato adotta una specifica versione del Regolamento
+\\La parte sportiva gestisce Campionati, Gare e Circuiti, registrando i risultati finali
+di ogni pilota in ogni gara. Ogni campionato adotta una specifica versione del Regolamento
 tecnico FIA, che definisce i vincoli a cui le vetture devono conformarsi durante la stagione.
 
 \section{Analisi dei Requisiti}
@@ -142,7 +142,7 @@ Il regolamento è descritto da:
 Il campionato rappresenta una stagione di gare. È identificato univocamente dalla
 combinazione di \textbf{Nome} e \textbf{Anno}, ed è descritto da:
 \begin{itemize}
-    \item Il \textbf{Nome} del campionato (Mondiale Costruttori, Mondiale Piloti).
+    \item Il \textbf{Nome} del campionato.
     \item L'\textbf{Anno} di svolgimento.
     \item Il \textbf{Budget Cap}, ovvero il limite di spesa imposto dalla FIA
           per quella stagione, uguale per tutte le scuderie.
@@ -168,7 +168,7 @@ descritto da:
 \begin{itemize}
     \item La \textbf{Posizione} finale, nulla in caso di ritiro.
     \item I \textbf{Punti} ottenuti, nulli in caso di ritiro.
-    \item L'eventuale \textbf{Causa della Squalifica}
+    \item L'eventuale causa del \textbf{Ritiro}
           (Incidente, Guasto meccanico, Squalifica, Abbandono).
 \end{itemize}
 
@@ -311,7 +311,7 @@ Il database è formato dalle seguenti relazioni:
 
 \subsection{Lista Generalizzazioni}
 \begin{itemize}
-    \item Persona è una generalizzazione parziale ed esclusiva di Pilota e Tecnico
+    \item Persona è una generalizzazione totale ed esclusiva di Pilota e Tecnico
 \end{itemize}
 
 %pagina 8
@@ -585,10 +585,96 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
     inputencoding=utf8
 }
 
+\subsubsection{Classifica Mondiale Storica dei Piloti}
+\textbf{Obiettivo:} Calcolare la somma totale dei punti accumulati da ciascun pilota in tutte le gare disputate nel simulatore, ordinando la classifica dal pilota più vincente. Utilizza operatori aggregati e GROUP BY.
+
+\vspace{0.2cm}
+\begin{lstlisting}[
+    language=SQL, 
+    caption={Query con GROUP BY e operatore aggregato SUM},
+    basicstyle=\footnotesize\ttfamily,
+    xleftmargin=0.05\textwidth,
+    xrightmargin=0.05\textwidth,
+    aboveskip=3pt,
+    belowskip=3pt,
+    lineskip=-0.8pt
+]
+SELECT P.Nome, P.Cognome, SUM(R.Punti) AS PuntiTotali
+FROM Risultato R
+JOIN Persona P ON R.Pilota = P.CF
+GROUP BY R.Pilota, P.Nome, P.Cognome
+ORDER BY PuntiTotali DESC;
+\end{lstlisting}
+
+\begin{figure}[!ht]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=0.65\textwidth]{Immagini/query-1.png}}
+\end{figure}
+\vspace{-0.2cm}
+
+\subsubsection{Circuiti più Frequenti nei Campionati}
+\textbf{Obiettivo:} Individuare i circuiti che hanno ospitato più di una gara all'interno del simulatore, 
+ordinandoli in modo decrescente in base al numero totale di eventi disputati.
+\vspace{0.2cm}
+\begin{lstlisting}[
+    language=SQL, 
+    caption={Query con clausola HAVING per il filtraggio dei gruppi},
+    basicstyle=\footnotesize\ttfamily,
+    xleftmargin=0.05\textwidth,
+    xrightmargin=0.05\textwidth,
+    aboveskip=3pt,
+    belowskip=3pt,
+    lineskip=-0.8pt
+]
+SELECT C.Nome AS NomeCircuito, C.Paese, COUNT(G.Data) AS NumeroGareOspitate
+FROM Circuito C
+JOIN Gara G ON C.Nome = G.Circuito
+GROUP BY C.Nome, C.Paese
+HAVING COUNT(G.Data) > 1
+ORDER BY NumeroGareOspitate DESC;
+\end{lstlisting}
+\vspace{-0.3cm}
+\begin{figure}[!ht]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-2.png}}
+\end{figure}
+\vspace{-0.4cm}
+
+\subsubsection{Analisi Finanziaria e Risorse delle Scuderie}
+\textbf{Obiettivo:} Fornire una panoramica gestionale delle scuderie, analizzando il numero complessivo di 
+contratti stipulati (sia attivi che storici) e il budget totale allocato per gli stipendi del personale.
+
+\vspace{0.2cm}
+\begin{lstlisting}[
+    language=SQL, 
+    caption={Query con funzioni aggregate multiple (COUNT, SUM)},
+    basicstyle=\footnotesize\ttfamily,
+    xleftmargin=0.05\textwidth,
+    xrightmargin=0.05\textwidth,
+    aboveskip=3pt,
+    belowskip=3pt,
+    lineskip=-0.8pt
+]
+SELECT S.Nome AS Scuderia, S.Sede, 
+    COUNT(C.Persona) AS NumeroTotaleContratti, 
+    SUM(C.Stipendio) AS SpesaStipendiTotale
+FROM Scuderia S
+JOIN Contratto C ON S.Nome = C.Scuderia
+GROUP BY S.Nome, S.Sede
+ORDER BY SpesaStipendiTotale DESC;
+\end{lstlisting}
+
+\begin{figure}[!ht]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=0.8\textwidth]{Immagini/query-3.png}}
+\end{figure}
+\vspace{-0.3cm}
+
 \subsubsection{Giro più veloce per ogni pilota in una gara}
 \textbf{Obiettivo:} Trovare, per una gara (es. 29 Marzo 2026 a Monza), il miglior giro assoluto realizzato da ciascun pilota, insieme al dettaglio della vettura, gomma, settore e tempo totale.
 Questo si usa nelle gare di qualifica per decidere l'ordine di partenza della nuova gara.
 
+\vspace{0.2cm}
 \begin{lstlisting}[
     language=SQL, 
     caption={Ricerca del giro più veloce per pilota in una gara},
@@ -599,8 +685,7 @@ Questo si usa nelle gare di qualifica per decidere l'ordine di partenza della nu
     belowskip=3pt,
     lineskip=-0.8pt                      % Compatta l'interlinea verticale
 ]
-SELECT 
-  p.Nome || ' ' || p.Cognome AS Pilota,
+SELECT p.Nome || ' ' || p.Cognome AS Pilota,
   pa.Vettura AS Auto,
   g.GaraCircuito AS Circuito,
   g.GaraData AS Data_Gara,
@@ -625,103 +710,15 @@ WHERE g.GaraData = '2026-03-29'
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=0.70\textwidth]{Immagini/query-1.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{Immagini/query-4.png}}
 \end{figure}
 
-\subsubsection{Classifica Mondiale Storica dei Piloti}
-\textbf{Obiettivo:} Calcolare la somma totale dei punti accumulati da ciascun pilota in tutte le gare disputate nel simulatore, ordinando la classifica dal pilota più vincente. Utilizza operatori aggregati e GROUP BY.
-
-\begin{lstlisting}[
-    language=SQL, 
-    caption={Query con GROUP BY e operatore aggregato SUM},
-    basicstyle=\footnotesize\ttfamily,
-    xleftmargin=0.05\textwidth,
-    xrightmargin=0.05\textwidth,
-    aboveskip=3pt,
-    belowskip=3pt,
-    lineskip=-0.8pt
-]
-SELECT 
-    P.Nome, 
-    P.Cognome, 
-    SUM(R.Punti) AS PuntiTotali
-FROM Risultato R
-JOIN Persona P ON R.Pilota = P.CF
-GROUP BY R.Pilota, P.Nome, P.Cognome
-ORDER BY PuntiTotali DESC;
-\end{lstlisting}
-
-\begin{figure}[!ht]
-    \centering
-    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-2.png}}
-\end{figure}
-
-\subsubsection{Analisi Finanziaria e Risorse delle Scuderie}
-\textbf{Obiettivo:} Fornire una panoramica gestionale per ogni scuderia, mostrando il numero totale di contratti attivi o storici stipulati e il budget totale speso in stipendi per il personale.
-
-\begin{lstlisting}[
-    language=SQL, 
-    caption={Query con funzioni aggregate multiple (COUNT, SUM)},
-    basicstyle=\footnotesize\ttfamily,
-    xleftmargin=0.05\textwidth,
-    xrightmargin=0.05\textwidth,
-    aboveskip=3pt,
-    belowskip=3pt,
-    lineskip=-0.8pt
-]
-SELECT 
-    S.Nome AS Scuderia, 
-    S.Sede, 
-    COUNT(C.Persona) AS NumeroTotaleContratti, 
-    SUM(C.Stipendio) AS SpesaStipendiTotale
-FROM Scuderia S
-JOIN Contratto C ON S.Nome = C.Scuderia
-GROUP BY S.Nome, S.Sede
-ORDER BY SpesaStipendiTotale DESC;
-\end{lstlisting}
-
-\begin{figure}[!ht]
-    \centering
-    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-3.png}}
-\end{figure}
-
-\subsubsection{Circuiti più Frequenti nei Campionati}
-\textbf{Obiettivo:} Trovare esclusivamente i circuiti storici o più popolari che hanno ospitato più di 1 gara all'interno del simulatore, ordinandoli dal più attivo.
-
-\begin{lstlisting}[
-    language=SQL, 
-    caption={Query con clausola HAVING per il filtraggio dei gruppi},
-    basicstyle=\footnotesize\ttfamily,
-    xleftmargin=0.05\textwidth,
-    xrightmargin=0.05\textwidth,
-    aboveskip=3pt,
-    belowskip=3pt,
-    lineskip=-0.8pt
-]
-SELECT 
-    C.Nome AS NomeCircuito, 
-    C.Paese, 
-    COUNT(G.Data) AS NumeroGareOspitate
-FROM Circuito C
-JOIN Gara G ON C.Nome = G.Circuito
-GROUP BY C.Nome, C.Paese
-HAVING COUNT(G.Data) > 1
-ORDER BY NumeroGareOspitate DESC;
-\end{lstlisting}
-
-\begin{figure}[!ht]
-    \centering
-    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-4.png}}
-\end{figure}
-
-\begin{figure}[!ht]
-    \centering
-    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-5.png}}
-\end{figure}
+\newpage
 
 \subsubsection{Classifica Live e Strategia Gomme (Viste)}
-\textbf{Obiettivo:} Costruire una classifica \emph{live} per una gara(es. 29 Marzo 2026 a Monza), calcolare il \emph{gap} dal primo e recuperare l'ultima gomma utilizzata da ciascun pilota.
+\textbf{Obiettivo:} Costruire una classifica \emph{live} per una gara (es. 29 Marzo 2026 a Monza), calcolare il \emph{gap} dal primo e recuperare l'ultima gomma utilizzata da ciascun pilota.
 
+\vspace{0.2cm}
 \begin{lstlisting}[
     language=SQL, 
     caption={Creazione delle viste per la classifica live in Formula 1},
@@ -773,11 +770,19 @@ SELECT *,
         ORDER BY Posizione ASC 
     ) AS Gap 
 FROM Vista_Classifica_Posizioni;
+
 SELECT * FROM Vista_Classifica_Live_Scomposta 
 WHERE GaraData = '2026-03-29' AND GaraCircuito = 'Monza'
 \end{lstlisting}
+
+\begin{figure}[!ht]
+    \centering
+    \makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{Immagini/query-5.png}}
+\end{figure}
+
 \subsection{Creazione degli Indici}
-\textbf{Indice scelto:} per ottimizzare le query più importanti: il calcolo della classifica live e tempi di qualifica. si crea un indice composito su \texttt{Giro} (JOIN su gara/pilota e ordinamento per numero giro).
+\textbf{Indice scelto} per ottimizzare le query più importanti: il calcolo della classifica live e tempi di qualifica. 
+Si crea un indice composito su \texttt{Giro} (JOIN su gara/pilota e ordinamento per numero giro).
 
 \begin{lstlisting}[language=SQL, caption={Indice composito per ottimizzare query su Giro}]
 CREATE INDEX idx_giro_gara_pilota_ngiro
