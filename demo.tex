@@ -12,17 +12,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 
-\titleclass{\subsubsubsection}{straight}[\subsubsection]
-\newcounter{subsubsubsection}[subsubsection]
-\renewcommand{\thesubsubsubsection}{\thesubsubsection.\arabic{subsubsubsection}}
-\titleformat{\subsubsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
-\titlespacing*{\subsubsubsection}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
-\makeatletter
-\def\toclevel@subsubsubsection{4} % Livello numerico 4
-\def\l@subsubsubsection{\@dottedtocline{4}{7.0em}{4.1em}} % Rientro nell'indice e punti di sospensione
-\makeatother
-\setcounter{secnumdepth}{4} 
-\setcounter{tocdepth}{4}
+
 \keepXColumns
 \newcolumntype{C}[1]{>{\Centering\arraybackslash\hsize=#1\hsize\linewidth=\hsize}X}
 \newcolumntype{L}[1]{>{\RaggedRight\arraybackslash\hsize=#1\hsize\linewidth=\hsize}X}
@@ -193,117 +183,68 @@ combinazione di \textbf{Pilota} e \textbf{Gara}, ed è caratterizzata da:
 %pagina 5
 \section{Progettazione Concettuale}
 \subsection{Lista Entità}
-
 Il database è formato dalle seguenti entità:
- 
-\begin{itemize}
-    \item \textbf{Persona}
-    \begin{itemize}
-        \item \underline{CF: varchar}
-        \item Nome: varchar
-        \item Cognome: varchar
-        \item Nazionalità: varchar
-    \end{itemize}
- 
-    \item \textbf{Pilota} (figlia di Persona)
-    \begin{itemize}
-        \item StileGuida: enum (Aggressivo, Conservativo, Bilanciato)
-        \item Esperienza: int
-        \begin{itemize}
-            \item Esperienza $\ge$ 0
-        \end{itemize}
-    \end{itemize}
- 
-    \item \textbf{Tecnico} (figlia di Persona)
-    \begin{itemize}
-        \item Specializzazione: enum (Aerodinamica, Motore, Gomme)
-    \end{itemize}
- 
-    \item \textbf{Scuderia}
-    \begin{itemize}
-        \item \underline{Nome: varchar}
-        \item Sede: varchar
-    \end{itemize}
- 
-    \item \textbf{Vettura}
-    \begin{itemize}
-        \item \underline{Modello: varchar}
-        \item Peso: float
-        \begin{itemize}
-            \item Peso $>$ 0
-        \end{itemize}
-        \item Accelerazione: float
-        \begin{itemize}
-            \item Accelerazione $>$ 0
-        \end{itemize}
-        \item Velocita: float
-        \begin{itemize}
-            \item Velocita $>$ 0
-        \end{itemize}
-    \end{itemize}
- 
-    \item \textbf{Circuito}
-    \begin{itemize}
-        \item \underline{Nome: varchar}
-        \item Paese: varchar
-        \item Lunghezza: float
-        \begin{itemize}
-            \item Lunghezza $>$ 0
-        \end{itemize}
-        \item NCurve: int
-        \begin{itemize}
-            \item NCurve $\ge$ 1
-        \end{itemize}
-        \item Tipo: enum (Cittadino, Permanente, Misto)
-    \end{itemize}
- 
-    \item \textbf{Regolamento}
-    \begin{itemize}
-        \item \underline{Versione: float}
-        \item PesoMassimo: float
-        \item PesoMinimo: float
-        \begin{itemize}
-            \item PesoMassimo $>$ 0 e PesoMinimo $>$ 0
-            \item PesoMassimo $>$ PesoMinimo
-        \end{itemize}
-        \item DRSConsentito: boolean
-        \item DataRilascio: date
-    \end{itemize}
- 
-    \item \textbf{Campionato}
-    \begin{itemize}
-        \item \underline{Nome: varchar (Composta con Anno)}
-        \item \underline{Anno: int (Composta con Nome)}
-        \begin{itemize}
-            \item Anno $\ge$ 1950
-        \end{itemize}
-        \item BudgetCap: int
-        \begin{itemize}
-            \item BudgetCap $\ge$ 0
-        \end{itemize}
-        \item Montepremi: int
-        \begin{itemize}
-            \item Montepremi $\ge$ 0
-        \end{itemize}
-    \end{itemize}
- 
-    \item \textbf{Gara}
-    \begin{itemize}
-        \item \underline{IdGara: int}
-        \item \underline{Data: date}
-        \item CondizioniMeteo: enum (Soleggiato, Nuvoloso, Pioggia)
-        \item TemperaturaAsfalto: float
-    \end{itemize}
 
-    \item \textbf{Partecipazione}
-    \begin{itemize}
-            \item PosPartenza: int
-            \begin{itemize}
-            \item PosPartenza $\ge$ 1
-        \end{itemize}
-    \end{itemize}
- 
-\end{itemize}
+\begin{tabularx}{\linewidth}{| C{0.85} | L{1.10} | C{0.95} | C{0.90} |}
+    \hline
+    \textbf{Entità} & \textbf{Descrizione} & \textbf{Attributi} & \textbf{Identificatore} \\ \hline
+    \endfirsthead 
+    
+    \hline
+    \textbf{Entità} & \textbf{Descrizione} & \textbf{Attributi} & \textbf{Identificatore} \\ \hline
+    \endhead 
+    
+    \textbf{Persona} & 
+    Rappresenta i membri fisici del personale della Formula 1 (padre di Pilota e Tecnico). & 
+    CF, Nome, Cognome, Nazionalità & 
+    CF \\ \hline
+
+    \textbf{Pilota} & 
+    Entità specializzata che estende Persona. Contiene i dati di guida e l'esperienza del pilota. & 
+    StileGuida, Esperienza & 
+    CF \\ \hline
+
+    \textbf{Tecnico} & 
+    Entità specializzata che estende Persona. Rappresenta gli ingegneri e i meccanici del team. & 
+    Specializzazione & 
+    CF \\ \hline
+
+    \textbf{Scuderia} & 
+    Rappresenta i costruttori o i team ufficiali che partecipano al campionato. & 
+    Nome, Sede & 
+    Nome \\ \hline
+
+    \textbf{Vettura} & 
+    Rappresenta le monoposto sviluppate dalle scuderie per la competizione. & 
+    Modello, Peso, Accelerazione, Velocità & 
+    Modello \\ \hline
+
+    \textbf{Circuito} & 
+    Rappresenta gli autodromi o i tracciati cittadini dove si svolgono i gran premi. & 
+    Nome, Paese, Lunghezza, NCurve, Tipo & 
+    Nome \\ \hline
+
+    \textbf{Regolamento} & 
+    Definisce i vincoli tecnici e i parametri legali imposti dalla federazione. & 
+    Versione, PesoMassimo, PesoMinimo, DRSConsentito, DataRilascio & 
+    Versione \\ \hline
+
+    \textbf{Campionato} & 
+    Rappresenta la stagione annuale competitiva regolata da un budget cap. & 
+    Nome, Anno, BudgetCap, Montepremi & 
+    Nome, Anno \\ \hline
+
+    \textbf{Gara} & 
+    Rappresenta il singolo evento del gran premio associato a un circuito e a una data. & 
+    IdGara, Data, CondizioniMeteo, TemperaturaAsfalto & 
+    IdGara, Data \\ \hline
+
+    \textbf{Partecipazione} & 
+    Entità di supporto che formalizza la presenza di un pilota e di una vettura a una determinata gara. & 
+    PosPartenza & 
+    / \\ \hline
+\end{tabularx}
+\newpage
 
 \subsection{Lista Relazioni}
 Il database è formato dalle seguenti relazioni:
@@ -373,7 +314,6 @@ Il database è formato dalle seguenti relazioni:
     \item Persona è una generalizzazione parziale ed esclusiva di Pilota e Tecnico
 \end{itemize}
 
-\newpage
 %pagina 8
 \subsection{Schema E-R}
 \begin{figure}[!ht]
@@ -384,121 +324,137 @@ Il database è formato dalle seguenti relazioni:
 
 \section{Progettazione Logica}
 \subsection{Analisi delle Ridondanze}
-Analizzando lo schema E-R e la successiva traduzione relazionale, si nota una potenziale ridondanza informativa tra le 
-entità/relazioni Giro e Risultato. La posizione finale presente in Risultato potrebbero infatti 
-essere teoricamente derivati dal calcolo e dalla somma dei tempi parziali (Settore1, Settore2, Settore3) 
+Analizzando lo schema E-R e la successiva traduzione relazionale, si nota una potenziale ridondanza informativa tra le
+relazioni Giro e Risultato. La posizione finale presente in Risultato potrebbero infatti
+essere teoricamente derivati dalla somma dei tempi parziali (Settore1, Settore2, Settore3)
 di tutti i giri effettuati da ciascun pilota durante una determinata gara. Riassumendo le operazioni:
 \begin{itemize}
     \item Operazione 1 (4500 volte al giorno): Aggiunta di un nuovo record in Giro.
-    \item Operazione 2 (90 volte al giorno): Visualizzazione delle classifiche delle partite fatte quel giorno.
+    \item Operazione 2 (80 volte al giorno): Visualizzazione delle classifiche delle partite fatte quel giorno.
 \end{itemize}
 Durante una gara ci sono 16 piloti per gara e la durata di una gara sara determinata dal suo numero di giri che in media è di 57.\\
-Quindi per ogni gara dovrò andare ad inserire: $16*57 = 912 \ \mathrm{giri.}$ Assumendo che un giocatore va a fare almeno 5 gare al giorno ho
+Quindi per ogni gara dovrò andare ad inserire: $16 \times57 = 912 \ \mathrm{giri.}$ Assumendo che un giocatore va a fare almeno 5 gare al giorno ho
 circa 4500 inserimenti di giri al giorno. \\
+Poi per i risultati dato che ci sono 16 piloti che giocano una partita, e dal fatto che di  media un giocatore
+fa 5 partite al giorno, ho $16 \times 5 = 80 \ \mathrm{risultati}$ che andranno ad essere richiesti da ogni giocatore in totale a fine giornata.
 
-Si assumono i seguenti volumi nella base di dati: 
-\begin{table}
+Si assumono i seguenti volumi nella base di dati:
+\begin{table}[!h]
     \centering
-\setlength{\tabcolsep}{12pt} % Ottimizza lo spazio interno delle colonne
-\renewcommand{\arraystretch}{1.2} % Rende la tabella più leggibile verticalmente
+    \setlength{\tabcolsep}{12pt} % Ottimizza lo spazio interno delle colonne
+    \renewcommand{\arraystretch}{1.2} % Rende la tabella più leggibile verticalmente
 
-\begin{tabular}{|l|c|r|}
-    \hline
-    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\ \hline
-    Risultato & R & 32000 \\ \hline
-    Gara & E & 200 \\ \hline
-    Giro & R & 1.824.000 \\ \hline
-\end{tabular}
+    \begin{tabular}{|l|c|r|}
+        \hline
+        \textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\ \hline
+        Risultato         & R                  & 3200            \\ \hline
+        Gara              & E                  & 200             \\ \hline
+        Giro              & R                  & 182.400         \\ \hline
+    \end{tabular}
 
-\vspace{0.3cm}
-\begin{minipage}{\linewidth}
-    \textbf{Numero medio di giri per pilota in una gara stimato:}
-    1.824.000/32000 = 57 giri in media.\\
-    Si nota anche che dato che \textbf{Giro} quando deve essere registrato deve andare a \textbf{scrivere} su tutti e tre i settori 
-    avro sempre di base 3 accessi. 
-\end{minipage}
+    \vspace{0.3cm}
+    \begin{minipage}{\linewidth}
+        \textbf{Numero medio di giri per pilota in una gara stimato:}
+        182.400/3200 = 57 giri in media.\\
+        Si nota anche che dato che \textbf{Giro} quando deve essere registrato deve andare a \textbf{scrivere} su tutti e tre i settori
+        avro sempre di base 3 accessi.
+        Si assume infine che il peso delle scritture sia il doppio delle letture.
+    \end{minipage}
 \end{table}
 
-\newpage
-\subsubsection{Confronto delle Strategie}
-\subsubsubsection{Strategia A: Con Ridondanza}
+\subsubsection{Con Ridondanza}
 \vspace{0.3cm}
-\noindent
-\textbf{Tabella degli Accessi - Operazione 1}a
-\vspace{0.1cm}
-\begin{center}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|l|c|c|c|}
-    \hline
-    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo} \\ \hline
-    Giro & R & 3 & S \rlap{\hspace{30pt}$\times\,100$} \\ \hline
-    Gara & E & 1 & L \rlap{\hspace{30pt}$\times\,100$} \\ \hline
-\end{tabular}
-\end{center}
+\begin{itemize}
+    \item
 
-\vspace{0.1cm}
-\noindent
-\textbf{Costo Operazione 1:} $2 \times (3\times100) + 100= \mathbf{700}$ accessi/giorno.
+          \textbf{Tabella degli Accessi - Operazione 1}
+          \vspace{0.1cm}
+          \begin{center}
+              \renewcommand{\arraystretch}{1.2}
+              \begin{tabular}{|l|c|c|c|}
+                  \hline
+                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                        \\ \hline
+                  Giro              & R                  & 3                & S \rlap{\hspace{30pt}$\times\,4500$} \\ \hline
+                  Gara              & E                  & 1                & L \rlap{\hspace{30pt}$\times\,4500$} \\ \hline
+              \end{tabular}
+          \end{center}
 
-\vspace{0.5cm}
-\noindent
-\textbf{Tabella degli Accessi - Operazione 2}
-\vspace{0.1cm}
-\begin{center}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|l|c|c|c|}
-    \hline
-    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo} \\ \hline
-    Risultato & R & 1 & L \rlap{\hspace{30pt}$\times\,30$} \\ \hline
-    Gara & E & 1 & L \rlap{\hspace{30pt}$\times\,30$} \\ \hline
-\end{tabular}
-\end{center}
+          \vspace{0.1cm}
+          \noindent
+          Costo Operazione 1: $2 \times (3\times4500) + 4500= \mathbf{31500}$ accessi/giorno.
 
-\vspace{0.1cm}
-\noindent
-\textbf{Costo Operazione 2:} $2 \times 30 = \mathbf{60}$ accessi/giorno.
+    \item
+          \textbf{Tabella degli Accessi - Operazione 2}
+          \vspace{0.1cm}
+          \begin{center}
+              \renewcommand{\arraystretch}{1.2}
+              \begin{tabular}{|l|c|c|c|}
+                  \hline
+                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                      \\ \hline
+                  Risultato         & R                  & 1                & L \rlap{\hspace{30pt}$\times\,80$} \\ \hline
+                  Gara              & E                  & 1                & L \rlap{\hspace{30pt}$\times\,80$} \\ \hline
+              \end{tabular}
+          \end{center}
 
+          \vspace{0.1cm}
+          \noindent
+          Costo Operazione 2: $2 \times 80 = \mathbf{160}$ accessi/giorno.
+
+\end{itemize}
+
+Costo Totale con Ridondanza: $31500 + 160 = \mathbf{31660}$ accessi/giorno.
+
+\subsubsection{Senza Ridondanza}
 \vspace{0.3cm}
-\noindent
-\textbf{Costo Totale Strategia A:} $700 + 60 = \mathbf{760}$ accessi/giorno.
+\begin{itemize}
+    \item
+          \textbf{Tabella degli Accessi - Operazione 1}
+          \vspace{0.1cm}
+          \begin{center}
+              \renewcommand{\arraystretch}{1.2}
+              \begin{tabular}{|l|c|c|c|}
+                  \hline
+                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                        \\ \hline
+                  Giro              & R                  & 3                & S \rlap{\hspace{30pt}$\times\,4500$} \\ \hline
+                  Gara              & E                  & 1                & L \rlap{\hspace{30pt}$\times\,4500$} \\ \hline
+              \end{tabular}
+          \end{center}
 
-\subsubsubsection{Strategia B: Senza Ridondanza}
-\vspace{0.3cm}
-\noindent
-\textbf{Tabella degli Accessi - Operazione 1}
-\vspace{0.1cm}
-\begin{center}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|l|c|c|c|}
-    \hline
-    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo} \\ \hline
-    Giro & R & 3 & S \rlap{\hspace{30pt}$\times\,100$} \\ \hline
-    Gara & E & 1 & L \rlap{\hspace{30pt}$\times\,100$} \\ \hline
-\end{tabular}
-\end{center}
+          \vspace{0.1cm}
+          \noindent
+          Costo Operazione 1: $2 \times (3\times4500) + 4500= \mathbf{31500}$ accessi/giorno.
 
-\vspace{0.1cm}
-\noindent
-\textbf{Costo Operazione 1:} $2 \times (3\times100) + 100= \mathbf{700}$ accessi/giorno.
+    \item
+          \textbf{Tabella degli Accessi - Operazione 2}
+          \vspace{0.1cm}
+          \begin{center}
+              \renewcommand{\arraystretch}{1.2}
+              \begin{tabular}{|l|c|c|c|}
+                  \hline
+                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                      \\ \hline
+                  Giro              & R                  & 171              & L \rlap{\hspace{30pt}$\times\,80$} \\ \hline
+                  Gara              & E                  & 1                & L \rlap{\hspace{30pt}$\times\,80$} \\ \hline
+              \end{tabular}
+          \end{center}
 
-\vspace{0.5cm}
-\noindent
-\textbf{Tabella degli Accessi - Operazione 2}
-\vspace{0.1cm}
-\begin{center}
-\renewcommand{\arraystretch}{1.2}
-\begin{tabular}{|l|c|c|c|}
-    \hline
-    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo} \\ \hline
-    Giro & R & 9 & L \rlap{\hspace{30pt}$\times\,30$} \\ \hline
-    Gara & E & 1 & L \rlap{\hspace{30pt}$\times\,30$} \\ \hline
-\end{tabular}
-\end{center}
+          \vspace{0.1cm} 
+          \noindent
+          Costo Operazione 2: $(171\times80) + 80 = \mathbf{13.760}$ accessi/giorno.\\
+          Qua gli accessi sono 171 perche ci sono i 3 accessi base si Giro $\times$ il numero medio di giri che è 57.
+          Andando cosi a tirare fuori il risultato di un singolo giocatore in una gara.
 
-\vspace{0.1cm}
-\noindent
-\textbf{Costo Operazione 2:} $(9\times30) + 30 = \mathbf{300}$ accessi/giorno.\\
-Qua gli accessi sono 9 perche ci sono i 3 accessi base si Giro $\times$ il numero medio di giri che è 3.
+          \vspace{0.3cm}
+\end{itemize}
+\textbf{Costo Totale Strategia B:} $31500 + 13.760 = \mathbf{45260}$ accessi/giorno. \\
+\subsubsection{Analisi Risultati}
+Andando quindi a controllare i due casi ho:
+\begin{itemize}
+    \item Con ridondanza il costo è: $\mathbf{31660}$ accessi/giorno.
+    \item Senza ridondanza il costo è: $\mathbf{45260}$ accessi/giorno.
+\end{itemize}
+Possiamo notare che il costo senza ridondanza è maggiore rispetto a quella con ridondanza di quasi 15000 accessi,
+ quindi la posizione in risultato deve rimanere per mantenere l'efficenza che l'attributo porta con se.
+
 
 \vspace{0.3cm}
 \noindent
@@ -513,6 +469,22 @@ Possiamo notare che il costo senza ridondanza è maggiore rispetto a quella con 
 
 
 \subsection{Eliminazione delle Generalizzazioni}
+Persona: La generalizzazione totale ed esclusiva di Persona viene mantenuta nel database 
+relazionale attraverso la creazione di tabelle distinte per l'entità padre (Persona) e per 
+le entità figlie (Pilota e Tecnico), collegate tramite relazioni $1:1$. La scelta proviene 
+dal fatto che le entità condividono un nucleo importante di attributi comuni (CF, Nome, 
+Cognome, Nazionalità), ma presentano al contempo proprietà e associazioni pesantemente 
+distinte nel dominio della Formula 1 (il Pilota traccia i dati di guida e i tempi sul giro, 
+mentre il Tecnico è legato a mansioni di officina e sviluppo). Questo approccio basato su 
+relazioni $1:1$ è l'ideale poiché permette di normalizzare il database al massimo livello, 
+evitando la ridondanza dei dati ed eliminando completamente l'introduzione di campi nulli 
+che si avrebbero accorpando tutto in un'unica tabella. Inoltre, preservare l'entità Persona 
+facilita enormemente la scalabilità futura del sistema (ad esempio, l'aggiunta di nuove figure 
+come "Dirigente" o "Addetto Stampa") e permette di gestire in modo centralizzato operazioni 
+globali come il pagamento degli stipendi o le anagrafiche del personale, senza dover 
+interrogare tabelle separate. Si utilizza la chiave primaria di Persona (CF) come chiave 
+primaria e foreign key inserita con vincolo di unicità ($1:1$) in Pilota e Tecnico per 
+garantirne l'identità univoca.
 \subsection{Diagramma E-R Ristrutturato}
 \begin{figure}[!ht]
     \centering
@@ -619,18 +591,25 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
     tabsize=2,
     frame=single,
     rulecolor=\color{codegray!50},
-    % FONDAMENTALE PER GLI UNDERSCORE:
     literate={_}{{\textunderscore}}1,
     extendedchars=true,
     inputencoding=utf8
 }
 
-
 \subsubsection{Giro più veloce per ogni pilota in una gara}
-\textbf{Obiettivo:} Trovare, per una gara(es. 29 Marzo 2026 a Monza), il miglior giro assoluto realizzato da ciascun pilota, insieme al dettaglio della vettura, gomma, settore e tempo totale. 
-Questo si usa nelle gari di qualifica per decidere l'ordine di partenza della nuova gara.
+\textbf{Obiettivo:} Trovare, per una gara (es. 29 Marzo 2026 a Monza), il miglior giro assoluto realizzato da ciascun pilota, insieme al dettaglio della vettura, gomma, settore e tempo totale. 
+Questo si usa nelle gare di qualifica per decidere l'ordine di partenza della nuova gara.
 
-\begin{lstlisting}[language=SQL, caption={Ricerca del giro più veloce per pilota in una gara}]
+\begin{lstlisting}[
+    language=SQL, 
+    caption={Ricerca del giro più veloce per pilota in una gara},
+    basicstyle=\footnotesize\ttfamily,   % Rimpicciolisce il testo nel blocco
+    xleftmargin=0.05\textwidth,          % Stringe leggermente i margini
+    xrightmargin=0.05\textwidth,
+    aboveskip=3pt,                       % Riduce gli spazi vuoti sopra e sotto
+    belowskip=3pt,
+    lineskip=-0.8pt                      % Compatta l'interlinea verticale
+]
 SELECT 
   p.Nome || ' ' || p.Cognome AS Pilota,
   pa.Vettura AS Auto,
@@ -657,13 +636,22 @@ WHERE g.GaraData = '2026-03-29'
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-1.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=0.70\textwidth]{Immagini/query-1.png}}
 \end{figure}
 
 \subsubsection{Classifica Mondiale Storica dei Piloti}
 \textbf{Obiettivo:} Calcolare la somma totale dei punti accumulati da ciascun pilota in tutte le gare disputate nel simulatore, ordinando la classifica dal pilota più vincente. Utilizza operatori aggregati e GROUP BY.
 
-\begin{lstlisting}[language=SQL, caption={Query con GROUP BY e operatore aggregato SUM}]
+\begin{lstlisting}[
+    language=SQL, 
+    caption={Query con GROUP BY e operatore aggregato SUM},
+    basicstyle=\footnotesize\ttfamily,
+    xleftmargin=0.05\textwidth,
+    xrightmargin=0.05\textwidth,
+    aboveskip=3pt,
+    belowskip=3pt,
+    lineskip=-0.8pt
+]
 SELECT 
     P.Nome, 
     P.Cognome, 
@@ -676,13 +664,22 @@ ORDER BY PuntiTotali DESC;
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-2.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-2.png}}
 \end{figure}
 
 \subsubsection{Analisi Finanziaria e Risorse delle Scuderie}
 \textbf{Obiettivo:} Fornire una panoramica gestionale per ogni scuderia, mostrando il numero totale di contratti attivi o storici stipulati e il budget totale speso in stipendi per il personale.
 
-\begin{lstlisting}[language=SQL, caption={Query con funzioni aggregate multiple (COUNT, SUM)}]
+\begin{lstlisting}[
+    language=SQL, 
+    caption={Query con funzioni aggregate multiple (COUNT, SUM)},
+    basicstyle=\footnotesize\ttfamily,
+    xleftmargin=0.05\textwidth,
+    xrightmargin=0.05\textwidth,
+    aboveskip=3pt,
+    belowskip=3pt,
+    lineskip=-0.8pt
+]
 SELECT 
     S.Nome AS Scuderia, 
     S.Sede, 
@@ -696,13 +693,22 @@ ORDER BY SpesaStipendiTotale DESC;
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-3.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-3.png}}
 \end{figure}
 
 \subsubsection{Circuiti più Frequenti nei Campionati}
-\textbf{Obiettivo:} Trovare esclusivamente i circuiti storici o più popolari che hanno ospitato più di 1 gare all'interno del simulatore, ordinandoli dal più attivo.
+\textbf{Obiettivo:} Trovare esclusivamente i circuiti storici o più popolari che hanno ospitato più di 1 gara all'interno del simulatore, ordinandoli dal più attivo.
 
-\begin{lstlisting}[language=SQL, caption={Query con clausola HAVING per il filtraggio dei gruppi}]
+\begin{lstlisting}[
+    language=SQL, 
+    caption={Query con clausola HAVING per il filtraggio dei gruppi},
+    basicstyle=\footnotesize\ttfamily,
+    xleftmargin=0.05\textwidth,
+    xrightmargin=0.05\textwidth,
+    aboveskip=3pt,
+    belowskip=3pt,
+    lineskip=-0.8pt
+]
 SELECT 
     C.Nome AS NomeCircuito, 
     C.Paese, 
@@ -716,66 +722,16 @@ ORDER BY NumeroGareOspitate DESC;
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-4.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-4.png}}
 \end{figure}
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-5.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-5.png}}
 \end{figure}
 
 \subsubsection{Classifica Live e Strategia Gomme (Viste)}
-\textbf{Obiettivo:} Costruire una classifica \emph{live} per una gara(es. 29 Marzo 2026 a Monza), calcolare il \emph{gap} dal primo e recuperare l'ultima gomma utilizzata da ciascun pilota.
-
-\begin{lstlisting}[language=SQL, caption={Viste per classifica live e ultima gomma}]
-CREATE OR REPLACE VIEW Vista_Gomma_Attuale AS
-SELECT DISTINCT 
-    GaraData, 
-    GaraCircuito, 
-    Pilota,
-    FIRST_VALUE(GommaUsata) OVER (
-        PARTITION BY GaraData, GaraCircuito, Pilota 
-        ORDER BY NGiro DESC
-    ) AS Ultima_Gomma
-FROM Giro;
-
-CREATE OR REPLACE VIEW Vista_Tempo_Attuale AS
-SELECT 
-    g.GaraData, 
-    g.GaraCircuito, 
-    p.Nome || ' ' || p.Cognome AS Nome_Pilota, 
-    pa.Vettura,
-    COUNT(g.NGiro) AS Giri_Completati,
-    SUM(g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Totale
-FROM Giro g
-JOIN Partecipazione pa ON g.Pilota = pa.Pilota 
-                AND g.GaraData = pa.GaraData 
-                AND g.GaraCircuito = pa.GaraCircuito
-JOIN Persona p ON g.Pilota = p.CF
-GROUP BY g.GaraData, g.GaraCircuito, g.Pilota, pa.Vettura, p.Nome, p.Cognome;
-
-CREATE OR REPLACE VIEW Vista_Classifica_Posizioni AS
-SELECT *,
-    RANK() OVER (
-        PARTITION BY GaraData, GaraCircuito 
-        ORDER BY Giri_Completati DESC, Tempo_Totale ASC
-    ) AS Posizione
-FROM Vista_Tempo_Attuale;
-
-CREATE OR REPLACE VIEW Vista_Classifica_Live_Scomposta AS
-SELECT *,
-    Tempo_Totale - FIRST_VALUE(Tempo_Totale) OVER (
-        PARTITION BY GaraData, GaraCircuito 
-        ORDER BY Posizione ASC
-    ) AS Gap
-FROM Vista_Classifica_Posizioni;
-
-SELECT *
-FROM Vista_Classifica_Live_Scomposta c
-WHERE c.GaraData = '2026-03-29' 
-  AND c.GaraCircuito = 'Monza';
-\end{lstlisting}
-
+\textbf{Obiettivo:} Costruire una classifica \emph{live} per una gara (es. 29 Marzo 2
 \subsection{Creazione degli Indici}
 \textbf{Indice scelto:} per ottimizzare le query più importanti: il calcolo della classifica live e tempi di qualifica. si crea un indice composito su \texttt{Giro} (JOIN su gara/pilota e ordinamento per numero giro).
 
