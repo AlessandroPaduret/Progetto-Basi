@@ -14,9 +14,16 @@ jobs:
 
       - name: Build and Run Tests
         run: |
-          # Avvia il database e compila l'app/test
+          # 1. Avvia i servizi in background
           docker compose up --build -d
           
-          # Esegue i test all'interno del container dell'app
-          # Assumendo che il servizio nel compose si chiami 'app'
+          # 2. Attendi che il database sia pronto (fondamentale!)
+          # Sostituisci 'db-f1' con il nome del tuo servizio database
+          echo "Waiting for database..."
+          until [ "$(docker inspect -f {{.State.Health.Status}} f1_simulator_db)" == "healthy" ]; do
+            sleep 2
+          done
+
+          # 3. Esegui i test nel container dell'app
+          # Il flag -T è CRITICO per GitHub Actions
           docker compose exec -T app make test
