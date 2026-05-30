@@ -115,7 +115,7 @@ static PGresult *exec_or_die(PGconn *conn, const char *context, const char *sql)
 static int choose_from_pool(PGconn *conn,
                             const char *title,
                             const char *sql,
-                            const char *col_to_display,
+                            int col_to_display,
                             char *out,
                             size_t out_len) {
     printf("\n=== %s ===\n", title);
@@ -123,22 +123,28 @@ static int choose_from_pool(PGconn *conn,
     PGresult *res = exec_or_die(conn, title, sql);
 
     int rows = PQntuples(res);
-    int col = PQfnumber(res, col_to_display);
+    int cols = PQnfields(res);
 
-    if (rows <= 0 || col < 0) {
+    if (rows <= 0) {
         printf("(nessuna scelta disponibile)\n");
+        PQclear(res);
+        return 0;
+    }
+
+    if (col_to_display < 0 || col_to_display >= cols) {
+        fprintf(stderr, "Errore interno: col_to_display=%d non valida (cols=%d)\n", col_to_display, cols);
         PQclear(res);
         return 0;
     }
 
     // stampa pool
     for (int i = 0; i < rows; i++) {
-        const char *v = PQgetisnull(res, i, col) ? "" : PQgetvalue(res, i, col);
+        const char *v = PQgetisnull(res, i, col_to_display) ? "" : PQgetvalue(res, i, col_to_display);
         printf("%d) %s\n", i + 1, v);
     }
 
     int choice = read_int_in_range("Seleziona: ", 1, rows);
-    const char *sel = PQgetvalue(res, choice - 1, col);
+    const char *sel = PQgetvalue(res, choice - 1, col_to_display);
 
     strncpy(out, sel, out_len);
     out[out_len - 1] = '\0';
@@ -148,31 +154,40 @@ static int choose_from_pool(PGconn *conn,
 }
 
 static int choose_track_then_date(PGconn *conn,
-                                 const char *pool_title,
                                  char *out_track,
                                  size_t out_track_len,
                                  char *out_date,
                                  size_t out_date_len) {
     // 1) scegli pista
+    // Nota: uso la tabella Gara nello schema relazionale di demo.tex: (Circuito, Data, ...)
     if (!choose_from_pool(conn,
                           "Scegli il circuito",
-                          "SELECT DISTINCT GaraCircuito FROM Gara ORDER BY GaraCircuito ASC;",
-                          "garacircuito",
+                          "SELECT DISTINCT Circuito FROM Gara ORDER BY Circuito ASC;",
+                          0,
                           out_track,
                           out_track_len)) {
         return 0;
     }
 
     // 2) scegli data tra le date per quella pista
+    // escape del valore circuito per sicurezza (anche se arriva dal DB)
+    char track_esc[256];
+    int err = 0;
+    PQescapeStringConn(conn, track_esc, out_track, strlen(out_track), &err);
+    if (err) {
+        fprintf(stderr, "Errore escape stringa circuito.\n");
+        return 0;
+    }
+
     char sql[512];
     snprintf(sql, sizeof(sql),
-             "SELECT DISTINCT GaraData FROM Gara WHERE GaraCircuito = '%s' ORDER BY GaraData ASC;",
-             out_track);
+             "SELECT DISTINCT Data FROM Gara WHERE Circuito = '%s' ORDER BY Data ASC;",
+             track_esc);
 
     if (!choose_from_pool(conn,
                           "Scegli la data",
                           sql,
-                          "garadata",
+                          0,
                           out_date,
                           out_date_len)) {
         return 0;
@@ -255,12 +270,17 @@ int main(void) {
                 // Parametrizzata via pool: prima circuito, poi data
                 char circuito[128];
                 char data[32];
-                if (!choose_track_then_date(conn,
-                                            "Scegli una gara",
-                                            circuito,
-                                            sizeof(circuito),
-                                            data,
-                                            sizeof(data))) {
+                if (!choose_track_then_date(conn, circuito, sizeof(circuito), data, sizeof(data))) {
+                    break;
+                }
+
+                char circuito_esc[256];
+                char data_esc[64];
+                int err1 = 0, err2 = 0;
+                PQescapeStringConn(conn, circuito_esc, circuito, strlen(circuito), &err1);
+                PQescapeStringConn(conn, data_esc, data, strlen(data), &err2);
+                if (err1 || err2) {
+                    fprintf(stderr, "Errore escape parametri.\n");
                     break;
                 }
 
@@ -289,7 +309,7 @@ int main(void) {
                          "        AND g2.GaraData = g.GaraData "
                          "        AND g2.GaraCircuito = g.GaraCircuito"
                          "  );",
-                         data, circuito);
+                         data_esc, circuito_esc);
 
                 exec_and_print(conn, "GIRO PIU' VELOCE PER OGNI PILOTA IN UNA GARA", sql);
                 break;
@@ -299,12 +319,17 @@ int main(void) {
                 // Parametrizzata via pool: prima circuito, poi data
                 char circuito[128];
                 char data[32];
-                if (!choose_track_then_date(conn,
-                                            "Scegli una gara",
-                                            circuito,
-                                            sizeof(circuito),
-                                            data,
-                                            sizeof(data))) {
+                if (!choose_track_then_date(conn, circuito, sizeof(circuito), data, sizeof(data))) {
+                    break;
+                }
+
+                char circuito_esc[256];
+                char data_esc[64];
+                int err1 = 0, err2 = 0;
+                PQescapeStringConn(conn, circuito_esc, circuito, strlen(circuito), &err1);
+                PQescapeStringConn(conn, data_esc, data, strlen(data), &err2);
+                if (err1 || err2) {
+                    fprintf(stderr, "Errore escape parametri.\n");
                     break;
                 }
 
@@ -367,7 +392,7 @@ int main(void) {
                 snprintf(sql, sizeof(sql),
                          "SELECT * FROM Vista_Classifica_Live_Scomposta c "
                          "WHERE c.GaraData = '%s' AND c.GaraCircuito = '%s';",
-                         data, circuito);
+                         data_esc, circuito_esc);
 
                 exec_and_print(conn, "CLASSIFICA LIVE E STRATEGIA GOMME (VISTE)", sql);
                 break;
