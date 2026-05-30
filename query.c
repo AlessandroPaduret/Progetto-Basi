@@ -40,36 +40,6 @@ static int read_int_in_range(const char *prompt, int min, int max) {
     }
 }
 
-static void read_line(const char *prompt, char *buf, size_t buflen) {
-    for (;;) {
-        printf("%s", prompt);
-        if (!fgets(buf, (int)buflen, stdin)) {
-            // EOF or error
-            buf[0] = '\0';
-            return;
-        }
-        // strip trailing newline
-        size_t n = strlen(buf);
-        if (n > 0 && buf[n - 1] == '\n') {
-            buf[n - 1] = '\0';
-            n--;
-        }
-        // skip empty input
-        int all_space = 1;
-        for (size_t i = 0; i < n; i++) {
-            if (!isspace((unsigned char)buf[i])) {
-                all_space = 0;
-                break;
-            }
-        }
-        if (all_space) {
-            printf("Input vuoto. Riprova.\n");
-            continue;
-        }
-        return;
-    }
-}
-
 static void print_result_table(PGresult *res) {
     int rows = PQntuples(res);
     int cols = PQnfields(res);
@@ -126,6 +96,90 @@ static void exec_and_print(PGconn *conn, const char *title, const char *sql) {
 
     print_result_table(res);
     PQclear(res);
+}
+
+static PGresult *exec_or_die(PGconn *conn, const char *context, const char *sql) {
+    PGresult *res = PQexec(conn, sql);
+    ExecStatusType st = PQresultStatus(res);
+    if (!(st == PGRES_TUPLES_OK || st == PGRES_COMMAND_OK)) {
+        fprintf(stderr, "Errore durante: %s\n", context);
+        fprintf(stderr, "Query: %s\n", sql);
+        fprintf(stderr, "Dettagli: %s\n", PQerrorMessage(conn));
+        PQclear(res);
+        PQfinish(conn);
+        exit(1);
+    }
+    return res;
+}
+
+static int choose_from_pool(PGconn *conn,
+                            const char *title,
+                            const char *sql,
+                            const char *col_to_display,
+                            char *out,
+                            size_t out_len) {
+    printf("\n=== %s ===\n", title);
+
+    PGresult *res = exec_or_die(conn, title, sql);
+
+    int rows = PQntuples(res);
+    int col = PQfnumber(res, col_to_display);
+
+    if (rows <= 0 || col < 0) {
+        printf("(nessuna scelta disponibile)\n");
+        PQclear(res);
+        return 0;
+    }
+
+    // stampa pool
+    for (int i = 0; i < rows; i++) {
+        const char *v = PQgetisnull(res, i, col) ? "" : PQgetvalue(res, i, col);
+        printf("%d) %s\n", i + 1, v);
+    }
+
+    int choice = read_int_in_range("Seleziona: ", 1, rows);
+    const char *sel = PQgetvalue(res, choice - 1, col);
+
+    strncpy(out, sel, out_len);
+    out[out_len - 1] = '\0';
+
+    PQclear(res);
+    return 1;
+}
+
+static int choose_track_then_date(PGconn *conn,
+                                 const char *pool_title,
+                                 char *out_track,
+                                 size_t out_track_len,
+                                 char *out_date,
+                                 size_t out_date_len) {
+    // 1) scegli pista
+    if (!choose_from_pool(conn,
+                          "Scegli il circuito",
+                          "SELECT DISTINCT GaraCircuito FROM Gara ORDER BY GaraCircuito ASC;",
+                          "garacircuito",
+                          out_track,
+                          out_track_len)) {
+        return 0;
+    }
+
+    // 2) scegli data tra le date per quella pista
+    char sql[512];
+    snprintf(sql, sizeof(sql),
+             "SELECT DISTINCT GaraData FROM Gara WHERE GaraCircuito = '%s' ORDER BY GaraData ASC;",
+             out_track);
+
+    if (!choose_from_pool(conn,
+                          "Scegli la data",
+                          sql,
+                          "garadata",
+                          out_date,
+                          out_date_len)) {
+        return 0;
+    }
+
+    printf("Scelta: %s - %s\n", out_track, out_date);
+    return 1;
 }
 
 static void show_menu(void) {
@@ -198,10 +252,17 @@ int main(void) {
             }
 
             case 4: {
-                char data[32];
+                // Parametrizzata via pool: prima circuito, poi data
                 char circuito[128];
-                read_line("Inserisci la data gara (YYYY-MM-DD): ", data, sizeof(data));
-                read_line("Inserisci il circuito: ", circuito, sizeof(circuito));
+                char data[32];
+                if (!choose_track_then_date(conn,
+                                            "Scegli una gara",
+                                            circuito,
+                                            sizeof(circuito),
+                                            data,
+                                            sizeof(data))) {
+                    break;
+                }
 
                 char sql[4096];
                 // Nota: per semplicita' usiamo string formatting. In produzione andrebbero usate query parametrizzate.
@@ -235,10 +296,17 @@ int main(void) {
             }
 
             case 5: {
-                char data[32];
+                // Parametrizzata via pool: prima circuito, poi data
                 char circuito[128];
-                read_line("Inserisci la data gara (YYYY-MM-DD): ", data, sizeof(data));
-                read_line("Inserisci il circuito: ", circuito, sizeof(circuito));
+                char data[32];
+                if (!choose_track_then_date(conn,
+                                            "Scegli una gara",
+                                            circuito,
+                                            sizeof(circuito),
+                                            data,
+                                            sizeof(data))) {
+                    break;
+                }
 
                 // 1) Creazione (o aggiornamento) viste
                 const char *views_sql =
