@@ -720,7 +720,7 @@ ORDER BY NumeroGareOspitate DESC;
 
 \begin{lstlisting}[
     language=SQL, 
-    caption={Query con funzioni aggregate multiple (COUNT, SUM)},
+    caption={Creazione delle viste per la classifica live in Formula 1},
     basicstyle=\footnotesize\ttfamily,
     xleftmargin=0.05\textwidth,
     xrightmargin=0.05\textwidth,
@@ -728,8 +728,6 @@ ORDER BY NumeroGareOspitate DESC;
     belowskip=3pt,
     lineskip=-0.8pt
 ]
-
-\begin{lstlisting}[caption={Creazione delle viste per la classifica live in Formula 1}, label={lst:viste_classifica}]
 CREATE OR REPLACE VIEW Vista_Gomma_Attuale AS 
 SELECT DISTINCT 
     GaraData, 
