@@ -1,101 +1,110 @@
-# Progetto Basi — DB Formula 1 (PostgreSQL) + App C
+# Progetto Basi — F1 DB Query Explorer
 
-Questo repository contiene:
-- un **database PostgreSQL** avviabile con **Docker Compose**, popolato automaticamente tramite script in `init-db/`
-- una **app CLI in C** (`query.c`) che si collega al DB e permette di lanciare query dal menù
-
-L’app include anche:
-- menù con **5 query**
-- per le query che richiedono una gara, selezione guidata da **pool**: prima **circuito**, poi **data**
-- stampa tabelle più leggibile: **larghezza per-colonna** e stampa delle colonne **finché ci stanno** nello spazio disponibile
+Applicazione C che si connette a un database PostgreSQL e permette di eseguire query interattive su un simulatore F1.
 
 ---
 
 ## Requisiti
 
-- **Docker** + **Docker Compose**
-- (opzionale, per eseguire l’app in locale) **gcc** e libreria **libpq** (client PostgreSQL)
+### Linux
+```bash
+sudo apt install gcc libpq-dev pkg-config libcmocka-dev
+```
+
+### Mac (Apple Silicon e Intel)
+```bash
+brew install postgresql pkg-config cmocka
+```
+
+### Windows
+Installare [MinGW-w64](https://www.mingw-w64.org/) (include `gcc` e `mingw32-make`) e [PostgreSQL](https://www.postgresql.org/download/windows/) (versione 13–17).
+
+Aggiungere al PATH di sistema:
+```
+C:\MinGW\bin
+C:\Program Files\PostgreSQL\<versione>\bin
+```
+Il Makefile rileva automaticamente il path di PostgreSQL tramite `pg_config`.
 
 ---
 
-## Avvio del database con Docker Compose
+## Compilazione
 
-Dalla root del progetto:
+### Compilare l'applicazione
 
+Linux / Mac:
 ```bash
-docker compose up -d --build
+make
+# oppure esplicitamente
+make all
 ```
 
-Questo avvia PostgreSQL con i parametri definiti in `docker-compose.yaml`:
-- **container**: `f1_simulator_db`
-- **DB**: `f1_db`
-- **utente**: `postgres`
-- **password**: `password`
-- **porta**: `5432` (mappata su localhost)
-
-Gli script SQL in `init-db/` vengono eseguiti automaticamente al **primo avvio** (quando il volume dati è vuoto).
-
-### Stop / reset del DB
-
-Stop dei container:
+Windows (MinGW):
 ```bash
-docker compose down
+mingw32-make
+# oppure esplicitamente
+mingw32-make all
 ```
 
-Stop + cancellazione dei dati persistiti (ricrea il DB da zero al prossimo `up`):
+Produce `app.out` su Linux/Mac, `app.exe` su Windows.
+
+
+### Pulire i file compilati
+
+Linux / Mac:
 ```bash
-docker compose down -v
+make clean
+```
+Windows:
+```bash
+mingw32-make clean
 ```
 
 ---
 
-## Eseguire l’app (query explorer)
+## Esecuzione
 
-### Opzione A — Eseguire l’app **in locale** collegandosi al DB Docker
+Prima di avviare l'app è necessario avere un'istanza PostgreSQL in esecuzione con il database `Simulatore_F1` caricato.
 
-1) Avvia prima il DB con Compose (vedi sopra)
-2) Compila:
-
-```bash
-make clean && make
+Per default l'app si connette con:
+```
+user=postgres password=password dbname=Simulatore_F1 host=localhost
 ```
 
-3) Avvia:
+Per usare una stringa di connessione diversa, impostare la variabile d'ambiente `DB_CONN`:
 
 ```bash
+# Linux / Mac
+export DB_CONN="user=postgres password=miapassword dbname=Simulatore_F1 host=localhost"
 ./app.out
-```
 
-> L’app usa la connection string dentro `query.c`:
-> `user=postgres password=password dbname=f1_db host=localhost`
+# Windows (PowerShell)
+$env:DB_CONN="user=postgres password=miapassword dbname=Simulatore_F1 host=localhost"
+.\app.exe
+```
 
 ---
 
-## Accesso con pgAdmin
+## Accortezze
 
-Una volta avviato il DB:
-
-- **Host**: `localhost`
-- **Porta**: `5432`
-- **Maintenance DB / Database**: `f1_db`
-- **Username**: `postgres`
-- **Password**: `password`
-
----
-
-## Backup / export del database (pg_dump)
-
-Esempio generico:
+**Mac — `libpq-fe.h` not found**
+Se `make` fallisce con questo errore, `pkg-config` non riesce a trovare PostgreSQL. Verificare che Homebrew abbia installato correttamente il pacchetto:
 ```bash
-pg_dump -U <utente> -d <database> > backup.sql
+brew install postgresql pkg-config
+pg_config --includedir   # deve restituire un path valido
 ```
 
-Esempio per questo progetto:
-```bash
-pg_dump -U postgres -d f1_db > backup_f1_db.sql
-```
+**Windows — `pg_config` non trovato**
+Verificare che `C:\Program Files\PostgreSQL\<versione>\bin` sia nel PATH di sistema. Il Makefile cerca automaticamente le versioni dalla 13 alla 17; se nessuna viene trovata, aggiungere il path manualmente.
 
-Se stai dumpando il DB dal container (senza client installato localmente):
-```bash
-docker exec -t f1_simulator_db pg_dump -U postgres -d f1_db > backup_f1_db.sql
+**Windows — `mingw32-make` non trovato**
+Verificare che `C:\MinGW\bin` sia nel PATH di sistema. In alternativa, alcuni pacchetti MinGW installano il comando come `make` invece di `mingw32-make` — provare entrambi.
+
+**Windows — usare `rm` invece di `del`**
+Se si usa Git Bash o WSL, il comando `rm` è disponibile e viene rilevato automaticamente dal Makefile. Con il prompt nativo `cmd.exe` viene usato `del` al suo posto.
+
+**Encoding caratteri speciali**
+Su Windows il terminale potrebbe mostrare caratteri errati (es. `Citt├á` invece di `Città`). Impostare la codepage UTF-8 prima di avviare l'app:
+```
+chcp 65001
 ```

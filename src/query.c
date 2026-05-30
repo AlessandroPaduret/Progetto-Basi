@@ -85,7 +85,7 @@ int main(void)
                 dbf1_query_live_standings(&db, circuito, data);
             break;
         }
-
+        
         default:
             printf("Scelta non valida.\n");
             break;

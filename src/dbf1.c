@@ -354,20 +354,31 @@ void dbf1_query_fastest_laps(DBF1 *self, const char *circuito, const char *data)
 {
     const char *stmtName = "get_fastest_laps";
     const char *sql = 
-        "SELECT p.Nome || ' ' || p.Cognome AS Pilota, pa.Vettura AS Auto, "
-        "g.GaraCircuito AS Circuito, g.GaraData AS Data_Gara, g.NGiro AS Numero_Giro, "
-        "g.GommaUsata, (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro "
-        "FROM Giro g "
-        "JOIN Persona p ON g.Pilota = p.CF "
-        "JOIN Partecipazione pa ON g.Pilota = pa.Pilota "
-        "   AND g.GaraCircuito = pa.GaraCircuito AND g.GaraData = pa.GaraData "
-        "WHERE g.GaraData = $1 AND g.GaraCircuito = $2 " // <--- Segnaposti
-        "AND (g.Settore1 + g.Settore2 + g.Settore3) = ("
-        "    SELECT MIN(g2.Settore1 + g2.Settore2 + g2.Settore3) "
-        "    FROM Giro g2 WHERE g2.Pilota = g.Pilota "
-        "    AND g2.GaraData = g.GaraData AND g2.GaraCircuito = g.GaraCircuito);";
+        "WITH giro_min AS ("
+    "    SELECT g.Pilota, "
+    "           MIN(g.Settore1 + g.Settore2 + g.Settore3) AS TempoMinimo "
+    "    FROM Giro g "
+    "    WHERE g.GaraData = $1::date AND g.GaraCircuito = $2 "
+    "    GROUP BY g.Pilota "
+    ") "
+    "SELECT p.Nome || ' ' || p.Cognome AS Pilota, "
+    "       pa.Vettura AS Auto, "
+    "       g.GaraCircuito AS Circuito, "
+    "       g.GaraData AS Data_Gara, "
+    "       g.NGiro AS Numero_Giro, "
+    "       g.GommaUsata, "
+    "       (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro "
+    "FROM Giro g "
+    "JOIN giro_min gm ON g.Pilota = gm.Pilota "
+    "     AND (g.Settore1 + g.Settore2 + g.Settore3) = gm.TempoMinimo "
+    "JOIN Persona p ON g.Pilota = p.CF "
+    "JOIN Partecipazione pa ON g.Pilota = pa.Pilota "
+    "     AND g.GaraCircuito = pa.GaraCircuito "
+    "     AND g.GaraData = pa.GaraData "
+    "WHERE g.GaraData = $1::date AND g.GaraCircuito = $2 "
+    "ORDER BY Tempo_Giro ASC;";
 
-    // 1. Prepariamo lo statement (se non già fatto, o sovrascrivendo)
+    // 1. Prepariamo lo statement
     PGresult *prep = PQprepare(self->conn, stmtName, sql, 2, NULL);
     if (PQresultStatus(prep) != PGRES_COMMAND_OK) {
         fprintf(stderr, "Errore preparazione: %s\n", PQerrorMessage(self->conn));
@@ -380,6 +391,15 @@ void dbf1_query_fastest_laps(DBF1 *self, const char *circuito, const char *data)
     const char *params[2] = { data, circuito };
     printf("\n=== GIRO PIU' VELOCE PER OGNI PILOTA ===\n");
     dbf1_exec_prepared_and_print(self, stmtName, 2, params);
+
+    // =========================================================================
+    // SOLUZIONE B: DEALLOCAZIONE DELLO STATEMENT
+    // =========================================================================
+    // Eliminiamo lo statement dalla sessione di Postgres così la prossima volta 
+    // il PQprepare qui sopra non fallirà.
+    PGresult *unprep_res = PQexec(self->conn, "DEALLOCATE get_fastest_laps;");
+    PQclear(unprep_res);
+    // =========================================================================
 }
 
 void dbf1_query_live_standings(DBF1 *self,
