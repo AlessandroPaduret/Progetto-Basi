@@ -52,6 +52,35 @@ static void print_padded_trunc(const char *s, int width) {
     for (int i = n; i < width; i++) putchar(' ');
 }
 
+static int is_numeric_type(Oid t) {
+    // Tipi numerici comuni in PostgreSQL: int2(21), int4(23), int8(20), float4(700), float8(701), numeric(1700)
+    return (t == 21 || t == 23 || t == 20 || t == 700 || t == 701 || t == 1700);
+}
+
+static int compute_col_width(PGresult *res, int col, int max_width) {
+    int width = 0;
+
+    const char *name = PQfname(res, col);
+    int name_len = name ? (int)strlen(name) : 0;
+    if (name_len > width) width = name_len;
+
+    int rows = PQntuples(res);
+    for (int i = 0; i < rows; i++) {
+        const char *v = PQgetisnull(res, i, col) ? "NULL" : PQgetvalue(res, i, col);
+        int len = v ? (int)strlen(v) : 0;
+        if (len > width) width = len;
+        if (width >= max_width) {
+            width = max_width;
+            break;
+        }
+    }
+
+    // almeno 4 caratteri per non rompere la separazione
+    if (width < 4) width = 4;
+    if (width > max_width) width = max_width;
+    return width;
+}
+
 static void print_result_table(PGresult *res) {
     int rows = PQntuples(res);
     int cols = PQnfields(res);
@@ -69,17 +98,32 @@ static void print_result_table(PGresult *res) {
                cols_to_print, cols);
     }
 
+    // Calcolo larghezze per colonna (in base a header + valori)
+    int *w = (int *)calloc((size_t)cols_to_print, sizeof(int));
+    if (!w) {
+        fprintf(stderr, "Errore memoria.\n");
+        return;
+    }
+
+    for (int j = 0; j < cols_to_print; j++) {
+        // per numerici posso essere un po' piu' stretto, per testo un po' piu' largo (ma sempre capped)
+        int cap = MAX_CELL_WIDTH;
+        Oid t = PQftype(res, j);
+        if (is_numeric_type(t) && cap > 10) cap = 10;
+        w[j] = compute_col_width(res, j, cap);
+    }
+
     // Header
     for (int j = 0; j < cols_to_print; j++) {
         const char *name = PQfname(res, j);
-        print_padded_trunc(name ? name : "", MAX_CELL_WIDTH);
+        print_padded_trunc(name ? name : "", w[j]);
         if (j < cols_to_print - 1) printf(" | ");
     }
     printf("\n");
 
     // Separatore
     for (int j = 0; j < cols_to_print; j++) {
-        for (int k = 0; k < MAX_CELL_WIDTH; k++) putchar('-');
+        for (int k = 0; k < w[j]; k++) putchar('-');
         if (j < cols_to_print - 1) printf("-+-");
     }
     printf("\n");
@@ -88,11 +132,13 @@ static void print_result_table(PGresult *res) {
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols_to_print; j++) {
             const char *v = PQgetisnull(res, i, j) ? "NULL" : PQgetvalue(res, i, j);
-            print_padded_trunc(v ? v : "", MAX_CELL_WIDTH);
+            print_padded_trunc(v ? v : "", w[j]);
             if (j < cols_to_print - 1) printf(" | ");
         }
         printf("\n");
     }
+
+    free(w);
 
     if (cols_to_print < cols) {
         printf("\nSuggerimento: se vuoi vedere tutte le colonne, lancia l'app con: ./app.out </dev/tty | less -S\n");
