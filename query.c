@@ -6,6 +6,10 @@
 
 #define CONNECTION "user=postgres password=password dbname=f1_db host=localhost"
 
+// Limiti output tabella
+#define MAX_CELL_WIDTH 20
+#define MAX_COLUMNS_TO_PRINT 6
+
 static void exit_with_error(PGconn *conn, const char *context) {
     if (context && *context) {
         fprintf(stderr, "[ERRORE] %s\n", context);
@@ -40,6 +44,14 @@ static int read_int_in_range(const char *prompt, int min, int max) {
     }
 }
 
+static void print_padded_trunc(const char *s, int width) {
+    // stampa al massimo width caratteri, aggiungendo padding a destra
+    int len = (int)strlen(s);
+    int n = len > width ? width : len;
+    fwrite(s, 1, (size_t)n, stdout);
+    for (int i = n; i < width; i++) putchar(' ');
+}
+
 static void print_result_table(PGresult *res) {
     int rows = PQntuples(res);
     int cols = PQnfields(res);
@@ -49,28 +61,42 @@ static void print_result_table(PGresult *res) {
         return;
     }
 
-    // Stampa header colonne
-    for (int j = 0; j < cols; j++) {
-        printf("%-25s", PQfname(res, j));
-        if (j < cols - 1) printf(" | ");
+    // Se troppe colonne, stampo solo le prime N e avviso
+    int cols_to_print = cols;
+    if (cols_to_print > MAX_COLUMNS_TO_PRINT) {
+        cols_to_print = MAX_COLUMNS_TO_PRINT;
+        printf("(tabella molto larga: mostro solo le prime %d colonne su %d)\n\n",
+               cols_to_print, cols);
+    }
+
+    // Header
+    for (int j = 0; j < cols_to_print; j++) {
+        const char *name = PQfname(res, j);
+        print_padded_trunc(name ? name : "", MAX_CELL_WIDTH);
+        if (j < cols_to_print - 1) printf(" | ");
     }
     printf("\n");
 
-    // Separatore semplice
-    for (int j = 0; j < cols; j++) {
-        printf("-------------------------");
-        if (j < cols - 1) printf("-+-");
+    // Separatore
+    for (int j = 0; j < cols_to_print; j++) {
+        for (int k = 0; k < MAX_CELL_WIDTH; k++) putchar('-');
+        if (j < cols_to_print - 1) printf("-+-");
     }
     printf("\n");
 
     // Righe
     for (int i = 0; i < rows; i++) {
-        for (int j = 0; j < cols; j++) {
+        for (int j = 0; j < cols_to_print; j++) {
             const char *v = PQgetisnull(res, i, j) ? "NULL" : PQgetvalue(res, i, j);
-            printf("%-25.25s", v);
-            if (j < cols - 1) printf(" | ");
+            print_padded_trunc(v ? v : "", MAX_CELL_WIDTH);
+            if (j < cols_to_print - 1) printf(" | ");
         }
         printf("\n");
+    }
+
+    if (cols_to_print < cols) {
+        printf("\nSuggerimento: se vuoi vedere tutte le colonne, lancia l'app con piping: ./app.out | less -S\n");
+        printf("(in less: usa frecce sinistra/destra oppure tasti h/l per scorrere orizzontalmente)\n");
     }
 }
 
