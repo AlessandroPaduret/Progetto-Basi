@@ -353,14 +353,7 @@ void dbf1_query_team_financials(DBF1 *self)
 void dbf1_query_fastest_laps(DBF1 *self, const char *circuito, const char *data)
 {
     const char *stmtName = "get_fastest_laps";
-    const char *sql = 
-        "WITH giro_min AS ("
-    "    SELECT g.Pilota, "
-    "           MIN(g.Settore1 + g.Settore2 + g.Settore3) AS TempoMinimo "
-    "    FROM Giro g "
-    "    WHERE g.GaraData = $1::date AND g.GaraCircuito = $2 "
-    "    GROUP BY g.Pilota "
-    ") "
+   const char *sql =
     "SELECT p.Nome || ' ' || p.Cognome AS Pilota, "
     "       pa.Vettura AS Auto, "
     "       g.GaraCircuito AS Circuito, "
@@ -369,14 +362,19 @@ void dbf1_query_fastest_laps(DBF1 *self, const char *circuito, const char *data)
     "       g.GommaUsata, "
     "       (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro "
     "FROM Giro g "
-    "JOIN giro_min gm ON g.Pilota = gm.Pilota "
-    "     AND (g.Settore1 + g.Settore2 + g.Settore3) = gm.TempoMinimo "
     "JOIN Persona p ON g.Pilota = p.CF "
     "JOIN Partecipazione pa ON g.Pilota = pa.Pilota "
     "     AND g.GaraCircuito = pa.GaraCircuito "
     "     AND g.GaraData = pa.GaraData "
-    "WHERE g.GaraData = $1::date AND g.GaraCircuito = $2 "
-    "ORDER BY Tempo_Giro ASC;";
+    "WHERE g.GaraData = $1::date "
+    "  AND g.GaraCircuito = $2 "
+    "  AND (g.Settore1 + g.Settore2 + g.Settore3) = ( "
+    "      SELECT MIN(g2.Settore1 + g2.Settore2 + g2.Settore3) "
+    "      FROM Giro g2 "
+    "      WHERE g2.Pilota = g.Pilota "
+    "        AND g2.GaraData = $1::date "
+    "        AND g2.GaraCircuito = $2 "
+    "  );";
 
     // 1. Prepariamo lo statement
     PGresult *prep = PQprepare(self->conn, stmtName, sql, 2, NULL);
