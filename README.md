@@ -1,8 +1,13 @@
 # Progetto Basi — DB Formula 1 (PostgreSQL) + App C
 
 Questo repository contiene:
-- un **database PostgreSQL** (avviabile con Docker Compose) già popolato tramite script in `init-db/`
-- una piccola **app CLI in C** (`query.c`) che si collega al DB e permette di esplorare alcune query dal menù
+- un **database PostgreSQL** avviabile con **Docker Compose**, popolato automaticamente tramite script in `init-db/`
+- una **app CLI in C** (`query.c`) che si collega al DB e permette di lanciare query dal menù
+
+L’app include anche:
+- menù con **5 query**
+- per le query che richiedono una gara, selezione guidata da **pool**: prima **circuito**, poi **data**
+- stampa tabelle più leggibile: **larghezza per-colonna** e stampa delle colonne **finché ci stanno** nello spazio disponibile
 
 ---
 
@@ -21,14 +26,14 @@ Dalla root del progetto:
 docker compose up -d --build
 ```
 
-Questo avvia il servizio PostgreSQL:
+Questo avvia PostgreSQL con i parametri definiti in `docker-compose.yaml`:
 - **container**: `f1_simulator_db`
 - **DB**: `f1_db`
 - **utente**: `postgres`
 - **password**: `password`
 - **porta**: `5432` (mappata su localhost)
 
-Gli script SQL in `init-db/` vengono eseguiti automaticamente al primo avvio (quando il volume è “vuoto”).
+Gli script SQL in `init-db/` vengono eseguiti automaticamente al **primo avvio** (quando il volume dati è vuoto).
 
 ### Stop / reset del DB
 
@@ -63,17 +68,6 @@ make clean && make
 
 > L’app usa la connection string dentro `query.c`:
 > `user=postgres password=password dbname=f1_db host=localhost`
-
-### Opzione B — Eseguire l’app **da Docker Compose**
-
-Al momento `docker-compose.yaml` avvia **solo** il database.
-
-Se vuoi eseguire anche l’app via Compose, aggiungi un servizio `app` (oppure crea un `Dockerfile`).
-Se mi dici che preferisci:
-- **Dockerfile + service app**
-oppure
-- solo **Dockerfile** per build/run manuale,
-posso prepararti la configurazione.
 
 ---
 
