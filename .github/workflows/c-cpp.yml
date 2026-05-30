@@ -1,4 +1,4 @@
-name: C/C++ CI
+name: Docker CI
 
 on:
   push:
@@ -6,15 +6,17 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make test
-      run: make test
+      - uses: actions/checkout@v4
+
+      - name: Build and Run Tests
+        run: |
+          # Avvia il database e compila l'app/test
+          docker compose up --build -d
+          
+          # Esegue i test all'interno del container dell'app
+          # Assumendo che il servizio nel compose si chiami 'app'
+          docker compose exec -T app make test
