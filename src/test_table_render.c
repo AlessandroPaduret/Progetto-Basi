@@ -16,6 +16,7 @@
 #include <stddef.h>
 #include <setjmp.h>
 #include <cmocka.h>
+#include <libpq-fe.h>
 
 #include "table_render.h"
 

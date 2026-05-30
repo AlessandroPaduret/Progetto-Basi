@@ -1,6 +1,7 @@
 #ifndef TABLE_RENDER_H
 #define TABLE_RENDER_H
 
+#include <libpq-fe.h>
 #include <stddef.h>
 
 /* Tipi OID PostgreSQL usati per rilevare colonne numeriche */
@@ -17,7 +18,7 @@
 
 /* -----------------------------------------------------------------------
  * TableLayout
- * Contiene le larghezze per colonna e quante colonne entrano a schermo.
+ * Contiene le larghezze per colonna e qoeuante colonne entrano a schermo.
  * Allocata dinamicamente: usare table_layout_free() dopo l'uso.
  * ----------------------------------------------------------------------- */
 typedef struct {

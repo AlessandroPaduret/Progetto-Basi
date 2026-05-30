@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <libpq-fe.h>
 
 /* -----------------------------------------------------------------------
  * Funzioni pure (no libpq) — testabili con unit test
