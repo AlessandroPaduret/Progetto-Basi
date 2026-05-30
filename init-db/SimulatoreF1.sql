@@ -1658,3 +1658,110 @@ INSERT INTO Risultato (Pilota, GaraData, GaraCircuito, Posizione, Punti, Ritiro)
 ('LCRCHL97G16XX3C', '2026-03-29', 'Monza', 2, 18, NULL),
 ('HMLWLS85A07XX5E', '2026-03-29', 'Monza', 3, 15, NULL),
 ('PRZSRG90C29XX2B', '2026-03-29', 'Monza', 4, 12, NULL);
+
+
+-- Query 1: Classifica Mondiale Storica dei Piloti
+SELECT P.Nome, P.Cognome, SUM(R.Punti) AS PuntiTotali
+FROM Risultato R
+JOIN Persona P ON R.Pilota = P.CF
+GROUP BY R.Pilota, P.Nome, P.Cognome
+ORDER BY PuntiTotali DESC;
+
+
+-- Query 2: Circuiti più Frequenti nei Campionati
+SELECT C.Nome AS NomeCircuito, C.Paese, COUNT(G.Data) AS NumeroGareOspitate
+FROM Circuito C
+JOIN Gara G ON C.Nome = G.Circuito
+GROUP BY C.Nome, C.Paese
+HAVING COUNT(G.Data) > 1
+ORDER BY NumeroGareOspitate DESC;
+
+
+-- Query 3: Analisi Finanziaria e Risorse delle Scuderie
+SELECT S.Nome AS Scuderia, S.Sede, 
+    COUNT(C.Persona) AS NumeroTotaleContratti, 
+    SUM(C.Stipendio) AS SpesaStipendiTotale
+FROM Scuderia S
+JOIN Contratto C ON S.Nome = C.Scuderia
+GROUP BY S.Nome, S.Sede
+ORDER BY SpesaStipendiTotale DESC;
+
+
+-- Query 4: Giro più veloce per ogni pilota in una gara
+WITH giro_min AS (
+    SELECT g.Pilota, 
+           MIN(g.Settore1 + g.Settore2 + g.Settore3) AS TempoMinimo
+    FROM Giro g
+    WHERE g.GaraData = '2026-03-29' 
+      AND g.GaraCircuito = 'Monza'
+    GROUP BY g.Pilota
+)
+SELECT p.Nome || ' ' || p.Cognome AS Pilota,
+       pa.Vettura AS Auto,
+       g.GaraCircuito AS Circuito,
+       g.GaraData AS Data_Gara,
+       g.NGiro AS Numero_Giro,
+       g.GommaUsata,
+       (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro
+FROM Giro g
+JOIN giro_min gm ON g.Pilota = gm.Pilota
+     AND (g.Settore1 + g.Settore2 + g.Settore3) = gm.TempoMinimo
+JOIN Persona p ON g.Pilota = p.CF
+JOIN Partecipazione pa ON g.Pilota = pa.Pilota 
+                   AND g.GaraCircuito = pa.GaraCircuito 
+                   AND g.GaraData = pa.GaraData
+WHERE g.GaraData = '2026-03-29' 
+  AND g.GaraCircuito = 'Monza'
+ORDER BY Tempo_Giro ASC;
+
+
+-- Query 5: Classifica Live e Strategia Gomme (Viste)
+CREATE OR REPLACE VIEW Vista_Gomma_Attuale AS 
+SELECT DISTINCT 
+    GaraData, 
+    GaraCircuito, 
+    Pilota, 
+    FIRST_VALUE(GommaUsata) OVER ( 
+        PARTITION BY GaraData, GaraCircuito, Pilota 
+        ORDER BY NGiro DESC 
+    ) AS Ultima_Gomma 
+FROM Giro; 
+
+CREATE OR REPLACE VIEW Vista_Tempo_Attuale AS 
+SELECT 
+    g.GaraData, 
+    g.GaraCircuito, 
+    p.Nome || ' ' || p.Cognome AS Nome_Pilota, 
+    pa.Vettura, 
+    COUNT(g.NGiro) AS Giri_Completati, 
+    SUM(g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Totale 
+FROM Giro g 
+JOIN Partecipazione pa ON g.Pilota = pa.Pilota 
+                  AND g.GaraData = pa.GaraData 
+                  AND g.GaraCircuito = pa.GaraCircuito 
+JOIN Persona p ON g.Pilota = p.CF 
+GROUP BY g.GaraData, g.GaraCircuito, g.Pilota, pa.Vettura, p.Nome, p.Cognome; 
+
+CREATE OR REPLACE VIEW Vista_Classifica_Posizioni AS 
+SELECT *, 
+    RANK() OVER ( 
+        PARTITION BY GaraData, GaraCircuito 
+        ORDER BY Giri_Completati DESC, Tempo_Totale ASC 
+    ) AS Posizione 
+FROM Vista_Tempo_Attuale; 
+
+CREATE OR REPLACE VIEW Vista_Classifica_Live_Scomposta AS 
+SELECT *, 
+    Tempo_Totale - FIRST_VALUE(Tempo_Totale) OVER ( 
+        PARTITION BY GaraData, GaraCircuito 
+        ORDER BY Posizione ASC 
+    ) AS Gap 
+FROM Vista_Classifica_Posizioni;
+
+SELECT * FROM Vista_Classifica_Live_Scomposta 
+WHERE GaraData = '2026-03-29' AND GaraCircuito = 'Monza';
+
+
+-- Indice: Composito per ottimizzare query su Giro
+CREATE INDEX idx_giro_gara_pilota_ngiro
+ON Giro (GaraData, GaraCircuito, Pilota, NGiro);

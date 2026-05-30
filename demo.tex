@@ -685,27 +685,31 @@ Questo si usa nelle gare di qualifica per decidere l'ordine di partenza della nu
     belowskip=3pt,
     lineskip=-0.8pt                      % Compatta l'interlinea verticale
 ]
+WITH giro_min AS (
+    SELECT g.Pilota, 
+           MIN(g.Settore1 + g.Settore2 + g.Settore3) AS TempoMinimo
+    FROM Giro g
+    WHERE g.GaraData = '2026-03-29' 
+      AND g.GaraCircuito = 'Monza'
+    GROUP BY g.Pilota
+)
 SELECT p.Nome || ' ' || p.Cognome AS Pilota,
-  pa.Vettura AS Auto,
-  g.GaraCircuito AS Circuito,
-  g.GaraData AS Data_Gara,
-  g.NGiro AS Numero_Giro,
-  g.GommaUsata,
-  (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro
+       pa.Vettura AS Auto,
+       g.GaraCircuito AS Circuito,
+       g.GaraData AS Data_Gara,
+       g.NGiro AS Numero_Giro,
+       g.GommaUsata,
+       (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro
 FROM Giro g
+JOIN giro_min gm ON g.Pilota = gm.Pilota
+     AND (g.Settore1 + g.Settore2 + g.Settore3) = gm.TempoMinimo
 JOIN Persona p ON g.Pilota = p.CF
 JOIN Partecipazione pa ON g.Pilota = pa.Pilota 
                    AND g.GaraCircuito = pa.GaraCircuito 
                    AND g.GaraData = pa.GaraData
 WHERE g.GaraData = '2026-03-29' 
-    AND g.GaraCircuito = 'Monza'
-    AND (g.Settore1 + g.Settore2 + g.Settore3) = (
-        SELECT MIN(g2.Settore1 + g2.Settore2 + g2.Settore3)
-        FROM Giro g2
-        WHERE g2.Pilota = g.Pilota
-        AND g2.GaraData = g.GaraData
-        AND g2.GaraCircuito = g.GaraCircuito
-    )
+  AND g.GaraCircuito = 'Monza'
+ORDER BY Tempo_Giro ASC;
 \end{lstlisting}
 
 \begin{figure}[!ht]

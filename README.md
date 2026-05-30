@@ -4,19 +4,36 @@ Applicazione C che si connette a un database PostgreSQL e permette di eseguire q
 
 ---
 
+## Indice
+
+- [Requisiti](#requisiti)
+  - [Linux](#linux)
+  - [Mac (Apple Silicon e Intel)](#mac-apple-silicon-e-intel)
+  - [Windows](#windows)
+- [Compilazione](#compilazione)
+  - [Compilare l'applicazione](#compilare-lapplicazione)
+  - [Pulire i file compilati](#pulire-i-file-compilati)
+- [Esecuzione](#esecuzione)
+- [Accortezze](#accortezze)
+
+---
+
 ## Requisiti
 
 ### Linux
+
 ```bash
 sudo apt install gcc libpq-dev pkg-config libcmocka-dev
 ```
 
 ### Mac (Apple Silicon e Intel)
+
 ```bash
 brew install postgresql pkg-config cmocka
 ```
 
 ### Windows
+
 Installare [MinGW-w64](https://www.mingw-w64.org/) (include `gcc` e `mingw32-make`) e [PostgreSQL](https://www.postgresql.org/download/windows/) (versione 13–17).
 
 Aggiungere al PATH di sistema:
@@ -47,7 +64,6 @@ mingw32-make all
 ```
 
 Produce `app.out` su Linux/Mac, `app.exe` su Windows.
-
 
 ### Pulire i file compilati
 
