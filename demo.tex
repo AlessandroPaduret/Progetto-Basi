@@ -195,19 +195,19 @@ Il database è formato dalle seguenti entità:
     \endhead
 
     \textbf{Persona}                                                                                    &
-    Rappresenta i membri fisici del personale della Formula 1 (padre di Pilota e Tecnico).              &
+    Rappresenta i membri fisici del personale della Formula 1.              &
     CF, Nome, Cognome, Nazionalità                                                                      &
     CF                                                                                                                                                                        \\ \hline
 
     \textbf{Pilota}                                                                                     &
     Entità specializzata che estende Persona. Contiene i dati di guida e l'esperienza del pilota.       &
     StileGuida, Esperienza                                                                              &
-    CF                                                                                                                                                                        \\ \hline
+    /                                                                                                                                                                        \\ \hline
 
     \textbf{Tecnico}                                                                                    &
     Entità specializzata che estende Persona. Rappresenta gli ingegneri e i meccanici del team.         &
     Specializzazione                                                                                    &
-    CF                                                                                                                                                                        \\ \hline
+    /                                                                                                                                                                        \\ \hline
 
     \textbf{Scuderia}                                                                                   &
     Rappresenta i costruttori o i team ufficiali che partecipano al campionato.                         &
@@ -236,13 +236,13 @@ Il database è formato dalle seguenti entità:
 
     \textbf{Gara}                                                                                       &
     Rappresenta il singolo evento del gran premio associato a un circuito e a una data.                 &
-    IdGara, Data, CondizioniMeteo, TemperaturaAsfalto                                                   &
-    IdGara, Data                                                                                                                                                              \\ \hline
+    Data, CondizioniMeteo, Temperatura                                                  &
+    Data, Relazione "Svolgimento"                                                                                                                                                              \\ \hline
 
     \textbf{Partecipazione}                                                                             &
     Entità di supporto che formalizza la presenza di un pilota e di una vettura a una determinata gara. &
     PosPartenza                                                                                         &
-    /                                                                                                                                                                         \\ \hline
+    Relazione "Iscrizione", Relazione "Riferimento"                                                                                                                                                                         \\ \hline
 \end{tabularx}
 \newpage
 
