@@ -6,9 +6,9 @@
 
 #define CONNECTION "user=postgres password=password dbname=f1_db host=localhost"
 
-// Limiti output tabella
-#define MAX_CELL_WIDTH 20
-#define MAX_COLUMNS_TO_PRINT 6
+// Limiti output tabella (piu' compatti)
+#define MAX_CELL_WIDTH 14
+#define MAX_COLUMNS_TO_PRINT 7
 
 static void exit_with_error(PGconn *conn, const char *context) {
     if (context && *context) {
@@ -95,8 +95,7 @@ static void print_result_table(PGresult *res) {
     }
 
     if (cols_to_print < cols) {
-        printf("\nSuggerimento: se vuoi vedere tutte le colonne, lancia l'app con piping: ./app.out | less -S\n");
-        printf("(in less: usa frecce sinistra/destra oppure tasti h/l per scorrere orizzontalmente)\n");
+        printf("\nSuggerimento: se vuoi vedere tutte le colonne, lancia l'app con: ./app.out </dev/tty | less -S\n");
     }
 }
 
