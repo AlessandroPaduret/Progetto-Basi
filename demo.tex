@@ -769,6 +769,8 @@ SELECT *,
         ORDER BY Posizione ASC 
     ) AS Gap 
 FROM Vista_Classifica_Posizioni;
+SELECT * FROM Vista_Classifica_Live_Scomposta 
+WHERE GaraData = '2026-03-29' AND GaraCircuito = 'Monza'
 \end{lstlisting}
 \subsection{Creazione degli Indici}
 \textbf{Indice scelto:} per ottimizzare le query più importanti: il calcolo della classifica live e tempi di qualifica. si crea un indice composito su \texttt{Giro} (JOIN su gara/pilota e ordinamento per numero giro).
@@ -782,4 +784,27 @@ ON Giro (GaraData, GaraCircuito, Pilota, NGiro);
 
 \section{Applicazione Software}
 
+\subsection{Struttura generale e moduli}
+
+\textbf{1) \texttt{src/query.c} (entry point e menu).}
+Contiene la \texttt{main()}:
+legge la connessione (\texttt{DB\_CONN} o default), apre il DB, mostra un menu e richiama le query, poi chiude la connessione.
+
+\textbf{2) \texttt{include/dbf1.h} e \texttt{src/dbf1.c} (accesso al DB + query).}
+Incapsula \texttt{libpq} nella struct \texttt{DBF1} e fornisce:
+\texttt{dbf1\_connect()/dbf1\_disconnect()}, esecuzione/stampa risultati (\texttt{dbf1\_exec\_and\_print()}), supporto a scelte interattive.
+Qui sono anche implementate le 5 query del menu (una funzione per voce).
+
+\textbf{3) \texttt{include/table\_render.h} e \texttt{src/table\_render.c} (render tabellare).}
+Converte un \texttt{PGresult} in tabella ASCII: calcola larghezze, stampa header/righe e tronca valori troppo lunghi.
+
+\subsection{Query prepared vs non prepared}
+
+\textbf{Non prepared:} query fisse senza parametri via \texttt{PQexec} (tramite \texttt{dbf1\_exec\_and\_print()}).
+
+\textbf{Prepared:} query con input utente via \texttt{PQexecPrepared} (placeholder \texttt{\$1,\$2,...}), usate per selezione circuito/data e per “giro più veloce”.
+
+\subsection{Note sulle viste}
+
+Per “classifica live e strategia gomme” il programma crea/aggiorna viste (\texttt{CREATE OR REPLACE VIEW}) che calcolano ranking/gap; poi esegue la query finale filtrando per (data, circuito).
 \end{document}
