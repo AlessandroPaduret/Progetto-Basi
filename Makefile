@@ -2,9 +2,8 @@
 # Progetto F1 DB — Makefile
 # -------------------------------------------------------------------------
 CC      = gcc
-# -Iinclude dice a gcc di cercare gli header nella cartella include/
-CFLAGS  = -Wall -Wextra -std=c11 -Iinclude
-LDFLAGS = -lpq
+CFLAGS  = -Wall -Wextra -std=c11 -Iinclude $(shell pkg-config --cflags libpq)
+LDFLAGS = $(shell pkg-config --libs libpq)
 
 APP_TARGET  = app.out
 TEST_TARGET = test_table_render.out

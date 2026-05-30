@@ -6,6 +6,8 @@ pg_dump -U nome_utente -d database_name > backup_multiverso.sql
 pg_dump -U postgres -d Timelines > backup_multiverso.sql
 ```
 
+note: pkgconfig serve a gestire l'installazione di pacchetti.
+
 # Docker Facile
 
 Questo progetto permette di configurare e avviare un database completo e già popolato in pochi secondi, garantendo la massima semplicità di setup.
