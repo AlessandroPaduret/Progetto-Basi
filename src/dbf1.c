@@ -148,6 +148,26 @@ void dbf1_exec_and_print(DBF1 *self,
     PQclear(res);
 }
 
+/** Esegue una query preparata e stampa il risultato */
+void dbf1_exec_prepared_and_print(DBF1 *self, 
+                                  const char *stmtName, 
+                                  int nParams, 
+                                  const char *const *paramValues) 
+{
+    self->last_error = 0;
+    PGresult *res = PQexecPrepared(self->conn, stmtName, nParams, paramValues, NULL, NULL, 0);
+    
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr, "Errore esecuzione %s: %s\n", stmtName, PQerrorMessage(self->conn));
+        self->last_error = 1;
+        PQclear(res);
+        return;
+    }
+
+    print_result_table(res);
+    PQclear(res);
+}
+
 PGresult *dbf1_exec_or_die(DBF1 *self,
                             const char *context,
                             const char *sql)
@@ -212,38 +232,76 @@ int dbf1_choose_from_pool(DBF1 *self,
     return 1;
 }
 
-int dbf1_choose_track_then_date(DBF1 *self,
-                                char *out_track, size_t out_track_len,
-                                char *out_date,  size_t out_date_len)
+int dbf1_choose_from_pool_prepared(DBF1 *self,
+                                   const char *title,
+                                   const char *stmtName,
+                                   int nParams,
+                                   const char *const *paramValues,
+                                   int col_display_idx,
+                                   char *out,
+                                   size_t out_len)
 {
-    if (!dbf1_choose_from_pool(self,
-            "Scegli il circuito",
-            "SELECT DISTINCT Circuito FROM Gara ORDER BY Circuito ASC;",
-            0, out_track, out_track_len))
-        return 0;
+    printf("\n=== %s ===\n", title);
 
-    /* escape del circuito prima di interpolarlo nella query */
-    char track_esc[256];
-    int err = 0;
-    PQescapeStringConn(self->conn, track_esc, out_track,
-                       strlen(out_track), &err);
-    if (err) {
-        fprintf(stderr, "Errore escape stringa circuito.\n");
+    // Esecuzione dello statement preparato
+    PGresult *res = PQexecPrepared(self->conn, stmtName, nParams, paramValues, NULL, NULL, 0);
+
+    if (PQresultStatus(res) != PGRES_TUPLES_OK) {
+        fprintf(stderr, "Errore durante la scelta [%s]: %s\n", title, PQerrorMessage(self->conn));
+        PQclear(res);
         return 0;
     }
 
-    char sql[512];
-    snprintf(sql, sizeof(sql),
-             "SELECT DISTINCT Data FROM Gara "
-             "WHERE Circuito = '%s' ORDER BY Data ASC;",
-             track_esc);
+    int rows = PQntuples(res);
+    int cols = PQnfields(res);
 
-    if (!dbf1_choose_from_pool(self,
-            "Scegli la data", sql,
-            0, out_date, out_date_len))
+    if (rows <= 0) {
+        printf("(nessuna scelta disponibile)\n");
+        PQclear(res);
+        return 0;
+    }
+
+    if (col_display_idx < 0 || col_display_idx >= cols) {
+        fprintf(stderr, "Errore: indice colonna %d non valido (totale colonne: %d)\n", col_display_idx, cols);
+        PQclear(res);
+        return 0;
+    }
+
+    // Stampa le opzioni numerate
+    for (int i = 0; i < rows; i++) {
+        const char *v = PQgetisnull(res, i, col_display_idx) ? "NULL" : PQgetvalue(res, i, col_display_idx);
+        printf("%d) %s\n", i + 1, v);
+    }
+
+    // Input utente con validazione (usa la funzione helper read_int_in_range che avevi già)
+    int choice = read_int_in_range("Seleziona: ", 1, rows);
+    
+    // Recupero del valore scelto
+    const char *sel = PQgetvalue(res, choice - 1, col_display_idx);
+    strncpy(out, sel, out_len);
+    out[out_len - 1] = '\0';
+
+    PQclear(res);
+    return 1;
+}
+
+int dbf1_choose_track_then_date_prepared(DBF1 *self, char *out_track, size_t out_track_len, char *out_date, size_t out_date_len)
+{
+    // 1. Scegli il circuito (Query senza parametri, usiamo uno statement generico)
+    const char *q_tracks = "SELECT DISTINCT Circuito FROM Gara ORDER BY Circuito ASC;";
+    PQclear(PQprepare(self->conn, "prep_list_tracks", q_tracks, 0, NULL));
+    
+    if (!dbf1_choose_from_pool_prepared(self, "CIRCUITI", "prep_list_tracks", 0, NULL, 0, out_track, out_track_len))
         return 0;
 
-    printf("Scelta: %s - %s\n", out_track, out_date);
+    // 2. Scegli la data filtrata per il circuito scelto
+    const char *q_dates = "SELECT DISTINCT Data FROM Gara WHERE Circuito = $1 ORDER BY Data ASC;";
+    PQclear(PQprepare(self->conn, "prep_list_dates", q_dates, 1, NULL));
+
+    const char *params[] = { out_track };
+    if (!dbf1_choose_from_pool_prepared(self, "DATE DISPONIBILI", "prep_list_dates", 1, params, 0, out_date, out_date_len))
+        return 0;
+
     return 1;
 }
 
@@ -292,49 +350,36 @@ void dbf1_query_team_financials(DBF1 *self)
         "ANALISI FINANZIARIA E RISORSE DELLE SCUDERIE", sql);
 }
 
-void dbf1_query_fastest_laps(DBF1 *self,
-                              const char *circuito,
-                              const char *data)
+void dbf1_query_fastest_laps(DBF1 *self, const char *circuito, const char *data)
 {
-    char circ_esc[256], data_esc[64];
-    int err1 = 0, err2 = 0;
-    PQescapeStringConn(self->conn, circ_esc, circuito,
-                       strlen(circuito), &err1);
-    PQescapeStringConn(self->conn, data_esc, data,
-                       strlen(data), &err2);
-    if (err1 || err2) {
-        fprintf(stderr, "Errore escape parametri fastest_laps.\n");
-        return;
-    }
-
-    char sql[4096];
-    snprintf(sql, sizeof(sql),
-        "SELECT "
-        "  p.Nome || ' ' || p.Cognome AS Pilota, "
-        "  pa.Vettura AS Auto, "
-        "  g.GaraCircuito AS Circuito, "
-        "  g.GaraData AS Data_Gara, "
-        "  g.NGiro AS Numero_Giro, "
-        "  g.GommaUsata, "
-        "  (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro "
+    const char *stmtName = "get_fastest_laps";
+    const char *sql = 
+        "SELECT p.Nome || ' ' || p.Cognome AS Pilota, pa.Vettura AS Auto, "
+        "g.GaraCircuito AS Circuito, g.GaraData AS Data_Gara, g.NGiro AS Numero_Giro, "
+        "g.GommaUsata, (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro "
         "FROM Giro g "
         "JOIN Persona p ON g.Pilota = p.CF "
         "JOIN Partecipazione pa ON g.Pilota = pa.Pilota "
-        "                   AND g.GaraCircuito = pa.GaraCircuito "
-        "                   AND g.GaraData = pa.GaraData "
-        "WHERE g.GaraData = '%s' "
-        "  AND g.GaraCircuito = '%s' "
-        "  AND (g.Settore1 + g.Settore2 + g.Settore3) = ("
-        "      SELECT MIN(g2.Settore1 + g2.Settore2 + g2.Settore3) "
-        "      FROM Giro g2 "
-        "      WHERE g2.Pilota = g.Pilota "
-        "        AND g2.GaraData = g.GaraData "
-        "        AND g2.GaraCircuito = g.GaraCircuito"
-        "  );",
-        data_esc, circ_esc);
+        "   AND g.GaraCircuito = pa.GaraCircuito AND g.GaraData = pa.GaraData "
+        "WHERE g.GaraData = $1 AND g.GaraCircuito = $2 " // <--- Segnaposti
+        "AND (g.Settore1 + g.Settore2 + g.Settore3) = ("
+        "    SELECT MIN(g2.Settore1 + g2.Settore2 + g2.Settore3) "
+        "    FROM Giro g2 WHERE g2.Pilota = g.Pilota "
+        "    AND g2.GaraData = g.GaraData AND g2.GaraCircuito = g.GaraCircuito);";
 
-    dbf1_exec_and_print(self,
-        "GIRO PIU' VELOCE PER OGNI PILOTA IN UNA GARA", sql);
+    // 1. Prepariamo lo statement (se non già fatto, o sovrascrivendo)
+    PGresult *prep = PQprepare(self->conn, stmtName, sql, 2, NULL);
+    if (PQresultStatus(prep) != PGRES_COMMAND_OK) {
+        fprintf(stderr, "Errore preparazione: %s\n", PQerrorMessage(self->conn));
+        PQclear(prep);
+        return;
+    }
+    PQclear(prep);
+
+    // 2. Eseguiamo passando i parametri
+    const char *params[2] = { data, circuito };
+    printf("\n=== GIRO PIU' VELOCE PER OGNI PILOTA ===\n");
+    dbf1_exec_prepared_and_print(self, stmtName, 2, params);
 }
 
 void dbf1_query_live_standings(DBF1 *self,

@@ -7,7 +7,7 @@ CFLAGS  = -Wall -Wextra -std=c11 -Iinclude
 LDFLAGS = -lpq
 
 APP_TARGET  = app.out
-TEST_TARGET = test_table_render
+TEST_TARGET = test_table_render.out
 
 # Aggiunti i prefissi dei percorsi src/
 APP_SRCS    = src/query.c src/dbf1.c src/table_render.c
