@@ -8,7 +8,9 @@
 
 // Limiti output tabella (piu' compatti)
 #define MAX_CELL_WIDTH 14
-#define MAX_COLUMNS_TO_PRINT 7
+#define MAX_CELL_WIDTH_NUM 10
+// Stampa colonne finche' ci stanno nello schermo (stima conservativa 120 char)
+#define DEFAULT_TERM_WIDTH 120
 
 static void exit_with_error(PGconn *conn, const char *context) {
     if (context && *context) {
@@ -81,6 +83,21 @@ static int compute_col_width(PGresult *res, int col, int max_width) {
     return width;
 }
 
+static int compute_cols_that_fit(const int *w, int cols, int term_width) {
+    // Stima: colonna 0 occupa w[0]; ogni colonna successiva occupa 3 (" | ") + w[j]
+    int used = 0;
+    int n = 0;
+    for (int j = 0; j < cols; j++) {
+        int add = w[j];
+        if (j > 0) add += 3;
+        if (used + add > term_width) break;
+        used += add;
+        n++;
+    }
+    if (n < 1 && cols > 0) n = 1; // almeno una colonna
+    return n;
+}
+
 static void print_result_table(PGresult *res) {
     int rows = PQntuples(res);
     int cols = PQnfields(res);
@@ -90,27 +107,26 @@ static void print_result_table(PGresult *res) {
         return;
     }
 
-    // Se troppe colonne, stampo solo le prime N e avviso
-    int cols_to_print = cols;
-    if (cols_to_print > MAX_COLUMNS_TO_PRINT) {
-        cols_to_print = MAX_COLUMNS_TO_PRINT;
-        printf("(tabella molto larga: mostro solo le prime %d colonne su %d)\n\n",
-               cols_to_print, cols);
-    }
-
     // Calcolo larghezze per colonna (in base a header + valori)
-    int *w = (int *)calloc((size_t)cols_to_print, sizeof(int));
+    int *w = (int *)calloc((size_t)cols, sizeof(int));
     if (!w) {
         fprintf(stderr, "Errore memoria.\n");
         return;
     }
 
-    for (int j = 0; j < cols_to_print; j++) {
-        // per numerici posso essere un po' piu' stretto, per testo un po' piu' largo (ma sempre capped)
+    for (int j = 0; j < cols; j++) {
         int cap = MAX_CELL_WIDTH;
         Oid t = PQftype(res, j);
-        if (is_numeric_type(t) && cap > 10) cap = 10;
+        if (is_numeric_type(t)) cap = MAX_CELL_WIDTH_NUM;
         w[j] = compute_col_width(res, j, cap);
+    }
+
+    // Decido quante colonne stampare in base allo "spazio disponibile" (stima)
+    int term_width = DEFAULT_TERM_WIDTH;
+    int cols_to_print = compute_cols_that_fit(w, cols, term_width);
+
+    if (cols_to_print < cols) {
+        printf("(tabella larga: mostro %d colonne su %d)\n\n", cols_to_print, cols);
     }
 
     // Header
@@ -139,10 +155,6 @@ static void print_result_table(PGresult *res) {
     }
 
     free(w);
-
-    if (cols_to_print < cols) {
-        printf("\nSuggerimento: se vuoi vedere tutte le colonne, lancia l'app con: ./app.out </dev/tty | less -S\n");
-    }
 }
 
 static void exec_and_print(PGconn *conn, const char *title, const char *sql) {
