@@ -626,20 +626,33 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
 }
 
 
-\subsubsection{1. Dettaglio delle Partecipazioni alle Gare}
-\textbf{Obiettivo:} Mostrare l'elenco completo di tutte le gare a cui i piloti hanno partecipato, indicando il nome e cognome del pilota, la vettura guidata e i dettagli della gara (data e circuito).
+\subsubsection{Giro più veloce per ogni pilota in una gara}
+\textbf{Obiettivo:} Trovare, per una gara(es. 29 Marzo 2026 a Monza), il miglior giro assoluto realizzato da ciascun pilota, insieme al dettaglio della vettura, gomma, settore e tempo totale. 
+Questo si usa nelle gari di qualifica per decidere l'ordine di partenza della nuova gara.
 
-\begin{lstlisting}[language=SQL, caption={Query di selezione con JOIN multipli}]
+\begin{lstlisting}[language=SQL, caption={Ricerca del giro più veloce per pilota in una gara}]
 SELECT 
-    P.Nome, 
-    P.Cognome, 
-    Part.Vettura, 
-    Part.GaraCircuito AS Circuito, 
-    Part.GaraData AS DataGara
-FROM Partecipazione Part
-JOIN Pilota Pi ON Part.Pilota = Pi.Persona
-JOIN Persona P ON Pi.Persona = P.CF
-ORDER BY Part.GaraData DESC, P.Cognome ASC;
+  p.Nome || ' ' || p.Cognome AS Pilota,
+  pa.Vettura AS Auto,
+  g.GaraCircuito AS Circuito,
+  g.GaraData AS Data_Gara,
+  g.NGiro AS Numero_Giro,
+  g.GommaUsata,
+  (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro
+FROM Giro g
+JOIN Persona p ON g.Pilota = p.CF
+JOIN Partecipazione pa ON g.Pilota = pa.Pilota 
+                   AND g.GaraCircuito = pa.GaraCircuito 
+                   AND g.GaraData = pa.GaraData
+WHERE g.GaraData = '2026-03-29' 
+    AND g.GaraCircuito = 'Monza'
+    AND (g.Settore1 + g.Settore2 + g.Settore3) = (
+        SELECT MIN(g2.Settore1 + g2.Settore2 + g2.Settore3)
+        FROM Giro g2
+        WHERE g2.Pilota = g.Pilota
+        AND g2.GaraData = g.GaraData
+        AND g2.GaraCircuito = g.GaraCircuito
+    )
 \end{lstlisting}
 
 \begin{figure}[!ht]
@@ -647,7 +660,7 @@ ORDER BY Part.GaraData DESC, P.Cognome ASC;
     \makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{Immagini/query-1.png}}
 \end{figure}
 
-\subsubsection{2. Classifica Mondiale Storica dei Piloti}
+\subsubsection{Classifica Mondiale Storica dei Piloti}
 \textbf{Obiettivo:} Calcolare la somma totale dei punti accumulati da ciascun pilota in tutte le gare disputate nel simulatore, ordinando la classifica dal pilota più vincente. Utilizza operatori aggregati e GROUP BY.
 
 \begin{lstlisting}[language=SQL, caption={Query con GROUP BY e operatore aggregato SUM}]
@@ -666,7 +679,7 @@ ORDER BY PuntiTotali DESC;
     \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-2.png}}
 \end{figure}
 
-\subsubsection{3. Analisi Finanziaria e Risorse delle Scuderie}
+\subsubsection{Analisi Finanziaria e Risorse delle Scuderie}
 \textbf{Obiettivo:} Fornire una panoramica gestionale per ogni scuderia, mostrando il numero totale di contratti attivi o storici stipulati e il budget totale speso in stipendi per il personale.
 
 \begin{lstlisting}[language=SQL, caption={Query con funzioni aggregate multiple (COUNT, SUM)}]
@@ -686,7 +699,7 @@ ORDER BY SpesaStipendiTotale DESC;
     \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-3.png}}
 \end{figure}
 
-\subsubsection{4. Circuiti più Frequenti nei Campionati}
+\subsubsection{Circuiti più Frequenti nei Campionati}
 \textbf{Obiettivo:} Trovare esclusivamente i circuiti storici o più popolari che hanno ospitato più di 1 gare all'interno del simulatore, ordinandoli dal più attivo.
 
 \begin{lstlisting}[language=SQL, caption={Query con clausola HAVING per il filtraggio dei gruppi}]
@@ -706,30 +719,13 @@ ORDER BY NumeroGareOspitate DESC;
     \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-4.png}}
 \end{figure}
 
-\subsubsection{5. Performance dei Pneumatici in Base all'Esperienza}
-\textbf{Obiettivo:} Calcolare il tempo medio registrato nel primo settore (\texttt{Settore1}) per ogni mescola di gomma utilizzata, considerando solo le performance dei piloti veterani (con livello di esperienza superiore a 5).
-
-\begin{lstlisting}[language=SQL, caption={Query complessa con WHERE, GROUP BY e AVG}]
-SELECT 
-    P.Nome, 
-    P.Cognome, 
-    G.GommaUsata, 
-    AVG(G.Settore1) AS TempoMedio_Settore1
-FROM Giro G
-JOIN Pilota Pi ON G.Pilota = Pi.Persona
-JOIN Persona P ON Pi.Persona = P.CF
-WHERE Pi.Esperienza > 5
-GROUP BY G.Pilota, P.Nome, P.Cognome, G.GommaUsata
-ORDER BY P.Cognome ASC, TempoMedio_Settore1 ASC;
-\end{lstlisting}
-
 \begin{figure}[!ht]
     \centering
     \makebox[\textwidth][c]{\includegraphics[width=1.0\textwidth]{Immagini/query-5.png}}
 \end{figure}
 
-\subsubsection{6. Classifica Live e Strategia Gomme (Viste)}
-\textbf{Obiettivo:} Costruire una classifica \emph{live} per una gara (in base a giri completati e tempo totale), calcolare il \emph{gap} dal primo e recuperare l'ultima gomma utilizzata da ciascun pilota.
+\subsubsection{Classifica Live e Strategia Gomme (Viste)}
+\textbf{Obiettivo:} Costruire una classifica \emph{live} per una gara(es. 29 Marzo 2026 a Monza), calcolare il \emph{gap} dal primo e recuperare l'ultima gomma utilizzata da ciascun pilota.
 
 \begin{lstlisting}[language=SQL, caption={Viste per classifica live e ultima gomma}]
 CREATE OR REPLACE VIEW Vista_Gomma_Attuale AS
@@ -752,16 +748,14 @@ SELECT
     COUNT(g.NGiro) AS Giri_Completati,
     SUM(g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Totale
 FROM Giro g
-JOIN Partecipazione pa 
-  ON g.Pilota = pa.Pilota 
- AND g.GaraData = pa.GaraData 
- AND g.GaraCircuito = pa.GaraCircuito
+JOIN Partecipazione pa ON g.Pilota = pa.Pilota 
+                AND g.GaraData = pa.GaraData 
+                AND g.GaraCircuito = pa.GaraCircuito
 JOIN Persona p ON g.Pilota = p.CF
 GROUP BY g.GaraData, g.GaraCircuito, g.Pilota, pa.Vettura, p.Nome, p.Cognome;
 
 CREATE OR REPLACE VIEW Vista_Classifica_Posizioni AS
-SELECT 
-    *,
+SELECT *,
     RANK() OVER (
         PARTITION BY GaraData, GaraCircuito 
         ORDER BY Giri_Completati DESC, Tempo_Totale ASC
@@ -769,8 +763,7 @@ SELECT
 FROM Vista_Tempo_Attuale;
 
 CREATE OR REPLACE VIEW Vista_Classifica_Live_Scomposta AS
-SELECT 
-    *,
+SELECT *,
     Tempo_Totale - FIRST_VALUE(Tempo_Totale) OVER (
         PARTITION BY GaraData, GaraCircuito 
         ORDER BY Posizione ASC
@@ -784,7 +777,7 @@ WHERE c.GaraData = '2026-03-29'
 \end{lstlisting}
 
 \subsection{Creazione degli Indici}
-\textbf{Indice scelto:} per ottimizzare le query core che calcolano la classifica live e analisi tempi su \texttt{Giro} (JOIN su gara/pilota e ordinamento per numero giro), si crea un indice composito.
+\textbf{Indice scelto:} per ottimizzare le query più importanti: il calcolo della classifica live e tempi di qualifica. si crea un indice composito su \texttt{Giro} (JOIN su gara/pilota e ordinamento per numero giro).
 
 \begin{lstlisting}[language=SQL, caption={Indice composito per ottimizzare query su Giro}]
 CREATE INDEX idx_giro_gara_pilota_ngiro
