@@ -40,6 +40,36 @@ static int read_int_in_range(const char *prompt, int min, int max) {
     }
 }
 
+static void read_line(const char *prompt, char *buf, size_t buflen) {
+    for (;;) {
+        printf("%s", prompt);
+        if (!fgets(buf, (int)buflen, stdin)) {
+            // EOF or error
+            buf[0] = '\0';
+            return;
+        }
+        // strip trailing newline
+        size_t n = strlen(buf);
+        if (n > 0 && buf[n - 1] == '\n') {
+            buf[n - 1] = '\0';
+            n--;
+        }
+        // skip empty input
+        int all_space = 1;
+        for (size_t i = 0; i < n; i++) {
+            if (!isspace((unsigned char)buf[i])) {
+                all_space = 0;
+                break;
+            }
+        }
+        if (all_space) {
+            printf("Input vuoto. Riprova.\n");
+            continue;
+        }
+        return;
+    }
+}
+
 static void print_result_table(PGresult *res) {
     int rows = PQntuples(res);
     int cols = PQnfields(res);
@@ -107,6 +137,9 @@ static void show_menu(void) {
 
     printf("1) Classifica mondiale storica piloti\n");
     printf("2) Circuiti con piu' di una gara\n");
+    printf("3) Analisi finanziaria e risorse delle scuderie\n");
+    printf("4) Giro piu' veloce per ogni pilota in una gara\n");
+    printf("5) Classifica live e strategia gomme (viste)\n");
     printf("0) Esci\n\n");
 }
 
@@ -118,7 +151,7 @@ int main(void) {
 
     for (;;) {
         show_menu();
-        int choice = read_int_in_range("Seleziona un'opzione: ", 0, 2);
+        int choice = read_int_in_range("Seleziona un'opzione: ", 0, 5);
 
         if (choice == 0) {
             break;
@@ -139,14 +172,136 @@ int main(void) {
 
             case 2: {
                 const char *query =
-                    "SELECT C.Nome AS Circuito, C.Paese, COUNT(G.Data) AS NumeroGare "
+                    "SELECT C.Nome AS NomeCircuito, C.Paese, COUNT(G.Data) AS NumeroGareOspitate "
                     "FROM Circuito C "
                     "JOIN Gara G ON C.Nome = G.Circuito "
                     "GROUP BY C.Nome, C.Paese "
                     "HAVING COUNT(G.Data) > 1 "
-                    "ORDER BY NumeroGare DESC;";
+                    "ORDER BY NumeroGareOspitate DESC;";
 
-                exec_and_print(conn, "CIRCUITI CON PIU' DI UNA GARA", query);
+                exec_and_print(conn, "CIRCUITI PIU' FREQUENTI NEI CAMPIONATI", query);
+                break;
+            }
+
+            case 3: {
+                const char *query =
+                    "SELECT S.Nome AS Scuderia, S.Sede, "
+                    "COUNT(C.Persona) AS NumeroTotaleContratti, "
+                    "SUM(C.Stipendio) AS SpesaStipendiTotale "
+                    "FROM Scuderia S "
+                    "JOIN Contratto C ON S.Nome = C.Scuderia "
+                    "GROUP BY S.Nome, S.Sede "
+                    "ORDER BY SpesaStipendiTotale DESC;";
+
+                exec_and_print(conn, "ANALISI FINANZIARIA E RISORSE DELLE SCUDERIE", query);
+                break;
+            }
+
+            case 4: {
+                char data[32];
+                char circuito[128];
+                read_line("Inserisci la data gara (YYYY-MM-DD): ", data, sizeof(data));
+                read_line("Inserisci il circuito: ", circuito, sizeof(circuito));
+
+                char sql[4096];
+                // Nota: per semplicita' usiamo string formatting. In produzione andrebbero usate query parametrizzate.
+                snprintf(sql, sizeof(sql),
+                         "SELECT "
+                         "  p.Nome || ' ' || p.Cognome AS Pilota, "
+                         "  pa.Vettura AS Auto, "
+                         "  g.GaraCircuito AS Circuito, "
+                         "  g.GaraData AS Data_Gara, "
+                         "  g.NGiro AS Numero_Giro, "
+                         "  g.GommaUsata, "
+                         "  (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro "
+                         "FROM Giro g "
+                         "JOIN Persona p ON g.Pilota = p.CF "
+                         "JOIN Partecipazione pa ON g.Pilota = pa.Pilota "
+                         "                   AND g.GaraCircuito = pa.GaraCircuito "
+                         "                   AND g.GaraData = pa.GaraData "
+                         "WHERE g.GaraData = '%s' "
+                         "  AND g.GaraCircuito = '%s' "
+                         "  AND (g.Settore1 + g.Settore2 + g.Settore3) = ("
+                         "      SELECT MIN(g2.Settore1 + g2.Settore2 + g2.Settore3) "
+                         "      FROM Giro g2 "
+                         "      WHERE g2.Pilota = g.Pilota "
+                         "        AND g2.GaraData = g.GaraData "
+                         "        AND g2.GaraCircuito = g.GaraCircuito"
+                         "  );",
+                         data, circuito);
+
+                exec_and_print(conn, "GIRO PIU' VELOCE PER OGNI PILOTA IN UNA GARA", sql);
+                break;
+            }
+
+            case 5: {
+                char data[32];
+                char circuito[128];
+                read_line("Inserisci la data gara (YYYY-MM-DD): ", data, sizeof(data));
+                read_line("Inserisci il circuito: ", circuito, sizeof(circuito));
+
+                // 1) Creazione (o aggiornamento) viste
+                const char *views_sql =
+                    "CREATE OR REPLACE VIEW Vista_Gomma_Attuale AS "
+                    "SELECT DISTINCT "
+                    "    GaraData, "
+                    "    GaraCircuito, "
+                    "    Pilota, "
+                    "    FIRST_VALUE(GommaUsata) OVER ( "
+                    "        PARTITION BY GaraData, GaraCircuito, Pilota "
+                    "        ORDER BY NGiro DESC "
+                    "    ) AS Ultima_Gomma "
+                    "FROM Giro; "
+                    " "
+                    "CREATE OR REPLACE VIEW Vista_Tempo_Attuale AS "
+                    "SELECT "
+                    "    g.GaraData, "
+                    "    g.GaraCircuito, "
+                    "    p.Nome || ' ' || p.Cognome AS Nome_Pilota, "
+                    "    pa.Vettura, "
+                    "    COUNT(g.NGiro) AS Giri_Completati, "
+                    "    SUM(g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Totale "
+                    "FROM Giro g "
+                    "JOIN Partecipazione pa ON g.Pilota = pa.Pilota "
+                    "                 AND g.GaraData = pa.GaraData "
+                    "                 AND g.GaraCircuito = pa.GaraCircuito "
+                    "JOIN Persona p ON g.Pilota = p.CF "
+                    "GROUP BY g.GaraData, g.GaraCircuito, g.Pilota, pa.Vettura, p.Nome, p.Cognome; "
+                    " "
+                    "CREATE OR REPLACE VIEW Vista_Classifica_Posizioni AS "
+                    "SELECT *, "
+                    "    RANK() OVER ( "
+                    "        PARTITION BY GaraData, GaraCircuito "
+                    "        ORDER BY Giri_Completati DESC, Tempo_Totale ASC "
+                    "    ) AS Posizione "
+                    "FROM Vista_Tempo_Attuale; "
+                    " "
+                    "CREATE OR REPLACE VIEW Vista_Classifica_Live_Scomposta AS "
+                    "SELECT *, "
+                    "    Tempo_Totale - FIRST_VALUE(Tempo_Totale) OVER ( "
+                    "        PARTITION BY GaraData, GaraCircuito "
+                    "        ORDER BY Posizione ASC "
+                    "    ) AS Gap "
+                    "FROM Vista_Classifica_Posizioni;";
+
+                PGresult *vres = PQexec(conn, views_sql);
+                ExecStatusType vst = PQresultStatus(vres);
+                if (vst != PGRES_COMMAND_OK) {
+                    fprintf(stderr, "Errore nella creazione delle viste.\n");
+                    fprintf(stderr, "Dettagli: %s\n", PQerrorMessage(conn));
+                    PQclear(vres);
+                    break;
+                }
+                PQclear(vres);
+
+                // 2) Query finale su vista
+                char sql[2048];
+                snprintf(sql, sizeof(sql),
+                         "SELECT * FROM Vista_Classifica_Live_Scomposta c "
+                         "WHERE c.GaraData = '%s' AND c.GaraCircuito = '%s';",
+                         data, circuito);
+
+                exec_and_print(conn, "CLASSIFICA LIVE E STRATEGIA GOMME (VISTE)", sql);
                 break;
             }
 
