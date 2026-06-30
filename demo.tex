@@ -21,6 +21,8 @@
 \renewcommand{\contentsname}{Indice}
 \newcommand{\invio}{\hspace{0pt}\\}
 
+\hbadness=2000
+
 \begin{document}
 % pagina 1
 \begin{figure}[!ht]
@@ -195,50 +197,64 @@ Il database è formato dalle seguenti entità:
     \endhead
 
     \textbf{Veicolo}                                                                                                        &
-    Rappresenta i veicolo che sono gestiti dalla compagnia di sharing.                                                              &
-    Targa, Stato                                                                                    &
-    Targa                                                                                                                                                                                         \\ \hline
+    Rappresenta i veicolo che sono gestiti dalla compagnia di sharing.                                                      &
+    Targa, Stato, Marca                                                                                                           &
+    Targa                                                                                                                                                                                          \\ \hline
 
     \textbf{Bicicletta}                                                                                                     &
-    Entita specializzata che estende Veicolo.                      &
-    NumeroMarce, HasCestino                                                                                                 &
+    Entita specializzata che estende Veicolo.                                                                               &
+    NMarce, HasCestino                                                                                                 &
     /                                                                                                                                                                                             \\ \hline
 
     \textbf{Monopattino}                                                                                                    &
-    Entita specializzata che estende Veicolo.                           &
-    LivelloBatteria, VelocitaMax, PesoMx                                                                                                      &
+    Entita specializzata che estende Veicolo.                                                                               &
+    LivelloBatteria, VelocitaMax, PesoMax                                                                                    &
     /                                                                                                                                                                                             \\ \hline
 
     \textbf{Utente}                                                                                                         &
-    Rappresenta l'utente registrato sulla \newline piattaforma che \newline noleggia i veicoli.                            &
-    Nome, Cognome,\newline Telefono, DataNascita,\newline MetodoPagamento, PatentePosseduta                                 &
+    Rappresenta l'utente registrato sulla \newline piattaforma che \newline noleggia i veicoli.                             &
+    Nome, Cognome, Email, Telefono, DataNascita, MetodoPagamento                                                            &
     Email                                                                                                                                                                                         \\ \hline
 
     \textbf{Noleggio}                                                                                                       &
-    Rappresenta una singola sessione di noleggio attivata da un utente per un veicolo in un intervallo temporale specifico.                      &
+    Rappresenta una singola sessione di noleggio attivata da un utente per un veicolo in un intervallo temporale specifico. &
     DataOraInizio, DataOraFine, CostoTotale, Valutazione                                                                    &
     DataOraInizio, Relazione "Effettua", Relazione "Riguarda"                                                                                                                                     \\ \hline
 
     \textbf{Zona}                                                                                                           &
     Rappresenta un'area urbana con regole specifiche di circolazione e sosta.                                               &
-    Nome, Citta,\newline VelocitàMax, TipoZona, Perimetro                                                               &
-    Nome, Citta                                                                                                                                                                                   \\ \hline
+    Nome, Citta,\newline VelocitàMax, TipoZona, Perimetro                                                                   &
+    Nome, Citta                                                                                                                                                                                        \\ \hline
 
-    \textbf{Tariffa}                                                                                                   &
-    Definisce il costo applicabile al noleggio in base al tipo di veicolo e alla fascia oraria.            &
-    CodiceTariffa, CostoSblocco, CostoAlMinuto, FasciaOrarioa, TipoVeicolo                                                                               &
-    CodiceTariffa                                                                                                                                                               \\ \hline
+    \textbf{Tariffa}                                                                                                        &
+    Definisce il costo applicabile al noleggio in base al tipo di veicolo e alla fascia oraria.                             &
+    CostoSblocco, CostoAlMinuto, FasciaOraria, TipoVeicolo                                                  &
+    FasciaOraria, TipoVeicolo                                                                                                                                                                                 \\ \hline
 
-    \textbf{Operatore}                                                                                                  &
-    Rappresenta il personale dell'azienza che lavora sui veicoli. &
-    CF, Nome, Cognome, Turno                                                                        &
-    CF                                                                                                                                                              \\ \hline               
-    
+    \textbf{Operatore}                                                                                                      &
+    Rappresenta il personale dell'azienza che lavora sui veicoli.                                                           &
+    CF, Nome, Cognome, Turno                                                                                                &
+    CF                                                                                                                                                                                            \\ \hline
+
     \textbf{Segnalazione}                                                                                                   &
-    Registra un problema o un'anomalia segnalata su un veicolo.            &
-    Veicolo, DataOra, Descrizione, TipoProblema                                                                              &
-    Veicolo, DataOra                                                                                                                                                             \\ \hline
+    Registra un problema o un'anomalia segnalata su un veicolo.                                                             &
+    DataOra, Descrizione, TipoProblema                                                                                      &
+    DataOra, Relazione "Genera"                                                                                                                                                                   \\ \hline
 
+    \textbf{Hub}                                                                                                            &
+    Luogo dove i veicoli vengono portati per essere riparati e caricati.                                                    &
+    Citta, Nome, Indirizzo, CapacitaMax.                                                                                    &
+    Citta, Nome                                                                                                                                                                              \\ \hline
+
+    \textbf{Rastrelliera}                                                                                                   &
+    Luogo dove le biciclette vengono lascate dagli utenti.                                                                  &
+    Codice,MaxPosti.                                                                                    &
+    Codice, Relazione "Localizzata"                                                                                                                                                                           \\ \hline
+
+    \textbf{PuntoRicarica}                                                                                                    &
+    Luogo dove i monopattini vengono messi a caricare.                                                                                                           &
+    NPresa, Stato, DataUltimoTest                                                                                    &
+    NPresa, Relazione "Contiene"                                                                                                                                                                             \\ \hline
 \end{tabularx}
 \newpage
 
@@ -252,50 +268,69 @@ Il database è formato dalle seguenti relazioni:
 
 \renewcommand{\tabularxcolumn}[1]{m{#1}}
 
-\begin{tabularx}{\textwidth}{| C{1.10} | C{0.85} | L{1.25} | C{0.80} |}
+\begin{tabularx}{\textwidth}{| C{0.95} | C{0.90} | L{1.30} | C{0.75} |}
     \hline
-    \textbf{Relazione}                                                                    & \textbf{Entità Coinvolte}                   & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
+    \textbf{Relazione}                                             & \textbf{Entità Coinvolte}                   & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
     \endfirsthead % <--- Intestazione della PRIMA pagina
 
     \hline
-    \textbf{Relazione}                                                                    & \textbf{Entità Coinvolte}                   & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
+    \textbf{Relazione}                                             & \textbf{Entità Coinvolte}                   & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
     \endhead % <--- Intestazione che si ripeterà sulle pagine SUCCESSIVE
 
-    Effettua (1:N)                                                                       & Noleggio(1:1) - Utente(1:N)                &
+    Effettua (1:N)                                                 & Noleggio(1:1) - Utente(1:N)                 &
     -- Un utente può effettuare più noleggi nel tempo. \newline
-    -- Un noleggio è associato a un solo utente.                                       &
-    /                                                                                                                             \\ \hline
+    -- Un noleggio è associato a un solo utente.                   &
+    /                                                                                                                                                        \\ \hline
 
-    Riguada(1:N)                                                                     & Noleggio(1,1) - Veicolo(1,N)                &
+    Riguada(1:N)                                                   & Noleggio(1,1) - Veicolo(1,N)                &
     -- Un veicolo può essere coinvolto in più noleggi. \newline
-    -- Ogni noleggio riguarda un solo veicolo.                                        & /                                                                                       \\ \hline
+    -- Ogni noleggio riguarda un solo veicolo.                     & /                                                                                       \\ \hline
 
-    Applica(1:N)                                                                         & Noleggio(1,1) - \newline Tariffa(1,N) &
+    Applica(1:N)                                                   & Noleggio(1,1) - \newline Tariffa(1,N)       &
     -- Un noleggio applica una tariffa specifica. \newline
-    -- La stessa tariffa può essere applicata a più noleggi.               & /                                                                                       \\ \hline
+    -- La stessa tariffa può essere applicata a più noleggi.       & /                                                                                       \\ \hline
 
-    Attraversa(1:N)                                                                      & Noleggio(1,N) - \newline Zona(0,N)    &
+    Attraversa(N:N)                                                & Noleggio(1,N) - \newline Zona(0,N)          &
     -- Un noleggio puo attraversare piu zone. \newline
-    -- Una zona può essere attraversata da più veicoli noleggiati.                         & /                                                                                       \\ \hline
+    -- Una zona può essere attraversata da più veicoli noleggiati. & /                                                                                       \\ \hline
 
-    Genera(1:N)                                                                      & Veicolo(0,N) - Segnalazione(1,1)                   &
+    Genera(1:N)                                                    & Veicolo(0,N) - Segnalazione(1,1)            &
     -- Un veicolo può generare più segnalazioni. \newline
-    -- Ogni segnalazione riguarda un solo veicolo.                                            & /                                                                                       \\ \hline
+    -- Ogni segnalazione riguarda un solo veicolo.                 & /                                                                                       \\ \hline
 
-    Copre(1:N)                                                                       & Operatore(1,1) - Zona(1,N)                 &
+    Copre(1:N)                                                     & Operatore(1,1) - Zona(1,N)                  &
     -- Un operatore copre una sola zone. \newline
-    -- Una zona può essere coperta da uno o più operatori.                                          & /                                                                                       \\ \hline
+    -- Una zona può essere coperta da uno o più operatori.         & /                                                                                       \\ \hline
 
-    Gestisce(0:N)                                                                        & Segnalazione(0,1) - \newline Operatore(0,N)            &
+    Gestisce(0:N)                                                  & Segnalazione(0,1) - \newline Operatore(0,N) &
     -- Un operatore può gestire più segnalazioni. \newline
-    -- Ogni segnalazione viene gestita da un solo operatore.                 &
-    /                                                                                                                                      \\ \hline
+    -- Ogni segnalazione viene gestita da un solo operatore.       &
+    /                                                                                                                                                        \\ \hline
 
-    Supervisiona(0:1)                                                                             & Operatore(0,1) - \newline HubRicarica(1,1)            &
+    Supervisiona(0:1)                                              & Operatore(0,1) - \newline Hub(1,1)  &
     -- Un operatore può supervisionare un hub di ricarica. \newline
-    -- Un hub è supervisionato da un operatore.                           &
-    /                                                                                   \\ \hline
+    -- Un hub è supervisionato da un operatore.                    &
+    /                                                                                                                                                        \\ \hline
 
+    Ricarica(0:N)                                              & Monopattino(0,1) - \newline PuntoRicarica(0,N)  &
+    -- Un monopattino può necessitare di essere ricaricato. \newline
+    -- Un punto di ricarica può ricaricare più monopattini.        &
+    /                                                                                                                                                        \\ \hline
+
+    Contiene(1:N)                                              & PuntoRicarica(1,1) - \newline Hub(1,N)  &
+    -- Un hub può contenere più punti di ricarica. \newline
+    -- Un punto di ricarica appartiene ad un hub.          &
+    /                                                                                                                                                        \\ \hline
+
+    Situata(1:N)                                              & Rastrelliera(1,1) - \newline Zona(0,N)  &
+    -- Una rastrelliera è situata in una zona. \newline
+    -- Una zona può contenere più rastrelliere.                    &
+    /                                                                                                                                                        \\ \hline
+
+    Parcheggiata(1:N)                                              & Bicicletta(0,1) - \newline Rastrelliera(0,N)  &
+    -- Una bicicletta può essere parcheggiata.\newline
+    -- Una rastrelliera può contenere più biciclette.              &
+    /                                                                                                                                                        \\ \hline                                                                                                                                                        \\ \hline
 \end{tabularx}
 
 \subsection{Lista Generalizzazioni}
