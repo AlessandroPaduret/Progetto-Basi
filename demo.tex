@@ -187,62 +187,58 @@ Il database è formato dalle seguenti entità:
 
 \begin{tabularx}{\linewidth}{| C{0.85} | L{1.10} | C{0.95} | C{0.90} |}
     \hline
-    \textbf{Entità}                                                                                     & \textbf{Descrizione} & \textbf{Attributi} & \textbf{Identificatore} \\ \hline
+    \textbf{Entità}                                                                                                         & \textbf{Descrizione} & \textbf{Attributi} & \textbf{Identificatore} \\ \hline
     \endfirsthead
 
     \hline
-    \textbf{Entità}                                                                                     & \textbf{Descrizione} & \textbf{Attributi} & \textbf{Identificatore} \\ \hline
+    \textbf{Entità}                                                                                                         & \textbf{Descrizione} & \textbf{Attributi} & \textbf{Identificatore} \\ \hline
     \endhead
 
-    \textbf{Persona}                                                                                    &
-    Rappresenta i membri fisici del personale della Formula 1.              &
-    CF, Nome, Cognome, Nazionalità                                                                      &
-    CF                                                                                                                                                                        \\ \hline
+    \textbf{Veicolo}                                                                                                        &
+    Rappresenta i veicolo che sono gestiti dalla compagnia di sharing.                                                              &
+    Targa, Stato                                                                                    &
+    Targa                                                                                                                                                                                         \\ \hline
 
-    \textbf{Pilota}                                                                                     &
-    Entità specializzata che estende Persona. Contiene i dati di guida e l'esperienza del pilota.       &
-    StileGuida, Esperienza                                                                              &
-    /                                                                                                                                                                        \\ \hline
+    \textbf{Bicicletta}                                                                                                     &
+    Entita specializzata che estende Veicolo.                      &
+    NumeroMarce, HasCestino                                                                                                 &
+    /                                                                                                                                                                                             \\ \hline
 
-    \textbf{Tecnico}                                                                                    &
-    Entità specializzata che estende Persona. Rappresenta gli ingegneri e i meccanici del team.         &
-    Specializzazione                                                                                    &
-    /                                                                                                                                                                        \\ \hline
+    \textbf{Monopattino}                                                                                                    &
+    Entita specializzata che estende Veicolo.                           &
+    LivelloBatteria, VelocitaMax, PesoMx                                                                                                      &
+    /                                                                                                                                                                                             \\ \hline
 
-    \textbf{Scuderia}                                                                                   &
-    Rappresenta i costruttori o i team ufficiali che partecipano al campionato.                         &
-    Nome, Sede                                                                                          &
-    Nome                                                                                                                                                                      \\ \hline
+    \textbf{Utente}                                                                                                         &
+    Rappresenta l'utente registrato sulla \newline piattaforma che \newline noleggia i veicoli.                            &
+    Nome, Cognome,\newline Telefono, DataNascita,\newline MetodoPagamento, PatentePosseduta                                 &
+    Email                                                                                                                                                                                         \\ \hline
 
-    \textbf{Vettura}                                                                                    &
-    Rappresenta le monoposto sviluppate dalle scuderie per la competizione.                             &
-    Modello, Peso, Accelerazione, Velocità                                                              &
-    Modello                                                                                                                                                                   \\ \hline
+    \textbf{Noleggio}                                                                                                       &
+    Rappresenta una singola sessione di noleggio attivata da un utente per un veicolo in un intervallo temporale specifico.                      &
+    DataOraInizio, DataOraFine, CostoTotale, Valutazione                                                                    &
+    DataOraInizio, Relazione "Effettua", Relazione "Riguarda"                                                                                                                                     \\ \hline
 
-    \textbf{Circuito}                                                                                   &
-    Rappresenta gli autodromi o i tracciati cittadini dove si svolgono i gran premi.                    &
-    Nome, Paese, Lunghezza, NCurve, Tipo                                                                &
-    Nome                                                                                                                                                                      \\ \hline
+    \textbf{Zona}                                                                                                           &
+    Rappresenta un'area urbana con regole specifiche di circolazione e sosta.                                               &
+    Nome, Citta,\newline VelocitàMax, TipoZona, Perimetro                                                               &
+    Nome, Citta                                                                                                                                                                                   \\ \hline
 
-    \textbf{Regolamento}                                                                                &
-    Definisce i vincoli tecnici e i parametri legali imposti dalla federazione.                         &
-    Versione, PesoMassimo, PesoMinimo, DRSConsentito, DataRilascio                                      &
-    Versione                                                                                                                                                                  \\ \hline
+    \textbf{Tariffa}                                                                                                   &
+    Definisce il costo applicabile al noleggio in base al tipo di veicolo e alla fascia oraria.            &
+    CodiceTariffa, CostoSblocco, CostoAlMinuto, FasciaOrarioa, TipoVeicolo                                                                               &
+    CodiceTariffa                                                                                                                                                               \\ \hline
 
-    \textbf{Campionato}                                                                                 &
-    Rappresenta la stagione annuale competitiva regolata da un budget cap.                              &
-    Nome, Anno, BudgetCap, Montepremi                                                                   &
-    Nome, Anno                                                                                                                                                                \\ \hline
+    \textbf{Operatore}                                                                                                  &
+    Rappresenta il personale dell'azienza che lavora sui veicoli. &
+    CF, Nome, Cognome, Turno                                                                        &
+    CF                                                                                                                                                              \\ \hline               
+    
+    \textbf{Segnalazione}                                                                                                   &
+    Registra un problema o un'anomalia segnalata su un veicolo.            &
+    Veicolo, DataOra, Descrizione, TipoProblema                                                                              &
+    Veicolo, DataOra                                                                                                                                                             \\ \hline
 
-    \textbf{Gara}                                                                                       &
-    Rappresenta il singolo evento del gran premio associato a un circuito e a una data.                 &
-    Data, CondizioniMeteo, Temperatura                                                  &
-    Data, Relazione "Svolgimento"                                                                                                                                                              \\ \hline
-
-    \textbf{Partecipazione}                                                                             &
-    Entità di supporto che formalizza la presenza di un pilota e di una vettura a una determinata gara. &
-    PosPartenza                                                                                         &
-    Relazione "Iscrizione", Relazione "Riferimento"                                                                                                                                                                         \\ \hline
 \end{tabularx}
 \newpage
 
@@ -265,48 +261,41 @@ Il database è formato dalle seguenti relazioni:
     \textbf{Relazione}                                                                    & \textbf{Entità Coinvolte}                   & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
     \endhead % <--- Intestazione che si ripeterà sulle pagine SUCCESSIVE
 
-    Contratto (N:N)                                                                       & Persona(1:N) - Scuderia(1:N)                &
-    -- Una persona firma contratti con una sola scuderia alla volta. \newline
-    -- Una scuderia ha più persone sotto contratto.                                       &
-    AnnoInizio, \newline AnnoFine, \newline Stipendio                                                                                                                               \\ \hline
+    Effettua (1:N)                                                                       & Noleggio(1:1) - Utente(1:N)                &
+    -- Un utente può effettuare più noleggi nel tempo. \newline
+    -- Un noleggio è associato a un solo utente.                                       &
+    /                                                                                                                             \\ \hline
 
-    Appartenenza(1,N)                                                                     & Scuderia(1,N) - Vettura(1,1)                &
-    -- Una scuderia possiede più vetture nel corso delle stagioni. \newline
-    -- Una vettura appartiene a una sola scuderia.                                        & /                                                                                       \\ \hline
+    Riguada(1:N)                                                                     & Noleggio(1,1) - Veicolo(1,N)                &
+    -- Un veicolo può essere coinvolto in più noleggi. \newline
+    -- Ogni noleggio riguarda un solo veicolo.                                        & /                                                                                       \\ \hline
 
-    Utilizzo(0,N)                                                                         & Vettura(0,N) - \newline Partecipazione(1,1) &
-    -- Una vettura può essere utilizzata in più partecipazioni nel tempo. \newline
-    -- Una specifica partecipazione prevede l'utilizzo di una sola vettura.               & /                                                                                       \\ \hline
+    Applica(1:N)                                                                         & Noleggio(1,1) - \newline Tariffa(1,N) &
+    -- Un noleggio applica una tariffa specifica. \newline
+    -- La stessa tariffa può essere applicata a più noleggi.               & /                                                                                       \\ \hline
 
-    Iscrizione(1,N)                                                                       & Pilota(1,N) - \newline Partecipazione(1,1)  &
-    -- Un pilota può iscriversi a più partecipazioni nel corso della stagione. \newline
-    -- Una specifica partecipazione fa riferimento a un solo pilota iscritto.             & /                                                                                       \\ \hline
+    Attraversa(1:N)                                                                      & Noleggio(1,N) - \newline Zona(0,N)    &
+    -- Un noleggio puo attraversare piu zone. \newline
+    -- Una zona può essere attraversata da più veicoli noleggiati.                         & /                                                                                       \\ \hline
 
-    Riferimento(1,N)                                                                      & Gara(1,N) - \newline Partecipazione(1,1)    &
-    -- Una gara ha più partecipazioni di piloti e vetture associate. \newline
-    -- Una specifica partecipazione si riferisce a una sola gara.                         & /                                                                                       \\ \hline
+    Genera(1:N)                                                                      & Veicolo(0,N) - Segnalazione(1,1)                   &
+    -- Un veicolo può generare più segnalazioni. \newline
+    -- Ogni segnalazione riguarda un solo veicolo.                                            & /                                                                                       \\ \hline
 
-    Svolgimento(1,N)                                                                      & Gara(1,1) - Circuito(1,N)                   &
-    -- Un circuito ospita lo svolgimento di più gare nel tempo. \newline
-    -- Una gara si svolge su un solo circuito.                                            & /                                                                                       \\ \hline
+    Copre(1:N)                                                                       & Operatore(1,1) - Zona(1,N)                 &
+    -- Un operatore copre una sola zone. \newline
+    -- Una zona può essere coperta da uno o più operatori.                                          & /                                                                                       \\ \hline
 
-    Inclusione(0,N)                                                                       & Gara(1,1) - Campionato(1,N)                 &
-    -- Un campionato include più gare nel corso della stagione. \newline
-    -- Una gara appartiene a un solo campionato.                                          & /                                                                                       \\ \hline
+    Gestisce(0:N)                                                                        & Segnalazione(0,1) - \newline Operatore(0,N)            &
+    -- Un operatore può gestire più segnalazioni. \newline
+    -- Ogni segnalazione viene gestita da un solo operatore.                 &
+    /                                                                                                                                      \\ \hline
 
-    Risultato(N,M)                                                                        & Pilota(0,N) - \newline Gara(0,N)            &
-    -- Un pilota ottiene un risultato finale per ogni gara a cui partecipa. \newline
-    -- Una gara registra il risultato finale di ogni pilota partecipante.                 &
-    Posizione, \newline Punti, \newline Ritiro                                                                                                                                      \\ \hline
+    Supervisiona(0:1)                                                                             & Operatore(0,1) - \newline HubRicarica(1,1)            &
+    -- Un operatore può supervisionare un hub di ricarica. \newline
+    -- Un hub è supervisionato da un operatore.                           &
+    /                                                                                   \\ \hline
 
-    Giro(N,M)                                                                             & Pilota(1,N) - \newline Gara(1,N)            &
-    -- Un pilota percorre più giri durante una gara. \newline
-    -- Una gara registra i giri di tutti i piloti partecipanti.                           &
-    NumeroGiro, \newline TempoGiro, \newline Settore1, \newline Settore2, \newline Settore3                                                                                         \\ \hline
-
-    Controlla(1,N)                                                                        & Tecnico(0,N) - \newline Partecipazione(1,1) &
-    -- Un tecnico può controllare più partecipazioni nel tempo, oppure nessuna. \newline
-    -- Un veicolo di una specifica partecipazione viene sempre controllata da un tecnico. & Note                                                                                    \\ \hline
 \end{tabularx}
 
 \subsection{Lista Generalizzazioni}
@@ -613,7 +602,7 @@ ORDER BY PuntiTotali DESC;
 \vspace{-0.2cm}
 
 \subsubsection{Circuiti più Frequenti nei Campionati}
-\textbf{Obiettivo:} Individuare i circuiti che hanno ospitato più di una gara all'interno del simulatore, 
+\textbf{Obiettivo:} Individuare i circuiti che hanno ospitato più di una gara all'interno del simulatore,
 ordinandoli in modo decrescente in base al numero totale di eventi disputati.
 \vspace{0.2cm}
 \begin{lstlisting}[
@@ -641,7 +630,7 @@ ORDER BY NumeroGareOspitate DESC;
 \vspace{-0.4cm}
 
 \subsubsection{Analisi Finanziaria e Risorse delle Scuderie}
-\textbf{Obiettivo:} Fornire una panoramica gestionale delle scuderie, analizzando il numero complessivo di 
+\textbf{Obiettivo:} Fornire una panoramica gestionale delle scuderie, analizzando il numero complessivo di
 contratti stipulati (sia attivi che storici) e il budget totale allocato per gli stipendi del personale.
 
 \vspace{0.2cm}
@@ -781,7 +770,7 @@ WHERE GaraData = '2026-03-29' AND GaraCircuito = 'Monza'
 \end{figure}
 
 \subsection{Creazione degli Indici}
-\textbf{Indice scelto} per ottimizzare le query più importanti: il calcolo della classifica live e tempi di qualifica. 
+\textbf{Indice scelto} per ottimizzare le query più importanti: il calcolo della classifica live e tempi di qualifica.
 Si crea un indice composito su \texttt{Giro} (JOIN su gara/pilota e ordinamento per numero giro).
 
 \begin{lstlisting}[language=SQL, caption={Indice composito per ottimizzare query su Giro}]

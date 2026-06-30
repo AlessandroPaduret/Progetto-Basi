@@ -20,16 +20,22 @@ static void show_menu(void)
 static int read_choice(void)
 {
     int v;
-    for (;;) {
+    for (;;)
+    {
         printf("Seleziona un'opzione: ");
-        if (scanf("%d", &v) == 1) {
+        if (scanf("%d", &v) == 1)
+        {
             int c;
-            while ((c = getchar()) != '\n' && c != EOF);
+            while ((c = getchar()) != '\n' && c != EOF)
+                ;
             if (v >= 0 && v <= 5)
                 return v;
-        } else {
+        }
+        else
+        {
             int c;
-            while ((c = getchar()) != '\n' && c != EOF);
+            while ((c = getchar()) != '\n' && c != EOF)
+                ;
         }
         printf("Scegli un valore tra 0 e 5.\n");
     }
@@ -38,24 +44,28 @@ static int read_choice(void)
 int main(void)
 {
     const char *conn_str = getenv("DB_CONN");
-    if (conn_str == NULL) {
+    if (conn_str == NULL)
+    {
         conn_str = "user=postgres password=password dbname=Simulatore_F1 host=localhost";
     }
 
     DBF1 db;
-    if (dbf1_connect(&db, conn_str) != 0) {
+    if (dbf1_connect(&db, conn_str) != 0)
+    {
         fprintf(stderr, "%s\n", db.error_msg);
         return 1;
     }
 
-    for (;;) {
+    for (;;)
+    {
         show_menu();
         int choice = read_choice();
 
         if (choice == 0)
             break;
 
-        switch (choice) {
+        switch (choice)
+        {
         case 1:
             dbf1_query_driver_standings(&db);
             break;
@@ -68,24 +78,26 @@ int main(void)
             dbf1_query_team_financials(&db);
             break;
 
-        case 4: {
+        case 4:
+        {
             char circuito[128], data[32];
             if (dbf1_choose_track_then_date_prepared(&db,
-                    circuito, sizeof(circuito),
-                    data,     sizeof(data)))
+                                                     circuito, sizeof(circuito),
+                                                     data, sizeof(data)))
                 dbf1_query_fastest_laps(&db, circuito, data);
             break;
         }
 
-        case 5: {
+        case 5:
+        {
             char circuito[128], data[32];
             if (dbf1_choose_track_then_date_prepared(&db,
-                    circuito, sizeof(circuito),
-                    data,     sizeof(data)))
+                                                     circuito, sizeof(circuito),
+                                                     data, sizeof(data)))
                 dbf1_query_live_standings(&db, circuito, data);
             break;
         }
-        
+
         default:
             printf("Scelta non valida.\n");
             break;

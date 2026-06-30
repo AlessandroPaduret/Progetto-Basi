@@ -8,20 +8,20 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: Simulatore_F1
     ports:
-      - "5432:5432"
+      - "5432:5433"
     volumes:
       # Mappa la cartella locale con gli script SQL nella cartella di init di Postgres
       - ./init-db:/docker-entrypoint-initdb.d
       # Volume per persistere i dati anche se spegni il container
       - postgres_data:/var/lib/postgresql/data
-  
+
   app:
     build: .
     environment:
       # Stringa di connessione che punta al servizio 'db'
       DB_CONN: "user=postgres password=password dbname=Simulatore_F1 host=db-f1"
     stdin_open: true # Necessario per scanf/input interattivi
-    tty: true        # Necessario per vedere l'output formattato bene
+    tty: true # Necessario per vedere l'output formattato bene
     depends_on:
       - db-f1
 

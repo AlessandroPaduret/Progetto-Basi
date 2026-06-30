@@ -37,10 +37,12 @@ brew install postgresql pkg-config cmocka
 Installare [MinGW-w64](https://www.mingw-w64.org/) (include `gcc` e `mingw32-make`) e [PostgreSQL](https://www.postgresql.org/download/windows/) (versione 13–17).
 
 Aggiungere al PATH di sistema:
+
 ```
 C:\MinGW\bin
 C:\Program Files\PostgreSQL\<versione>\bin
 ```
+
 Il Makefile rileva automaticamente il path di PostgreSQL tramite `pg_config`.
 
 ---
@@ -50,6 +52,7 @@ Il Makefile rileva automaticamente il path di PostgreSQL tramite `pg_config`.
 ### Compilare l'applicazione
 
 Linux / Mac:
+
 ```bash
 make
 # oppure esplicitamente
@@ -57,6 +60,7 @@ make all
 ```
 
 Windows (MinGW):
+
 ```bash
 mingw32-make
 # oppure esplicitamente
@@ -68,10 +72,13 @@ Produce `app.out` su Linux/Mac, `app.exe` su Windows.
 ### Pulire i file compilati
 
 Linux / Mac:
+
 ```bash
 make clean
 ```
+
 Windows:
+
 ```bash
 mingw32-make clean
 ```
@@ -83,6 +90,7 @@ mingw32-make clean
 Prima di avviare l'app è necessario avere un'istanza PostgreSQL in esecuzione con il database `Simulatore_F1` caricato.
 
 Per default l'app si connette con:
+
 ```
 user=postgres password=password dbname=Simulatore_F1 host=localhost
 ```
@@ -105,6 +113,7 @@ $env:DB_CONN="user=postgres password=miapassword dbname=Simulatore_F1 host=local
 
 **Mac — `libpq-fe.h` not found**
 Se `make` fallisce con questo errore, `pkg-config` non riesce a trovare PostgreSQL. Verificare che Homebrew abbia installato correttamente il pacchetto:
+
 ```bash
 brew install postgresql pkg-config
 pg_config --includedir   # deve restituire un path valido
@@ -121,6 +130,7 @@ Se si usa Git Bash o WSL, il comando `rm` è disponibile e viene rilevato automa
 
 **Encoding caratteri speciali**
 Su Windows il terminale potrebbe mostrare caratteri errati (es. `Citt├á` invece di `Città`). Impostare la codepage UTF-8 prima di avviare l'app:
+
 ```
 chcp 65001
 ```
