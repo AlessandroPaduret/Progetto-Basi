@@ -64,6 +64,7 @@ dislocati nelle diverse zone cittadine.
 registrando le Segnalazioni di malfunzionamento gestite poi dagli Operatori. Ogni noleggio applica
 una specifica Tariffa, che definisce i costi a cui l'utente è soggetto in base al tipo di veicolo
 e alla durata dell'utilizzo.
+
 \section{Analisi dei Requisiti}
 
 Questa base di dati serve a gestire le informazioni relative ad un azienda che offre un servizio
@@ -184,6 +185,7 @@ combinazione di \textbf{Nome} e \textbf{Citta}, ed è caratterizzata da:
 \newpage
 
 %pagina 5
+
 \section{Progettazione Concettuale}
 \subsection{Lista Entità}
 Il database è formato dalle seguenti entità:
@@ -346,7 +348,6 @@ Il database è formato dalle seguenti relazioni:
     \makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{Immagini/er.png}}
 \end{figure}
 
-
 \section{Progettazione Logica}
 \subsection{Analisi delle Ridondanze}
 Analizzando lo schema E-R e la successiva traduzione relazionale, si nota una potenziale ridondanza informativa tra le
@@ -486,12 +487,12 @@ state ristrutturate in modo da ridurre al minimo i valori nulli presenti e poter
 semplificare la successiva implementazione nel database in SQL:
 \begin{itemize}
     \item
-          \textbf{Persona}: La generalizzazione totale ed esclusiva di Persona viene rimossa includendo le relazioni Qualifica
-          e Abilitazione, collegate tramite relazioni $1:1$. La scelta proviene dal fatto che sia l’entità Pilota che l’entità Tecnico
-          hanno delle relazioni particolari che renderebbero il database molto più complesso se entrambe fossero collassate in Persona
-          (sarebbe stato necessario controllare che le transazioni fossero effettuate tra Pilota e Tecnico, e avrebbe reso la relazione
-          Partecipazione-Persona 0:N invece che 1:N). Inoltre, questo metodo evita l’introduzione di ulteriori campi nulli ridondanti, separando le informazioni
-          univoche. Si utilizza la chiave di Persona per identificare univocamente anche Pilota e Tecnico.
+          \textbf{Veicolo}: La generalizzazione totale ed esclusiva di Veicolo viene rimossa includendo le relazioni Qualifica
+          e Abilitazione, collegate tramite relazioni $1:1$. La scelta proviene dal fatto che sia l’entità Bicicletta che l’entità Monopattino
+          sono molto differenziate tra loro tramite i loro rispettivi attributi e hanno delle relazioni particolari che renderebbero il database 
+          molto più complesso se entrambe fossero collassate in Veicolo (sarebbe stato necessario controllare che le transazioni fossero effettuate
+          tra Bicicletta e Monopattino). Inoltre, questo metodo evita l’introduzione di ulteriori campi nulli ridondanti, separando le informazioni univoche.
+          Si utilizza la chiave di Veicolo per identificare univocamente anche Bicicletta e Monopattino.
 \end{itemize}
 
 \newpage
