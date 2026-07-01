@@ -54,131 +54,132 @@ Alessandro Paduret (2150445) \hfill Stefano Andreas Marian Ghetu (2103473)
 
 % pagina 3
 \section{Abstract}
-Il progetto definisce un'architettura di database semplificata per la gestione di un simulatore
-di corse automobilistiche ispirato alla Formula 1. L'obiettivo è fornire una struttura
-essenziale e scalabile per tracciare scuderie, piloti, vetture e i risultati delle competizioni.
-\\Il sistema modella la gestione del personale attraverso persone (piloti e tecnici) e i loro contratti
-con le scuderie nel tempo.
-\\La parte sportiva gestisce Campionati, Gare e Circuiti, registrando i risultati finali
-di ogni pilota in ogni gara. Ogni campionato adotta una specifica versione del Regolamento
-tecnico FIA, che definisce i vincoli a cui le vetture devono conformarsi durante la stagione.
-
+Il progetto definisce un'architettura di database semplificata per la gestione di un servizio
+di sharing di veicoli urbani (monopattini e biciclette). L'obiettivo è fornire una struttura
+essenziale e scalabile per tracciare la flotta, gli utenti e i noleggi effettuati in città.
+\\Il sistema modella la gestione della flotta attraverso i veicoli (monopattini e biciclette),
+le loro caratteristiche specifiche e la collocazione presso hub, punti di ricarica e rastrelliere
+dislocati nelle diverse zone cittadine.
+\\La parte operativa gestisce gli Utenti, i loro Noleggi e gli spostamenti tra le Zone,
+registrando le Segnalazioni di malfunzionamento gestite poi dagli Operatori. Ogni noleggio applica
+una specifica Tariffa, che definisce i costi a cui l'utente è soggetto in base al tipo di veicolo
+e alla durata dell'utilizzo.
 \section{Analisi dei Requisiti}
 
-Questa base di dati serve a gestire le informazioni relative a un simulatore di corse
-automobilistiche ispirato alla Formula 1, in cui il giocatore gestisce una scuderia,
-sviluppa la vettura e partecipa a campionati.
+Questa base di dati serve a gestire le informazioni relative ad un azienda che offre un servizio
+di noleggio urbano, in cui si vogliono sapere i movimenti dei veicoli a disposizione e il lavoro degli operatori dell'azienda
+che lavorano sul campo.
 
 \invio
-\textbf{Persona}.
-Le persone sono tutte le figure umane che operano all'interno di una scuderia.
-Sono identificate da un codice fiscale e descritte dalle seguenti informazioni:
+\textbf{Veicolo}.
+I veicoli sono tutti i mezzi di sharing che possiede l'azienda.
+Sono identificati dalla targa e descritte dalle seguenti informazioni:
 \begin{itemize}
-    \item Il \textbf{Codice Fiscale} che identifica univocamente la persona.
+    \item Il \textbf{Targa} che identifica univocamente il veicolo.
+    \item Lo \textbf{Stato} del veicolo (Disponibile, In Uso, Manutenzione).
+    \item La \textbf{Marca} del veicolo.
+\end{itemize}
+I veicoli sono divisi tra Biciclette e Monopattini.
+
+\invio
+\textbf{Bicicletta}.
+Oltre alle informazioni generali dei veicoli, una bicicletta è caratterizzato da:
+\begin{itemize}
+    \item Il \textbf{Numero Marce} possedute.
+    \item Se è dotata di \textbf{Cestino}.
+\end{itemize}
+
+\textbf{Monopattino}.
+Oltre alle informazioni generali dei veicoli, un monopattino è caratterizzato da:
+\begin{itemize}
+    \item Il \textbf{Livello di Batteria} che ha il mezzo al momento.
+    \item La \textbf{Velocita Massima} a cui il monopattino puo andare.
+    \item Il \textbf{Peso Massimo} che è in grado di trasportare.
+\end{itemize}
+
+\textbf{Utente}.
+L' utente rappresenta la persona registrata sull'applicazione di ride sahring.
+È descritto da:
+\begin{itemize}
+    \item La \textbf{Email} che la identifica univocamente.
     \item Il \textbf{Nome} e il \textbf{Cognome}.
-    \item La \textbf{Nazionalità}.
-\end{itemize}
-Le persone si dividono in Piloti e Tecnici.
-
-\invio
-\textbf{Pilota}.
-Oltre alle informazioni generali delle persone, un pilota è caratterizzato da:
-\begin{itemize}
-    \item Lo \textbf{Stile di Guida}, ovvero l'approccio alla guida
-          (Aggressivo, Conservativo, Bilanciato).
-    \item Il livello di \textbf{Esperienza}, che influenza le prestazioni in gara.
+    \item Il \textbf{Metodo di Pagamento} utilizzato.
+    \item Il numero di \textbf{Telefono} della persona.
+    \item La sua \textbf{Data di nascita}.
 \end{itemize}
 
-\textbf{Tecnico}.
-Oltre alle informazioni generali delle persone, un tecnico è caratterizzato da:
+\textbf{Noleggio}.
+L'utente puo noleggiare un veicolo alla volta durante un certo lasso di tempo.
+Un noleggio è descritto da:
 \begin{itemize}
-    \item La \textbf{Specializzazione} tecnica (Aerodinamica, Motore, Gomme).
-\end{itemize}
-
-\textbf{Scuderia}.
-La scuderia rappresenta il team gestito dal giocatore. È descritta da:
-\begin{itemize}
-    \item Il \textbf{Nome} che la identifica univocamente.
-    \item La \textbf{Sede} geografica del team.
-\end{itemize}
-Una persona è legata a una scuderia tramite un \textbf{Contratto}, descritto da:
-\begin{itemize}
-    \item L'\textbf{Anno di Inizio} e l'\textbf{Anno di Fine} del contratto.
-    \item Il \textbf{Stipendio} percepito.
-\end{itemize}
-
-\textbf{Vettura}.
-Ogni scuderia sviluppa una o più vetture nel corso delle stagioni. Una vettura
-è descritta da:
-\begin{itemize}
-    \item Il \textbf{Modello} della vettura (es. SF-24, W15).
-    \item Il \textbf{Peso} in kg della macchina.
-    \item L'\textbf{Accelerazione} della macchina.
-    \item La \textbf{Velocità} massima che il veicolo può raggiungere.
+    \item L' \textbf{Ora di Inizio} del noleggio.
+    \item L' \textbf{Ora di Fine} del noleggio.
+    \item Il \textbf{Costo Totale}.
 \end{itemize}
 
 % pagina 4
-\textbf{Circuito}.
-I circuiti sono le piste su cui si svolgono le sessioni di gara. Sono descritti da:
+\textbf{Tariffa}.
+È il costo che viene applicato al minuto durante il noleggio. È identificato
+unicamente dalla combinazione di \textbf{Fascia Oraria} e \textbf{Tipo Veicolo},
+ed è descritti da:
 \begin{itemize}
-    \item Il \textbf{Nome} che lo identifica univocamente.
-    \item Il \textbf{Paese} in cui si trova.
-    \item La \textbf{Lunghezza} in chilometri.
-    \item Il \textbf{Numero di Curve}.
-    \item Il \textbf{Tipo} di circuito (Cittadino, Permanente, Misto).
+    \item La \textbf{Fascia Oraria} in cui avviene il noleggio.
+    \item Il \textbf{Tipo Veicolo} che si seleziona.
+    \item Il \textbf{Costo Sblocco} del veicolo.
+    \item Il \textbf{Costo al Minuto}.
 \end{itemize}
 
-\textbf{Regolamento}.
-Ogni campionato è regolato da una versione specifica del regolamento tecnico FIA.
-Il regolamento è descritto da:
+\textbf{Zona}.
+Rappresentano le aree delle varie citta in cui il servizio è attivo.
+La zona è descritta da:
 \begin{itemize}
-    \item La \textbf{Versione} che lo identifica univocamente.
-    \item La \textbf{Peso Massimo} e il \textbf{Peso Minimo} consentiti per le vetture.
-    \item L'abilitazione del \textbf{DRS}, ovvero se il sistema di riduzione della
-          resistenza aerodinamica è consentito.
-    \item La \textbf{Data di Rilascio}, ovvero quando la FIA ha pubblicato
-          questa versione.
+    \item Il \textbf{Nome} della zona.
+    \item La \textbf{Citta} di riferimento.
+    \item La \textbf{Velocita Massima} concessa in quella zona.
+    \item Il \textbf{Perimetro} della zona.
+    \item Il \textbf{Tipo di Zona} (Attiva, No Parking, Velocita Ridotta).
 \end{itemize}
 
-\textbf{Campionato}.
-Il campionato rappresenta una stagione di gare. È identificato univocamente dalla
-combinazione di \textbf{Nome} e \textbf{Anno}, ed è descritto da:
+\textbf{Segnalazione}.
+I sensori dei veicoli inviano in automatico segnalazioni in caso di malfunzionamenti.
+È descritto da:
 \begin{itemize}
-    \item Il \textbf{Nome} del campionato.
-    \item L'\textbf{Anno} di svolgimento.
-    \item Il \textbf{Budget Cap}, ovvero il limite di spesa imposto dalla FIA
-          per quella stagione, uguale per tutte le scuderie.
-    \item Il \textbf{Montepremi} totale distribuito alle scuderie a fine stagione.
+    \item La \textbf{Data e Ora} della segnalazione.
+    \item La\textbf{Descizione} del problema.
+    \item Il \textbf{Tipo di Problema}.
 \end{itemize}
 
-\textbf{Gara}.
-Rappresenta una singola attività di gara su un circuito. È descritta da:
+\textbf{Operatore}.
+L'operatore è la persona che lavora presso l'azienda.
+Sono identificate da un codice fiscale e descritte dalle seguenti informazioni:
 \begin{itemize}
-    \item La \textbf{Data} in cui avviene la corsa.
-    \item Le \textbf{Condizioni Meteo} (Soleggiato, Nuvoloso, Pioggia).
-    \item La \textbf{Temperatura} dell'asfalto.
-\end{itemize}
-I piloti partecipano alle sessioni al volante di una vettura. Ogni giro percorso
-da un pilota durante una sessione viene tracciato come \textbf{Giro}, descritto da:
-\begin{itemize}
-    \item Il \textbf{Numero del Giro}.
-    \item I tempi parziali \textbf{Settore 1}, \textbf{Settore 2} e \textbf{Settore 3}.
-    \item La \textbf{Gomma Utilizzata} in quel giro (Soft, Medium, Hard, Intermedie, Wet).
-\end{itemize}
-Al termine di ogni sessione viene registrato il \textbf{Risultato} di ogni pilota,
-descritto da:
-\begin{itemize}
-    \item La \textbf{Posizione} finale, nulla in caso di ritiro.
-    \item I \textbf{Punti} ottenuti, nulli in caso di ritiro.
-    \item L'eventuale causa del \textbf{Ritiro}
-          (Incidente, Guasto meccanico, Squalifica, Abbandono).
+    \item Il \textbf{Codice Fiscale} che identifica univocamente la persona.
+    \item Il \textbf{Nome} e \textbf{Cognome} della persona.
+    \item Il \textbf{Turno} in cui lavorano.
 \end{itemize}
 
-\textbf{Partecipazione}. La partecipazione modella l'iscrizione e la presenza effettiva di un pilota e della sua rispettiva vettura a una specifica gara del campionato.
+\textbf{Hub}. Il luogo in cui vengono ricaricati i monopattini e avvengono le riparazioni sui veicoli.
 È identificato univocamente dalla
-combinazione di \textbf{Pilota} e \textbf{Gara}, ed è caratterizzata da:
+combinazione di \textbf{Nome} e \textbf{Citta}, ed è caratterizzata da:
 \begin{itemize}
-    \item La \textbf{Posizione di Partenza} del pilota in una determinata gara.
+    \item La \textbf{Capacita Massima} dei veicoli che puo ospitare.
+    \item L'\textbf{Indirizzo} in cui si trova l'hub.
+\end{itemize}
+
+
+\textbf{PuntoRicarica}. Sono le stazioni fisiche all'interno degli hub in cui i monopattini vengono caricati.
+È caratterizzata da:
+\begin{itemize}
+    \item Il \textbf{Numero presa} della colonnina, univoco internamente all'hub.
+    \item Lo \textbf{Stato} della colonnina.
+    \item La \textbf{Data dell Ultimo Test} della colonnina.
+\end{itemize}
+
+\textbf{Rastrelliera}. Sono i punti dove vengono lasciate le biciclette all'interno delle zone quando non sono in utilizzo.
+È caratterizzata da:
+\begin{itemize}
+    \item Il \textbf{Codice} della rastelliera, univoco internamente alla zona.
+    \item Il \textbf{Numero Massimo} di posti che possiede.
 \end{itemize}
 \newpage
 
@@ -198,17 +199,17 @@ Il database è formato dalle seguenti entità:
 
     \textbf{Veicolo}                                                                                                        &
     Rappresenta i veicolo che sono gestiti dalla compagnia di sharing.                                                      &
-    Targa, Stato, Marca                                                                                                           &
-    Targa                                                                                                                                                                                          \\ \hline
+    Targa, Stato, Marca                                                                                                     &
+    Targa                                                                                                                                                                                         \\ \hline
 
     \textbf{Bicicletta}                                                                                                     &
     Entita specializzata che estende Veicolo.                                                                               &
-    NMarce, HasCestino                                                                                                 &
+    NMarce, HasCestino                                                                                                      &
     /                                                                                                                                                                                             \\ \hline
 
     \textbf{Monopattino}                                                                                                    &
     Entita specializzata che estende Veicolo.                                                                               &
-    LivelloBatteria, VelocitaMax, PesoMax                                                                                    &
+    LivelloBatteria, VelocitaMax, PesoMax                                                                                   &
     /                                                                                                                                                                                             \\ \hline
 
     \textbf{Utente}                                                                                                         &
@@ -224,12 +225,12 @@ Il database è formato dalle seguenti entità:
     \textbf{Zona}                                                                                                           &
     Rappresenta un'area urbana con regole specifiche di circolazione e sosta.                                               &
     Nome, Citta,\newline VelocitàMax, TipoZona, Perimetro                                                                   &
-    Nome, Citta                                                                                                                                                                                        \\ \hline
+    Nome, Citta                                                                                                                                                                                   \\ \hline
 
     \textbf{Tariffa}                                                                                                        &
     Definisce il costo applicabile al noleggio in base al tipo di veicolo e alla fascia oraria.                             &
-    CostoSblocco, CostoAlMinuto, FasciaOraria, TipoVeicolo                                                  &
-    FasciaOraria, TipoVeicolo                                                                                                                                                                                 \\ \hline
+    CostoSblocco, CostoAlMinuto, FasciaOraria, TipoVeicolo                                                                  &
+    FasciaOraria, TipoVeicolo                                                                                                                                                                     \\ \hline
 
     \textbf{Operatore}                                                                                                      &
     Rappresenta il personale dell'azienza che lavora sui veicoli.                                                           &
@@ -244,17 +245,17 @@ Il database è formato dalle seguenti entità:
     \textbf{Hub}                                                                                                            &
     Luogo dove i veicoli vengono portati per essere riparati e caricati.                                                    &
     Citta, Nome, Indirizzo, CapacitaMax.                                                                                    &
-    Citta, Nome                                                                                                                                                                              \\ \hline
+    Citta, Nome                                                                                                                                                                                   \\ \hline
 
     \textbf{Rastrelliera}                                                                                                   &
     Luogo dove le biciclette vengono lascate dagli utenti.                                                                  &
-    Codice,MaxPosti.                                                                                    &
-    Codice, Relazione "Localizzata"                                                                                                                                                                           \\ \hline
+    Codice,MaxPosti.                                                                                                        &
+    Codice, Relazione "Localizzata"                                                                                                                                                               \\ \hline
 
-    \textbf{PuntoRicarica}                                                                                                    &
-    Luogo dove i monopattini vengono messi a caricare.                                                                                                           &
-    NPresa, Stato, DataUltimoTest                                                                                    &
-    NPresa, Relazione "Contiene"                                                                                                                                                                             \\ \hline
+    \textbf{PuntoRicarica}                                                                                                  &
+    Luogo dove i monopattini vengono messi a caricare.                                                                      &
+    NPresa, Stato, DataUltimoTest                                                                                           &
+    NPresa, Relazione "Contiene"                                                                                                                                                                  \\ \hline
 \end{tabularx}
 \newpage
 
@@ -270,67 +271,67 @@ Il database è formato dalle seguenti relazioni:
 
 \begin{tabularx}{\textwidth}{| C{0.95} | C{0.90} | L{1.30} | C{0.75} |}
     \hline
-    \textbf{Relazione}                                             & \textbf{Entità Coinvolte}                   & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
+    \textbf{Relazione}                                             & \textbf{Entità Coinvolte}                      & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
     \endfirsthead % <--- Intestazione della PRIMA pagina
 
     \hline
-    \textbf{Relazione}                                             & \textbf{Entità Coinvolte}                   & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
+    \textbf{Relazione}                                             & \textbf{Entità Coinvolte}                      & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
     \endhead % <--- Intestazione che si ripeterà sulle pagine SUCCESSIVE
 
-    Effettua (1:N)                                                 & Noleggio(1:1) - Utente(1:N)                 &
+    Effettua (1:N)                                                 & Noleggio(1:1) - Utente(1:N)                    &
     -- Un utente può effettuare più noleggi nel tempo. \newline
     -- Un noleggio è associato a un solo utente.                   &
-    /                                                                                                                                                        \\ \hline
+    /                                                                                                                                                           \\ \hline
 
-    Riguada(1:N)                                                   & Noleggio(1,1) - Veicolo(1,N)                &
+    Riguada(1:N)                                                   & Noleggio(1,1) - Veicolo(1,N)                   &
     -- Un veicolo può essere coinvolto in più noleggi. \newline
-    -- Ogni noleggio riguarda un solo veicolo.                     & /                                                                                       \\ \hline
+    -- Ogni noleggio riguarda un solo veicolo.                     & /                                                                                          \\ \hline
 
-    Applica(1:N)                                                   & Noleggio(1,1) - \newline Tariffa(1,N)       &
+    Applica(1:N)                                                   & Noleggio(1,1) - \newline Tariffa(1,N)          &
     -- Un noleggio applica una tariffa specifica. \newline
-    -- La stessa tariffa può essere applicata a più noleggi.       & /                                                                                       \\ \hline
+    -- La stessa tariffa può essere applicata a più noleggi.       & /                                                                                          \\ \hline
 
-    Attraversa(N:N)                                                & Noleggio(1,N) - \newline Zona(0,N)          &
+    Attraversa(N:N)                                                & Noleggio(1,N) - \newline Zona(0,N)             &
     -- Un noleggio puo attraversare piu zone. \newline
-    -- Una zona può essere attraversata da più veicoli noleggiati. & /                                                                                       \\ \hline
+    -- Una zona può essere attraversata da più veicoli noleggiati. & /                                                                                          \\ \hline
 
-    Genera(1:N)                                                    & Veicolo(0,N) - Segnalazione(1,1)            &
+    Genera(1:N)                                                    & Veicolo(0,N) - Segnalazione(1,1)               &
     -- Un veicolo può generare più segnalazioni. \newline
-    -- Ogni segnalazione riguarda un solo veicolo.                 & /                                                                                       \\ \hline
+    -- Ogni segnalazione riguarda un solo veicolo.                 & /                                                                                          \\ \hline
 
-    Copre(1:N)                                                     & Operatore(1,1) - Zona(1,N)                  &
+    Copre(1:N)                                                     & Operatore(1,1) - Zona(1,N)                     &
     -- Un operatore copre una sola zone. \newline
-    -- Una zona può essere coperta da uno o più operatori.         & /                                                                                       \\ \hline
+    -- Una zona può essere coperta da uno o più operatori.         & /                                                                                          \\ \hline
 
-    Gestisce(0:N)                                                  & Segnalazione(0,1) - \newline Operatore(0,N) &
+    Gestisce(0:N)                                                  & Segnalazione(0,1) - \newline Operatore(0,N)    &
     -- Un operatore può gestire più segnalazioni. \newline
     -- Ogni segnalazione viene gestita da un solo operatore.       &
-    /                                                                                                                                                        \\ \hline
+    /                                                                                                                                                           \\ \hline
 
-    Supervisiona(0:1)                                              & Operatore(0,1) - \newline Hub(1,1)  &
+    Supervisiona(0:1)                                              & Operatore(0,1) - \newline Hub(1,1)             &
     -- Un operatore può supervisionare un hub di ricarica. \newline
     -- Un hub è supervisionato da un operatore.                    &
-    /                                                                                                                                                        \\ \hline
+    /                                                                                                                                                           \\ \hline
 
-    Ricarica(0:N)                                              & Monopattino(0,1) - \newline PuntoRicarica(0,N)  &
+    Ricarica(0:N)                                                  & Monopattino(0,1) - \newline PuntoRicarica(0,N) &
     -- Un monopattino può necessitare di essere ricaricato. \newline
     -- Un punto di ricarica può ricaricare più monopattini.        &
-    /                                                                                                                                                        \\ \hline
+    /                                                                                                                                                           \\ \hline
 
-    Contiene(1:N)                                              & PuntoRicarica(1,1) - \newline Hub(1,N)  &
+    Contiene(1:N)                                                  & PuntoRicarica(1,1) - \newline Hub(1,N)         &
     -- Un hub può contenere più punti di ricarica. \newline
-    -- Un punto di ricarica appartiene ad un hub.          &
-    /                                                                                                                                                        \\ \hline
+    -- Un punto di ricarica appartiene ad un hub.                  &
+    /                                                                                                                                                           \\ \hline
 
-    Situata(1:N)                                              & Rastrelliera(1,1) - \newline Zona(0,N)  &
+    Situata(1:N)                                                   & Rastrelliera(1,1) - \newline Zona(0,N)         &
     -- Una rastrelliera è situata in una zona. \newline
     -- Una zona può contenere più rastrelliere.                    &
-    /                                                                                                                                                        \\ \hline
+    /                                                                                                                                                           \\ \hline
 
-    Parcheggiata(1:N)                                              & Bicicletta(0,1) - \newline Rastrelliera(0,N)  &
+    Parcheggiata(1:N)                                              & Bicicletta(0,1) - \newline Rastrelliera(0,N)   &
     -- Una bicicletta può essere parcheggiata.\newline
     -- Una rastrelliera può contenere più biciclette.              &
-    /                                                                                                                                                                                                                                                                                                                \\ \hline
+    /                                                                                                                                                           \\ \hline
 \end{tabularx}
 
 \subsection{Lista Generalizzazioni}
