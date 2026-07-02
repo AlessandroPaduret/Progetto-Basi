@@ -1,14 +1,14 @@
 services:
-  db-f1:
+  db-CitySharing:
     image: postgres:15-alpine
-    container_name: f1_simulator_db
+    container_name: db_CitySharing
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: password
-      POSTGRES_DB: Simulatore_F1
+      POSTGRES_DB: CitySharing
     ports:
-      - "5432:5433"
+      - "5432:5432"
     volumes:
       # Mappa la cartella locale con gli script SQL nella cartella di init di Postgres
       - ./init-db:/docker-entrypoint-initdb.d
@@ -19,11 +19,11 @@ services:
     build: .
     environment:
       # Stringa di connessione che punta al servizio 'db'
-      DB_CONN: "user=postgres password=password dbname=Simulatore_F1 host=db-f1"
+      DB_CONN: "user=postgres password=password dbname=CitySharing host=db-CitySharing"
     stdin_open: true # Necessario per scanf/input interattivi
     tty: true # Necessario per vedere l'output formattato bene
     depends_on:
-      - db-f1
+      - db-CitySharing
 
 volumes:
   postgres_data:
