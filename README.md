@@ -1,6 +1,6 @@
 # Progetto Basi — F1 DB Query Explorer
 
-Applicazione C che si connette a un database PostgreSQL e permette di eseguire query interattive su un simulatore F1.
+Applicazione C che si connette a un database PostgreSQL e permette di eseguire query interattive su un database di bike e monopattini sharing.
 
 ---
 
