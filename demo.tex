@@ -620,13 +620,13 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
     inputencoding=utf8
 }
 
-\subsubsection{Classifica Mondiale Storica dei Piloti}
-\textbf{Obiettivo:} Calcolare la somma totale dei punti accumulati da ciascun pilota in tutte le gare disputate nel simulatore, ordinando la classifica dal pilota più vincente. Utilizza operatori aggregati e GROUP BY.
+\subsubsection{Operatori e gestione segnalazioni}
+\textbf{Obiettivo:} Calcolare per ogni operatore il numero di segnalazioni che ha risolto.
 
 \vspace{0.2cm}
 \begin{lstlisting}[
     language=SQL, 
-    caption={Query con GROUP BY e operatore aggregato SUM},
+    caption={Query con GROUP BY, HAVING e operatore aggregato SUM},
     basicstyle=\footnotesize\ttfamily,
     xleftmargin=0.05\textwidth,
     xrightmargin=0.05\textwidth,
@@ -634,11 +634,12 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
     belowskip=3pt,
     lineskip=-0.8pt
 ]
-SELECT P.Nome, P.Cognome, SUM(R.Punti) AS PuntiTotali
-FROM Risultato R
-JOIN Veicolo P ON R.Pilota = P.CF
-GROUP BY R.Pilota, P.Nome, P.Cognome
-ORDER BY PuntiTotali DESC;
+SELECT o.CF, o.Nome, o.Cognome, COUNT(s.Veicolo) AS num_segnalazioni
+FROM Operatore o
+LEFT JOIN Segnalazione s ON o.CF = s.CFOperatore
+GROUP BY o.CF, o.Nome, o.Cognome
+HAVING COUNT(s.Veicolo) > 0 
+ORDER BY num_segnalazioni DESC
 \end{lstlisting}
 
 \begin{figure}[!ht]
@@ -647,13 +648,11 @@ ORDER BY PuntiTotali DESC;
 \end{figure}
 \vspace{-0.2cm}
 
-\subsubsection{Circuiti più Frequenti nei Campionati}
-\textbf{Obiettivo:} Individuare i circuiti che hanno ospitato più di una gara all'interno del simulatore,
-ordinandoli in modo decrescente in base al numero totale di eventi disputati.
-\vspace{0.2cm}
+\subsubsection{Incassi per utente}
+\textbf{Obiettivo:} Individiare, per ogni utente, gli incassi nell'intervallo temporale derivanti dalle sue prenotazioni.
 \begin{lstlisting}[
     language=SQL, 
-    caption={Query con clausola HAVING per il filtraggio dei gruppi},
+    caption={Query con HAVING, SUM e parametrizzazione in base all'intervallo temporale},
     basicstyle=\footnotesize\ttfamily,
     xleftmargin=0.05\textwidth,
     xrightmargin=0.05\textwidth,
@@ -661,12 +660,14 @@ ordinandoli in modo decrescente in base al numero totale di eventi disputati.
     belowskip=3pt,
     lineskip=-0.8pt
 ]
-SELECT C.Nome AS NomeCircuito, C.Paese, COUNT(G.Data) AS NumeroGareOspitate
-FROM Circuito C
-JOIN Gara G ON C.Nome = G.Circuito
-GROUP BY C.Nome, C.Paese
-HAVING COUNT(G.Data) > 1
-ORDER BY NumeroGareOspitate DESC;
+SELECT u.*, SUM(n.CostoTotale) AS guadagno
+FROM Noleggio AS n
+JOIN Utente AS u ON n.UtenteEmail = u.Email
+WHERE 
+n.DataOraFine BETWEEN '2024-01-01 00:00:00' AND '2024-12-31 23:59:59'
+GROUP BY u.email
+HAVING SUM(n.CostoTotale) > 0
+ORDER BY guadagno DESC;
 \end{lstlisting}
 \vspace{-0.3cm}
 \begin{figure}[!ht]
@@ -675,14 +676,13 @@ ORDER BY NumeroGareOspitate DESC;
 \end{figure}
 \vspace{-0.4cm}
 
-\subsubsection{Analisi Finanziaria e Risorse delle Scuderie}
-\textbf{Obiettivo:} Fornire una panoramica gestionale delle scuderie, analizzando il numero complessivo di
-contratti stipulati (sia attivi che storici) e il budget totale allocato per gli stipendi del Veicolole.
+\subsubsection{Utenti "fit"}
+\textbf{Obiettivo:} Fornire una panoramica degli utenti che vanno in bici e dei loro minuti collezionati un un intervallo di tempo. Note: `EPOCH FROM (...)' è un convertitore da timestamp a unix time.
 
 \vspace{0.2cm}
 \begin{lstlisting}[
     language=SQL, 
-    caption={Query con funzioni aggregate multiple (COUNT, SUM)},
+    caption={Query con GROUP BY, HAVING e parametri temporali},
     basicstyle=\footnotesize\ttfamily,
     xleftmargin=0.05\textwidth,
     xrightmargin=0.05\textwidth,
@@ -690,13 +690,14 @@ contratti stipulati (sia attivi che storici) e il budget totale allocato per gli
     belowskip=3pt,
     lineskip=-0.8pt
 ]
-SELECT S.Nome AS Scuderia, S.Sede, 
-    COUNT(C.Veicolo) AS NumeroTotaleContratti, 
-    SUM(C.Stipendio) AS SpesaStipendiTotale
-FROM Scuderia S
-JOIN Contratto C ON S.Nome = C.Scuderia
-GROUP BY S.Nome, S.Sede
-ORDER BY SpesaStipendiTotale DESC;
+SELECT n.UtenteEmail, ROUND(SUM(EXTRACT(EPOCH FROM (n.DataOraFine - n.DataOraInizio)) / 60)) AS minuti_bici
+FROM Noleggio n
+JOIN Bicicletta b ON n.Veicolo = b.Veicolo
+WHERE 
+    n.DataOraFine BETWEEN '2024-01-01 00:00:00' AND '2024-12-31 23:59:59'
+GROUP BY n.UtenteEmail
+HAVING ROUND(SUM(EXTRACT(EPOCH FROM (n.DataOraFine - n.DataOraInizio)) / 60)) > 0
+ORDER BY minuti_bici DESC;
 \end{lstlisting}
 
 \begin{figure}[!ht]
@@ -705,14 +706,14 @@ ORDER BY SpesaStipendiTotale DESC;
 \end{figure}
 \vspace{-0.3cm}
 
-\subsubsection{Giro più veloce per ogni pilota in una gara}
-\textbf{Obiettivo:} Trovare, per una gara (es. 29 Marzo 2026 a Monza), il miglior giro assoluto realizzato da ciascun pilota, insieme al dettaglio della vettura, gomma, settore e tempo totale.
-Questo si usa nelle gare di qualifica per decidere l'ordine di partenza della nuova gara.
+\subsubsection{Posti e prese disponibili}
+\textbf{Obiettivo:} Fornire una panoramica per ogni città. Si vuole sapere li numero di posti bici e il numero di prese per ricaricare monopattini. 
+Nota: with serve a fare view temporanee che dura 1 query.
 
 \vspace{0.2cm}
 \begin{lstlisting}[
     language=SQL, 
-    caption={Ricerca del giro più veloce per pilota in una gara},
+    caption={Posti e prese disponibili},
     basicstyle=\footnotesize\ttfamily,   % Rimpicciolisce il testo nel blocco
     xleftmargin=0.05\textwidth,          % Stringe leggermente i margini
     xrightmargin=0.05\textwidth,
@@ -720,27 +721,28 @@ Questo si usa nelle gare di qualifica per decidere l'ordine di partenza della nu
     belowskip=3pt,
     lineskip=-0.8pt                      % Compatta l'interlinea verticale
 ]
-SELECT p.Nome || ' ' || p.Cognome AS Pilota,
-  pa.Vettura AS Auto,
-  g.GaraCircuito AS Circuito,
-  g.GaraData AS Data_Gara,
-  g.NGiro AS Numero_Giro,
-  g.GommaUsata,
-  (g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Giro
-FROM Giro g
-JOIN Veicolo p ON g.Pilota = p.CF
-JOIN Partecipazione pa ON g.Pilota = pa.Pilota 
-                   AND g.GaraCircuito = pa.GaraCircuito 
-                   AND g.GaraData = pa.GaraData
-WHERE g.GaraData = '2026-03-29' 
-    AND g.GaraCircuito = 'Monza'
-    AND (g.Settore1 + g.Settore2 + g.Settore3) = (
-        SELECT MIN(g2.Settore1 + g2.Settore2 + g2.Settore3)
-        FROM Giro g2
-        WHERE g2.Pilota = g.Pilota
-        AND g2.GaraData = g.GaraData
-        AND g2.GaraCircuito = g.GaraCircuito
-    )
+WITH CittaDisponibili AS (
+    SELECT DISTINCT Citta FROM Zona
+    UNION
+    SELECT DISTINCT Citta FROM Hub
+),
+ConteggioRastrelliere AS (
+    SELECT ZonaCitta AS Citta, SUM(MaxPosti) AS num_posti
+    FROM Rastrelliera
+    GROUP BY ZonaCitta
+),
+ConteggioPuntiRicarica AS (
+    SELECT HubCitta AS Citta, COUNT(*) AS num_punti_ricarica
+    FROM PuntoRicarica
+    GROUP BY HubCitta
+)
+SELECT 
+    c.Citta,
+    COALESCE(r.num_posti, 0) AS num_posti,
+    COALESCE(p.num_punti_ricarica, 0) AS num_punti_ricarica
+FROM CittaDisponibili c
+LEFT JOIN ConteggioRastrelliere r ON c.Citta = r.Citta
+LEFT JOIN ConteggioPuntiRicarica p ON c.Citta = p.Citta
 \end{lstlisting}
 
 \begin{figure}[!ht]
@@ -750,13 +752,13 @@ WHERE g.GaraData = '2026-03-29'
 
 \newpage
 
-\subsubsection{Classifica Live e Strategia Gomme (Viste)}
-\textbf{Obiettivo:} Costruire una classifica \emph{live} per una gara (es. 29 Marzo 2026 a Monza), calcolare il \emph{gap} dal primo e recuperare l'ultima gomma utilizzata da ciascun pilota.
+\subsubsection{Posti liberi}
+\textbf{Obiettivo:} Calcolare i posti bici liberi per ogni zona.
 
 \vspace{0.2cm}
 \begin{lstlisting}[
     language=SQL, 
-    caption={Creazione delle viste per la classifica live in Formula 1},
+    caption={Posti liberi},
     basicstyle=\footnotesize\ttfamily,
     xleftmargin=0.05\textwidth,
     xrightmargin=0.05\textwidth,
@@ -764,50 +766,30 @@ WHERE g.GaraData = '2026-03-29'
     belowskip=3pt,
     lineskip=-0.8pt
 ]
-CREATE OR REPLACE VIEW Vista_Gomma_Attuale AS 
-SELECT DISTINCT 
-    GaraData, 
-    GaraCircuito, 
-    Pilota, 
-    FIRST_VALUE(GommaUsata) OVER ( 
-        PARTITION BY GaraData, GaraCircuito, Pilota 
-        ORDER BY NGiro DESC 
-    ) AS Ultima_Gomma 
-FROM Giro; 
-
-CREATE OR REPLACE VIEW Vista_Tempo_Attuale AS 
+WITH CapacitaZona AS (
+    SELECT 
+        ZonaCitta, 
+        ZonaNome, 
+        SUM(MaxPosti) AS posti_totali
+    FROM Rastrelliera
+    GROUP BY ZonaCitta, ZonaNome
+),
+BiciParcheggiate AS (
+    SELECT 
+        RastrellieraCitta AS ZonaCitta, 
+        RastrellieraNome AS ZonaNome, 
+        COUNT(Veicolo) AS bici_presenti
+    FROM Bicicletta
+    WHERE RastrellieraCitta IS NOT NULL
+    GROUP BY RastrellieraCitta, RastrellieraNome
+)
 SELECT 
-    g.GaraData, 
-    g.GaraCircuito, 
-    p.Nome || ' ' || p.Cognome AS Nome_Pilota, 
-    pa.Vettura, 
-    COUNT(g.NGiro) AS Giri_Completati, 
-    SUM(g.Settore1 + g.Settore2 + g.Settore3) AS Tempo_Totale 
-FROM Giro g 
-JOIN Partecipazione pa ON g.Pilota = pa.Pilota 
-                  AND g.GaraData = pa.GaraData 
-                  AND g.GaraCircuito = pa.GaraCircuito 
-JOIN Veicolo p ON g.Pilota = p.CF 
-GROUP BY g.GaraData, g.GaraCircuito, g.Pilota, pa.Vettura, p.Nome, p.Cognome; 
-
-CREATE OR REPLACE VIEW Vista_Classifica_Posizioni AS 
-SELECT *, 
-    RANK() OVER ( 
-        PARTITION BY GaraData, GaraCircuito 
-        ORDER BY Giri_Completati DESC, Tempo_Totale ASC 
-    ) AS Posizione 
-FROM Vista_Tempo_Attuale; 
-
-CREATE OR REPLACE VIEW Vista_Classifica_Live_Scomposta AS 
-SELECT *, 
-    Tempo_Totale - FIRST_VALUE(Tempo_Totale) OVER ( 
-        PARTITION BY GaraData, GaraCircuito 
-        ORDER BY Posizione ASC 
-    ) AS Gap 
-FROM Vista_Classifica_Posizioni;
-
-SELECT * FROM Vista_Classifica_Live_Scomposta 
-WHERE GaraData = '2026-03-29' AND GaraCircuito = 'Monza'
+    c.ZonaCitta AS Citta,
+    c.ZonaNome AS Zona,
+    (c.posti_totali - COALESCE(b.bici_presenti, 0)) AS posti_liberi
+FROM CapacitaZona c
+LEFT JOIN BiciParcheggiate b ON c.ZonaCitta = b.ZonaCitta AND c.ZonaNome = b.ZonaNome
+ORDER BY c.ZonaCitta, c.ZonaNome;
 \end{lstlisting}
 
 \begin{figure}[!ht]
@@ -816,15 +798,17 @@ WHERE GaraData = '2026-03-29' AND GaraCircuito = 'Monza'
 \end{figure}
 
 \subsection{Creazione degli Indici}
-\textbf{Indice scelto} per ottimizzare le query più importanti: il calcolo della classifica live e tempi di qualifica.
-Si crea un indice composito su \texttt{Giro} (JOIN su gara/pilota e ordinamento per numero giro).
+\textbf{Indice scelto} 
 
-\begin{lstlisting}[language=SQL, caption={Indice composito per ottimizzare query su Giro}]
-CREATE INDEX idx_giro_gara_pilota_ngiro
-ON Giro (GaraData, GaraCircuito, Pilota, NGiro);
+\begin{lstlisting}[language=SQL, caption={Indice per ottimizzare query numero 3}]
+CREATE INDEX idx_noleggio_data_fine ON Noleggio(DataOraFine);
 \end{lstlisting}
 
-\textbf{Motivazione:} le query per classifica live e ultima gomma filtrano e raggruppano per \texttt{GaraData}, \texttt{GaraCircuito} e \texttt{Pilota}, e usano \texttt{NGiro} per ordinare i giri (es. recupero ultimo giro). L'indice riduce il costo di scansione e sorting per gara.
+\textbf{Motivazione:} questo indice serve a velocizzare questa operazione presa dalla query 3.
+
+\begin{lstlisting}[language=SQL, caption={Operazione da velocizzare}]
+n.DataOraFine BETWEEN '2024-01-01 00:00:00' AND '2024-12-31 23:59:59'
+\end{lstlisting}
 
 \section{Applicazione Software}
 
@@ -834,9 +818,9 @@ ON Giro (GaraData, GaraCircuito, Pilota, NGiro);
 Contiene la \texttt{main()}:
 legge la connessione (\texttt{DB\_CONN} o default), apre il DB, mostra un menu e richiama le query, poi chiude la connessione.
 
-\textbf{2) \texttt{include/dbf1.h} e \texttt{src/dbf1.c} (accesso al DB + query).}
+\textbf{2) \texttt{include/dbcs.h} e \texttt{src/dbcs.c} (accesso al DB + query).}
 Incapsula \texttt{libpq} nella struct \texttt{DBF1} e fornisce:
-\texttt{dbf1\_connect()/dbf1\_disconnect()}, esecuzione/stampa risultati (\texttt{dbf1\_exec\_and\_print()}), supporto a scelte interattive.
+\texttt{dbcs\_connect()/dbcs\_disconnect()}, esecuzione/stampa risultati (\texttt{dbf1\_exec\_and\_print()}), supporto a scelte interattive.
 Qui sono anche implementate le 5 query del menu (una funzione per voce).
 
 \textbf{3) \texttt{include/table\_render.h} e \texttt{src/table\_render.c} (render tabellare).}
@@ -844,11 +828,8 @@ Converte un \texttt{PGresult} in tabella ASCII: calcola larghezze, stampa header
 
 \subsection{Query prepared vs non prepared}
 
-\textbf{Non prepared:} query fisse senza parametri via \texttt{PQexec} (tramite \texttt{dbf1\_exec\_and\_print()}).
+\textbf{Non prepared:} query fisse senza parametri via \texttt{PQexec} (tramite \texttt{dbcs\_exec\_and\_print()}).
 
 \textbf{Prepared:} query con input utente via \texttt{PQexecPrepared} (placeholder \texttt{\$1,\$2,...}), usate per selezione circuito/data e per “giro più veloce”.
 
-\subsection{Note sulle viste}
-
-Per “classifica live e strategia gomme” il programma crea/aggiorna viste (\texttt{CREATE OR REPLACE VIEW}) che calcolano ranking/gap; poi esegue la query finale filtrando per (data, circuito).
 \end{document}

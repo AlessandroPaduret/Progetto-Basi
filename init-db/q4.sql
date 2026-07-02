@@ -10,7 +10,7 @@ WITH CittaDisponibili AS (
 ConteggioRastrelliere AS (
     SELECT 
         ZonaCitta AS Citta, 
-        SUM(MaxPosti) AS num_rastrelliere
+        SUM(MaxPosti) AS num_posti
     FROM Rastrelliera
     GROUP BY ZonaCitta
 ),
@@ -27,7 +27,7 @@ ConteggioPuntiRicarica AS (
 -- 4. Uniamo le città con i rispettivi conteggi
 SELECT 
     c.Citta,
-    COALESCE(r.num_rastrelliere, 0) AS num_rastrelliere,
+    COALESCE(r.num_posti, 0) AS num_posti,
     COALESCE(p.num_punti_ricarica, 0) AS num_punti_ricarica
 FROM 
     CittaDisponibili c
