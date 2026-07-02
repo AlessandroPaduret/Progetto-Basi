@@ -301,12 +301,12 @@ void dbcs_query_operator_reports(DBCS *self)
 {
     // Q1: Mostra per ogni operatore il numero di segnalazioni gestite
     static const char *sql =
-        "SELECT o.CF, o.Nome, o.Cognome, COUNT(s.Veicolo) AS num_segnalazioni "
+        "SELECT o.CF, o.Nome, o.Cognome, COUNT(s.Veicolo) AS n_seg "
         "FROM Operatore o "
         "LEFT JOIN Segnalazione s ON o.CF = s.CFOperatore "
         "GROUP BY o.CF, o.Nome, o.Cognome "
         "HAVING COUNT(s.Veicolo) > 0 "
-        "ORDER BY num_segnalazioni DESC;";
+        "ORDER BY n_seg DESC;";
 
     dbcs_exec_and_print(self, "SEGNALAZIONI GESTITE PER OGNI OPERATORE", sql);
 }
@@ -348,13 +348,13 @@ void dbcs_query_fit_users(DBCS *self, const char *start_time, const char *end_ti
     const char *stmtName = "get_fit_users";
     const char *sql =
         "SELECT n.UtenteEmail, "
-        "       ROUND(SUM(EXTRACT(EPOCH FROM (COALESCE(n.DataOraFine, CURRENT_TIMESTAMP) - n.DataOraInizio)) / 60)) AS minuti_bici "
+        "       ROUND(SUM(EXTRACT(EPOCH FROM (COALESCE(n.DataOraFine, CURRENT_TIMESTAMP) - n.DataOraInizio)) / 60)) AS min_bici "
         "FROM Noleggio n "
         "JOIN Bicicletta b ON n.Veicolo = b.Veicolo "
         "WHERE COALESCE(n.DataOraFine, CURRENT_TIMESTAMP) BETWEEN $1::timestamp AND $2::timestamp "
         "GROUP BY n.UtenteEmail "
         "HAVING ROUND(SUM(EXTRACT(EPOCH FROM (COALESCE(n.DataOraFine, CURRENT_TIMESTAMP) - n.DataOraInizio)) / 60)) > 0 "
-        "ORDER BY minuti_bici DESC;";
+        "ORDER BY min_bici DESC;";
 
     PGresult *prep = PQprepare(self->conn, stmtName, sql, 2, NULL);
     if (PQresultStatus(prep) != PGRES_COMMAND_OK) {
@@ -392,8 +392,8 @@ void dbcs_query_city_resources(DBCS *self)
         "    GROUP BY HubCitta "
         ") "
         "SELECT c.Citta, "
-        "       COALESCE(r.num_rastrelliere, 0) AS totale_posti_rastrelliere, "
-        "       COALESCE(p.num_punti_ricarica, 0) AS num_punti_ricarica "
+        "       COALESCE(r.num_rastrelliere, 0) AS posti_bici, "
+        "       COALESCE(p.num_punti_ricarica, 0) AS prese "
         "FROM CittaDisponibili c "
         "LEFT JOIN ConteggioRastrelliere r ON c.Citta = r.Citta "
         "LEFT JOIN ConteggioPuntiRicarica p ON c.Citta = p.Citta "
@@ -419,7 +419,7 @@ void dbcs_query_free_slots_by_zone(DBCS *self)
         ") "
         "SELECT c.ZonaCitta AS \"Città\", "
         "       c.ZonaNome AS \"Zona\", "
-        "       (c.posti_totali - COALESCE(b.bici_presenti, 0)) AS posti_liberi "
+        "       (c.posti_totali - COALESCE(b.bici_presenti, 0)) AS liberi "
         "FROM CapacitaZona c "
         "LEFT JOIN BiciParcheggiate b ON c.ZonaCitta = b.ZonaCitta AND c.ZonaNome = b.ZonaNome "
         "ORDER BY c.ZonaCitta, c.ZonaNome;";

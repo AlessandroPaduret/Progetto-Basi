@@ -18,7 +18,20 @@ Applicazione C che si connette a un database PostgreSQL e permette di eseguire q
 
 ---
 
+## Utilizzo consigliato
+
+Con docker installato non servono altre dipendenze.
+
+```bash
+# per costruire il database e l'app
+docker compose up -d --build
+# per eseguire l'app in c
+docker compose run app
+```
+
 ## Requisiti
+
+In caso non si riuscisse usando docker allora il codice va compilato con `Make` e il DB va caricato su un server Postgres. 
 
 ### Linux
 
