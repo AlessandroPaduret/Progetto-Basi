@@ -798,7 +798,7 @@ ORDER BY c.ZonaCitta, c.ZonaNome;
 \end{figure}
 
 \subsection{Creazione degli Indici}
-\textbf{Indice scelto} 
+\textbf{Indice scelto} abbiamo scelto di mettere un indice btree per velocizzare le operazioni di ricerca con la condizione $<$ e $>$ sul campo DataOraFine della tebella Noleggio.
 
 \begin{lstlisting}[language=SQL, caption={Indice per ottimizzare query numero 3}]
 CREATE INDEX idx_noleggio_data_fine ON Noleggio(DataOraFine);
