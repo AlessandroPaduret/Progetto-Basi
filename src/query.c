@@ -1,19 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-#include "dbf1.h"
+#include "dbcs.h"
 
 static void show_menu(void)
 {
-    printf("\033[2J\033[H"); /* clear screen + home (ANSI) */
-    printf("========================================\n");
-    printf("   Progetto Basi - Query Explorer (C)   \n");
-    printf("========================================\n\n");
-    printf("1) Classifica mondiale storica piloti\n");
-    printf("2) Circuiti con piu' di una gara\n");
-    printf("3) Analisi finanziaria e risorse delle scuderie\n");
-    printf("4) Giro piu' veloce per ogni pilota in una gara\n");
-    printf("5) Classifica live e strategia gomme (viste)\n");
+    printf("\033[2J\033[H"); /* Pulisce lo schermo ed esegue l'home del cursore (ANSI) */
+    printf("====================================================\n");
+    printf("        CitySharing Database Query Explorer         \n");
+    printf("====================================================\n\n");
+    printf("1) Segnalazioni gestite per ciascun operatore\n");
+    printf("2) Spesa complessiva utenti in un intervallo di tempo\n");
+    printf("3) Classifica Utenti 'Fit' (Minuti totali in bici)\n");
+    printf("4) Capacita' totale posti bici e prese di ricarica per citta'\n");
+    printf("5) Posti liberi disponibili in ogni zona\n");
+    printf("6) Test interattivo: Navigazione Città -> Zona\n");
     printf("0) Esci\n\n");
 }
 
@@ -28,7 +30,7 @@ static int read_choice(void)
             int c;
             while ((c = getchar()) != '\n' && c != EOF)
                 ;
-            if (v >= 0 && v <= 5)
+            if (v >= 0 && v <= 6)
                 return v;
         }
         else
@@ -37,20 +39,43 @@ static int read_choice(void)
             while ((c = getchar()) != '\n' && c != EOF)
                 ;
         }
-        printf("Scegli un valore tra 0 e 5.\n");
+        printf("Scegli un valore compreso tra 0 e 6.\n");
+    }
+}
+
+/** Helper per leggere in modo sicuro una stringa (es. timestamp) da tastiera */
+static void read_string(const char *prompt, char *out, size_t max_len, const char *default_val)
+{
+    printf("%s", prompt);
+    if (default_val != NULL) {
+        printf(" [Default: %s]: ", default_val);
+    } else {
+        printf(": ");
+    }
+
+    if (fgets(out, max_len, stdin) != NULL) {
+        // Rimuove il carattere newline finale se presente
+        out[strcspn(out, "\n")] = '\0';
+        
+        // Se l'utente ha premuto solo INVIO, applica il valore di default
+        if (strlen(out) == 0 && default_val != NULL) {
+            strncpy(out, default_val, max_len);
+            out[max_len - 1] = '\0';
+        }
     }
 }
 
 int main(void)
 {
+    // Cerca la stringa di connessione dall'ambiente o usa i default del Docker Compose
     const char *conn_str = getenv("DB_CONN");
     if (conn_str == NULL)
     {
-        conn_str = "user=postgres password=password dbname=Simulatore_F1 host=localhost";
+        conn_str = "user=postgres password=password dbname=CitySharing host=localhost port=5432";
     }
 
-    DBF1 db;
-    if (dbf1_connect(&db, conn_str) != 0)
+    DBCS db;
+    if (dbcs_connect(&db, conn_str) != 0)
     {
         fprintf(stderr, "%s\n", db.error_msg);
         return 1;
@@ -67,34 +92,51 @@ int main(void)
         switch (choice)
         {
         case 1:
-            dbf1_query_driver_standings(&db);
+            dbcs_query_operator_reports(&db);
             break;
 
         case 2:
-            dbf1_query_frequent_circuits(&db);
-            break;
-
-        case 3:
-            dbf1_query_team_financials(&db);
-            break;
-
-        case 4:
         {
-            char circuito[128], data[32];
-            if (dbf1_choose_track_then_date_prepared(&db,
-                                                     circuito, sizeof(circuito),
-                                                     data, sizeof(data)))
-                dbf1_query_fastest_laps(&db, circuito, data);
+            char start_time[64];
+            char end_time[64];
+            
+            printf("\n--- Ricerca Spesa Utenti ---\n");
+            read_string("Inserisci Data/Ora Inizio (YYYY-MM-DD HH:MM:SS)", start_time, sizeof(start_time), "2024-01-01 00:00:00");
+            read_string("Inserisci Data/Ora Fine (YYYY-MM-DD HH:MM:SS)", end_time, sizeof(end_time), "2024-12-31 23:59:59");
+            
+            dbcs_query_user_spending(&db, start_time, end_time);
             break;
         }
 
-        case 5:
+        case 3:
         {
-            char circuito[128], data[32];
-            if (dbf1_choose_track_then_date_prepared(&db,
-                                                     circuito, sizeof(circuito),
-                                                     data, sizeof(data)))
-                dbf1_query_live_standings(&db, circuito, data);
+            char start_time[64];
+            char end_time[64];
+            
+            printf("\n--- Classifica Utenti Fit (In Bicicletta) ---\n");
+            read_string("Inserisci Data/Ora Inizio (YYYY-MM-DD HH:MM:SS)", start_time, sizeof(start_time), "2024-01-01 00:00:00");
+            read_string("Inserisci Data/Ora Fine (YYYY-MM-DD HH:MM:SS)", end_time, sizeof(end_time), "2024-12-31 23:59:59");
+            
+            dbcs_query_fit_users(&db, start_time, end_time);
+            break;
+        }
+
+        case 4:
+            dbcs_query_city_resources(&db);
+            break;
+
+        case 5:
+            dbcs_query_free_slots_by_zone(&db);
+            break;
+
+        case 6:
+        {
+            char citta[128], zona[128];
+            if (dbcs_choose_city_then_zone_prepared(&db, citta, sizeof(citta), zona, sizeof(zona))) {
+                printf("\nHai selezionato correttamente:\n");
+                printf(" -> Citta': %s\n", citta);
+                printf(" -> Zona  : %s\n", zona);
+            }
             break;
         }
 
@@ -107,7 +149,7 @@ int main(void)
         getchar();
     }
 
-    dbf1_disconnect(&db);
-    printf("Uscita.\n");
+    dbcs_disconnect(&db);
+    printf("Disconnessione completata. Alla prossima!\n");
     return 0;
 }

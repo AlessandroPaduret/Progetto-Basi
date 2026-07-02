@@ -56,9 +56,9 @@ else
 endif
 
 # --- SORGENTI ---
-APP_SRCS    = src/query.c src/dbf1.c src/table_render.c
+APP_SRCS    = src/query.c src/dbcs.c src/table_render.c
 TEST_SRCS   = src/test_table_render.c src/table_render.c 
-HEADERS     = include/dbf1.h include/table_render.h
+HEADERS     = include/dbcs.h include/table_render.h
 
 .PHONY: all test clean
 
