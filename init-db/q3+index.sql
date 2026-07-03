@@ -1,4 +1,6 @@
 -- Q3. Utenti fit: selezionare gli utenti e i loro minuti complessivi percosi in bici nell'intervallo di tempo previsto
+CREATE INDEX idx_noleggio_dataFine ON Noleggio(DataOraFine);
+
 SELECT 
     n.UtenteEmail,
     ROUND(SUM(EXTRACT(EPOCH FROM (n.DataOraFine - n.DataOraInizio)) / 60)) AS minuti_bici
