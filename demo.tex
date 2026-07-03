@@ -350,19 +350,16 @@ Il database è formato dalle seguenti relazioni:
 
 \section{Progettazione Logica}
 \subsection{Analisi delle Ridondanze}
-Analizzando lo schema E-R e la successiva traduzione relazionale, si nota una potenziale ridondanza informativa tra le
-relazioni Giro e Risultato. La posizione finale presente in Risultato potrebbero infatti
-essere teoricamente derivati dalla somma dei tempi parziali (Settore1, Settore2, Settore3)
-di tutti i giri effettuati da ciascun pilota durante una determinata gara. Riassumendo le operazioni:
+Analizzando lo schema E-R e la successiva traduzione relazionale, si nota una potenziale ridondanza tra l'attributo Costototale di Noleggio e il CostoAlminuto di Tariffa.
+Il costo totale del noleggio sarebbe possibile derivarlo andando a moltiplicare il costo al minuto nella rispettiva fascia oraria per la durata del noleggio,
+che sarebbe la differenza tra DataOraFine e DataOraInizio. Riassumendo le operazioni:
 \begin{itemize}
-    \item Operazione 1 (4500 volte al giorno): Aggiunta di un nuovo record in Giro.
-    \item Operazione 2 (80 volte al giorno): Visualizzazione delle classifiche delle partite fatte quel giorno.
+    \item Operazione 1 (15000 volte al mese): Aggiunta di un nuovo noleggio.
+    \item Operazione 2 (2 volte al mese): Visualizzazione del guadagno totale mensile.
 \end{itemize}
-Durante una gara ci sono 16 piloti per gara e la durata di una gara sara determinata dal suo numero di giri che in media è di 57.\\
-Quindi per ogni gara dovrò andare ad inserire: $16 \times57 = 912 \ \mathrm{giri.}$ Assumendo che un giocatore va a fare almeno 5 gare al giorno ho
-circa 4500 inserimenti di giri al giorno. \\
-Poi per i risultati dato che ci sono 16 piloti che giocano una partita, e dal fatto che di  media un giocatore
-fa 5 partite al giorno, ho $16 \times 5 = 80 \ \mathrm{risultati}$ che andranno ad essere richiesti da ogni giocatore in totale a fine giornata.
+Tra le tre citta in cui il servizio è attivo (Padova, Milano, Roma), si stimano circa 500 noleggi giornalieri complessivi
+con la maggior parte avvenuta nelle citta piu grandi.
+Quindi in un mese si andranno a fare di media $500 \times 30 = 15000 \ \mathrm{noleggi.}$
 
 Si assumono i seguenti volumi nella base di dati:
 \begin{table}[!h]
@@ -373,20 +370,18 @@ Si assumono i seguenti volumi nella base di dati:
     \begin{tabular}{|l|c|r|}
         \hline
         \textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\ \hline
-        Risultato         & R                  & 3200            \\ \hline
-        Gara              & E                  & 200             \\ \hline
-        Giro              & R                  & 182.400         \\ \hline
+        Tariffa           & E                  & 10              \\ \hline
+        Noleggio          & E                  & 180000          \\ \hline
+        Applica           & R                  & 180000          \\ \hline
     \end{tabular}
 
     \vspace{0.3cm}
-    \begin{minipage}{\linewidth}
-        \textbf{Numero medio di giri per pilota in una gara stimato:}
-        182.400/3200 = 57 giri in media.\\
-        Si nota anche che dato che \textbf{Giro} quando deve essere registrato deve andare a \textbf{scrivere} su tutti e tre i settori
-        avro sempre di base 3 accessi.
-        Si assume infine che il peso delle scritture sia il doppio delle letture.
-    \end{minipage}
-\end{table}
+
+\end{table} \\
+Questi sono i volumi delle transazioni, che vengono fatti ogni anno, le tariffe non aumentano di numero
+perche sono semplicemente un elenco da cui si va a scegliere. Mentre per i noleggi si hanno circa
+15000 noleggi al mese e quindi ho $15000 \times 12 = 180000 \ \mathrm{noleggi}$ all' anno.\\
+Si assume infine che il peso delle scritture sia il doppio delle letture.
 
 \subsubsection{Con Ridondanza}
 \vspace{0.3cm}
@@ -399,15 +394,16 @@ Si assumono i seguenti volumi nella base di dati:
               \renewcommand{\arraystretch}{1.2}
               \begin{tabular}{|l|c|c|c|}
                   \hline
-                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                        \\ \hline
-                  Giro              & R                  & 3                & S \rlap{\hspace{30pt}$\times\,4500$} \\ \hline
-                  Gara              & E                  & 1                & L \rlap{\hspace{30pt}$\times\,4500$} \\ \hline
+                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                         \\ \hline
+                  Noleggio          & E                  & 1                & S \rlap{\hspace{30pt}$\times\,15000$} \\ \hline
+                  Appartiene        & R                  & 1                & L \rlap{\hspace{30pt}$\times\,15000$} \\ \hline
+                  Tariffa           & E                  & 1                & L \rlap{\hspace{30pt}$\times\,15000$} \\ \hline
               \end{tabular}
           \end{center}
 
           \vspace{0.1cm}
           \noindent
-          Costo Operazione 1: $2 \times (3\times4500) + 4500= \mathbf{31500}$ accessi/giorno.
+          Costo Operazione 1: $2 \times 15000 + 2 \times 15000= \mathbf{60000}$ accessi/mese.
 
     \item
           \textbf{Tabella degli Accessi - Operazione 2}
@@ -416,19 +412,18 @@ Si assumono i seguenti volumi nella base di dati:
               \renewcommand{\arraystretch}{1.2}
               \begin{tabular}{|l|c|c|c|}
                   \hline
-                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                      \\ \hline
-                  Risultato         & R                  & 1                & L \rlap{\hspace{30pt}$\times\,80$} \\ \hline
-                  Gara              & E                  & 1                & L \rlap{\hspace{30pt}$\times\,80$} \\ \hline
+                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                     \\ \hline
+                  Noleggio          & E                  & 15000            & L \rlap{\hspace{30pt}$\times\,2$} \\ \hline
               \end{tabular}
           \end{center}
 
           \vspace{0.1cm}
           \noindent
-          Costo Operazione 2: $2 \times 80 = \mathbf{160}$ accessi/giorno.
+          Costo Operazione 2: $2 \times 15000$ accessi/mese.
 
 \end{itemize}
 
-Costo Totale con Ridondanza: $31500 + 160 = \mathbf{31660}$ accessi/giorno.
+Costo Totale con Ridondanza: $60000 + 30000 = \mathbf{90000}$ accessi/mese.
 
 \subsubsection{Senza Ridondanza}
 \vspace{0.3cm}
@@ -440,15 +435,16 @@ Costo Totale con Ridondanza: $31500 + 160 = \mathbf{31660}$ accessi/giorno.
               \renewcommand{\arraystretch}{1.2}
               \begin{tabular}{|l|c|c|c|}
                   \hline
-                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                        \\ \hline
-                  Giro              & R                  & 3                & S \rlap{\hspace{30pt}$\times\,4500$} \\ \hline
-                  Gara              & E                  & 1                & L \rlap{\hspace{30pt}$\times\,4500$} \\ \hline
+                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                         \\ \hline
+                  Noleggio          & E                  & 1                & S \rlap{\hspace{30pt}$\times\,15000$} \\ \hline
+                  Appartiene        & R                  & 1                & L \rlap{\hspace{30pt}$\times\,15000$} \\ \hline
+                  Tariffa           & E                  & 1                & L \rlap{\hspace{30pt}$\times\,15000$} \\ \hline
               \end{tabular}
           \end{center}
 
           \vspace{0.1cm}
           \noindent
-          Costo Operazione 1: $2 \times (3\times4500) + 4500= \mathbf{31500}$ accessi/giorno.
+          Costo Operazione 1: $2 \times 15000 + 2 \times 15000= \mathbf{60000}$ accessi/mese.
 
     \item
           \textbf{Tabella degli Accessi - Operazione 2}
@@ -457,21 +453,23 @@ Costo Totale con Ridondanza: $31500 + 160 = \mathbf{31660}$ accessi/giorno.
               \renewcommand{\arraystretch}{1.2}
               \begin{tabular}{|l|c|c|c|}
                   \hline
-                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                      \\ \hline
-                  Giro              & R                  & 171              & L \rlap{\hspace{30pt}$\times\,80$} \\ \hline
-                  Gara              & E                  & 1                & L \rlap{\hspace{30pt}$\times\,80$} \\ \hline
+                  \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accesso} & \textbf{Tipo}                     \\ \hline
+                  Noleggio          & E                  & 30000            & L \rlap{\hspace{30pt}$\times\,2$} \\ \hline
+                  Appartiene        & R                  & 15000            & L \rlap{\hspace{30pt}$\times\,2$} \\ \hline
+                  Tariffa           & E                  & 15000            & L \rlap{\hspace{30pt}$\times\,2$} \\ \hline
               \end{tabular}
           \end{center}
 
           \vspace{0.1cm}
           \noindent
-          Costo Operazione 2: $(171\times80) + 80 = \mathbf{13.760}$ accessi/giorno.\\
-          Qua gli accessi sono 171 perche ci sono i 3 accessi base si Giro $\times$ il numero medio di giri che è 57.
-          Andando cosi a tirare fuori il risultato di un singolo giocatore in una gara.
-
+          Costo Operazione 2: $2\times 30000 + (2\times(2\times15000)) = \mathbf{90000}$ accessi/mese.\\
+          Qua gli accessi su Noleggio sono 30000 dato che per ogni noleggio è necessario leggere la DataOraInizio e DataOraFine,
+          quindi di base si hanno 2 letture per noleggio, dato che ci sono 15000 noleggi al mese si hanno quindi $2 \times 15000 = 30000$ accessi al mese.
+          Gli altri due invece hanno un numero di accessi pari al numero di inserimenti mensili di noleggi, quindi 15000,
+          perche è necessario prendere da tariffa il costo al minuto.
           \vspace{0.3cm}
 \end{itemize}
-\textbf{Costo Totale Strategia B:} $31500 + 13.760 = \mathbf{45260}$ accessi/giorno. \\
+\textbf{Costo Totale Strategia B:} $60000 + 90000 = \mathbf{150000}$ accessi/mese. \\
 \subsubsection{Analisi Risultati}
 Andando quindi a controllare i due casi ho:
 \begin{itemize}
@@ -487,8 +485,8 @@ state ristrutturate in modo da ridurre al minimo i valori nulli presenti e poter
 semplificare la successiva implementazione nel database in SQL:
 \begin{itemize}
     \item
-          \textbf{Veicolo}: La generalizzazione totale ed esclusiva di Veicolo viene rimossa includendo le relazioni Qualifica
-          e Abilitazione, collegate tramite relazioni $1:1$. La scelta proviene dal fatto che sia l’entità Bicicletta che l’entità Monopattino
+          \textbf{Veicolo}: La generalizzazione totale ed esclusiva di Veicolo viene rimossa includendo le relazioni Pedalata
+          e Motorizzato, collegate tramite relazioni $1:1$. La scelta proviene dal fatto che sia l’entità Bicicletta che l’entità Monopattino
           sono molto differenziate tra loro tramite i loro rispettivi attributi e hanno delle relazioni particolari che renderebbero il database
           molto più complesso se entrambe fossero collassate in Veicolo (sarebbe stato necessario controllare che le transazioni fossero effettuate
           tra Bicicletta e Monopattino). Inoltre, questo metodo evita l’introduzione di ulteriori campi nulli ridondanti, separando le informazioni univoche.
@@ -507,10 +505,10 @@ semplificare la successiva implementazione nel database in SQL:
 Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome degli attributi indica quelli che ammettono valori nulli.
 \begin{itemize}
     \item Veicolo (\underline{Targa}, Stato, Marca, ZonaCitta, ZonaNome)
-        \begin{itemize}
-            \item Veicolo.ZonaCitta $\to$ Zona.Citta
-            \item Veicolo.ZonaNome $\to$ Zona.Nome
-        \end{itemize}
+          \begin{itemize}
+              \item Veicolo.ZonaCitta $\to$ Zona.Citta
+              \item Veicolo.ZonaNome $\to$ Zona.Nome
+          \end{itemize}
 
     \item Monopattino (\underline{Veicolo}, LivelloBatteria, VelocitaMax, PesoMax, RicaricaHubNome*, RicaricaHubCitta*, RicaricaNPresa*)
           \begin{itemize}
@@ -542,18 +540,18 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
 
     \item Zona (\underline{Nome, Citta}, TipoZona, Perimetro, VelocitaMax, Operatore)
           \begin{itemize}
-            \item Zona.Operatore $\to$ Operatore.CF
+              \item Zona.Operatore $\to$ Operatore.CF
           \end{itemize}
 
     \item Operatore (\underline{CF}, Nome, Cognome, Turno)
 
     \item Attravesa (\underline{NoleggioInizio, NoleggioUtente, NoleggioVeicolo, ZonaCitta, ZonaNome})
           \begin{itemize}
-            \item Attraversa.NoleggioInizio $\to$ Noleggio.DataOraInizio
-            \item Attraversa.NoleggioUtente $\to$ Noleggio.Utente
-            \item Attraversa.NoleggioVeicolo $\to$ Noleggio.Veicolo
-            \item Attraversa.ZonaCitta $\to$ Zona.Citta
-            \item Attraversa.ZonaNome $\to$ Zona.Nome
+              \item Attraversa.NoleggioInizio $\to$ Noleggio.DataOraInizio
+              \item Attraversa.NoleggioUtente $\to$ Noleggio.Utente
+              \item Attraversa.NoleggioVeicolo $\to$ Noleggio.Veicolo
+              \item Attraversa.ZonaCitta $\to$ Zona.Citta
+              \item Attraversa.ZonaNome $\to$ Zona.Nome
           \end{itemize}
 
     \item Segnalazione (\underline{DataOra, Veicolo}, TipoProblema, Descizione*, Operatore)
@@ -707,7 +705,7 @@ ORDER BY minuti_bici DESC;
 \vspace{-0.3cm}
 
 \subsubsection{Posti e prese disponibili}
-\textbf{Obiettivo:} Fornire una panoramica per ogni città. Si vuole sapere li numero di posti bici e il numero di prese per ricaricare monopattini. 
+\textbf{Obiettivo:} Fornire una panoramica per ogni città. Si vuole sapere li numero di posti bici e il numero di prese per ricaricare monopattini.
 Nota: with serve a fare view temporanee che dura 1 query.
 
 \vspace{0.2cm}
