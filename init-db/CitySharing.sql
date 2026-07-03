@@ -340,7 +340,7 @@ INSERT INTO Operatore VALUES
 ('NEGMAS75A95B205X','Massimo','Negri','pomeriggio'),
 ('CATELE95A62B735X','Eleonora','Cattaneo','notte');
 
-INSERT INTO Zona (Nome, Citta, VelocitaMax, TipoZona, Perimetro, Operatore) VALUES
+INSERT INTO Zona (Nome, Citta, VelocitaMax, TipoZona, Operatore) VALUES
 -- PADOVA (Operatori assegnati solo a zone di Padova)
 ('Centro Storico',   'Padova', 25, 'velocita_ridotta',  'ROSLUC63A61B845X'),
 ('Arcella',          'Padova', 50, 'attiva',             'FERMAR66A41B296X'),

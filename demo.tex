@@ -137,7 +137,6 @@ La zona è descritta da:
     \item Il \textbf{Nome} della zona.
     \item La \textbf{Citta} di riferimento.
     \item La \textbf{Velocita Massima} concessa in quella zona.
-    \item Il \textbf{Perimetro} della zona.
     \item Il \textbf{Tipo di Zona} (Attiva, No Parking, Velocita Ridotta).
 \end{itemize}
 
@@ -226,7 +225,7 @@ Il database è formato dalle seguenti entità:
 
     \textbf{Zona}                                                                                                           &
     Rappresenta un'area urbana con regole specifiche di circolazione e sosta.                                               &
-    Nome, Citta,\newline VelocitàMax, TipoZona, Perimetro                                                                   &
+    Nome, Citta,\newline VelocitàMax, TipoZona                                                               &
     Nome, Citta                                                                                                                                                                                   \\ \hline
 
     \textbf{Tariffa}                                                                                                        &
@@ -345,7 +344,7 @@ Il database è formato dalle seguenti relazioni:
 \subsection{Schema E-R}
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{Immagini/er.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=1.15\textwidth]{Immagini/er.png}}
 \end{figure}
 
 \section{Progettazione Logica}
@@ -538,7 +537,7 @@ Lo schema logico è rappresentato qui sotto, dove l’asterisco dopo il nome deg
               \item Noleggio.TariffaOra $\to$ Tariffa.FasciaOraria
           \end{itemize}
 
-    \item Zona (\underline{Nome, Citta}, TipoZona, Perimetro, VelocitaMax, Operatore)
+    \item Zona (\underline{Nome, Citta}, TipoZona, VelocitaMax, Operatore)
           \begin{itemize}
               \item Zona.Operatore $\to$ Operatore.CF
           \end{itemize}
