@@ -648,7 +648,7 @@ ORDER BY num_segnalazioni DESC
     \centering
     \makebox[\textwidth][c]{\includegraphics[width=0.65\textwidth]{Immagini/query-1.png}}
 \end{figure}
-\vspace{-0.2cm}
+\vspace{-0.8 cm}
 
 \subsubsection{Incassi per utente}
 \textbf{Obiettivo:} Individiare, per ogni utente, gli incassi nell'intervallo temporale derivanti dalle sue prenotazioni.
@@ -704,7 +704,7 @@ ORDER BY minuti_bici DESC;
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=0.8\textwidth]{Immagini/query-3.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=0.5\textwidth]{Immagini/query-3.png}}
 \end{figure}
 \vspace{-0.3cm}
 
@@ -749,10 +749,9 @@ LEFT JOIN ConteggioPuntiRicarica p ON c.Citta = p.Citta
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.1\textwidth]{Immagini/query-4.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=0.6\textwidth]{Immagini/query-4.png}}
 \end{figure}
 
-\newpage
 
 \subsubsection{Posti liberi}
 \textbf{Obiettivo:} Calcolare i posti bici liberi per ogni zona.
@@ -796,14 +795,16 @@ ORDER BY c.ZonaCitta, c.ZonaNome;
 
 \begin{figure}[!ht]
     \centering
-    \makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{Immagini/query-5.png}}
+    \makebox[\textwidth][c]{\includegraphics[width=0.6\textwidth]{Immagini/query-5.png}}
 \end{figure}
+
+\newpage
 
 \subsection{Creazione degli Indici}
 \textbf{Indice scelto} abbiamo scelto di mettere un indice btree per velocizzare le operazioni di ricerca con la condizione $<$ e $>$ sul campo DataOraFine della tebella Noleggio.
 
 \begin{lstlisting}[language=SQL, caption={Indice per ottimizzare query numero 3}]
-CREATE INDEX idx_noleggio_data_fine ON Noleggio(DataOraFine);
+CREATE INDEX idx_noleggio_dataFine ON Noleggio(DataOraFine);
 \end{lstlisting}
 
 \textbf{Motivazione:} questo indice serve a velocizzare questa operazione presa dalla query 3.
