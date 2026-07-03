@@ -279,57 +279,57 @@ Il database è formato dalle seguenti relazioni:
     \textbf{Relazione}                                             & \textbf{Entità Coinvolte}                      & \textbf{Descrizione} & \textbf{Attributi} \\ \hline
     \endhead % <--- Intestazione che si ripeterà sulle pagine SUCCESSIVE
 
-    Effettua (1:N)                                                 & Noleggio(1:1) - Utente(1:N)                    &
+    Effettua (1,N)                                                 & Noleggio(1,1) - Utente(1,N)                    &
     -- Un utente può effettuare più noleggi nel tempo. \newline
     -- Un noleggio è associato a un solo utente.                   &
     /                                                                                                                                                           \\ \hline
 
-    Riguada(1:N)                                                   & Noleggio(1,1) - Veicolo(1,N)                   &
+    Riguada(1,N)                                                   & Noleggio(1,1) - Veicolo(1,N)                   &
     -- Un veicolo può essere coinvolto in più noleggi. \newline
     -- Ogni noleggio riguarda un solo veicolo.                     & /                                                                                          \\ \hline
 
-    Applica(1:N)                                                   & Noleggio(1,1) - \newline Tariffa(1,N)          &
+    Applica(1,N)                                                   & Noleggio(1,1) - \newline Tariffa(1,N)          &
     -- Un noleggio applica una tariffa specifica. \newline
     -- La stessa tariffa può essere applicata a più noleggi.       & /                                                                                          \\ \hline
 
-    Attraversa(N:N)                                                & Noleggio(1,N) - \newline Zona(0,N)             &
+    Attraversa(N,N)                                                & Noleggio(1,N) - \newline Zona(0,N)             &
     -- Un noleggio puo attraversare piu zone. \newline
     -- Una zona può essere attraversata da più veicoli noleggiati. & /                                                                                          \\ \hline
 
-    Genera(1:N)                                                    & Veicolo(0,N) - Segnalazione(1,1)               &
+    Genera(1,N)                                                    & Veicolo(0,N) - Segnalazione(1,1)               &
     -- Un veicolo può generare più segnalazioni. \newline
     -- Ogni segnalazione riguarda un solo veicolo.                 & /                                                                                          \\ \hline
 
-    Copre(1:N)                                                     & Operatore(1,1) - Zona(1,N)                     &
+    Copre(1,N)                                                     & Operatore(1,1) - Zona(1,N)                     &
     -- Un operatore copre una sola zone. \newline
     -- Una zona può essere coperta da uno o più operatori.         & /                                                                                          \\ \hline
 
-    Gestisce(0:N)                                                  & Segnalazione(0,1) - \newline Operatore(0,N)    &
+    Gestisce(0,N)                                                  & Segnalazione(0,1) - \newline Operatore(0,N)    &
     -- Un operatore può gestire più segnalazioni. \newline
     -- Ogni segnalazione viene gestita da un solo operatore.       &
     /                                                                                                                                                           \\ \hline
 
-    Supervisiona(0:1)                                              & Operatore(0,1) - \newline Hub(1,1)             &
+    Supervisiona(0,1)                                              & Operatore(0,1) - \newline Hub(1,1)             &
     -- Un operatore può supervisionare un hub di ricarica. \newline
     -- Un hub è supervisionato da un operatore.                    &
     /                                                                                                                                                           \\ \hline
 
-    Ricarica(0:N)                                                  & Monopattino(0,1) - \newline PuntoRicarica(0,N) &
+    Ricarica(0,N)                                                  & Monopattino(0,1) - \newline PuntoRicarica(0,N) &
     -- Un monopattino può necessitare di essere ricaricato. \newline
     -- Un punto di ricarica può ricaricare più monopattini.        &
     /                                                                                                                                                           \\ \hline
 
-    Contiene(1:N)                                                  & PuntoRicarica(1,1) - \newline Hub(1,N)         &
+    Contiene(1,N)                                                  & PuntoRicarica(1,1) - \newline Hub(1,N)         &
     -- Un hub può contenere più punti di ricarica. \newline
     -- Un punto di ricarica appartiene ad un hub.                  &
     /                                                                                                                                                           \\ \hline
 
-    Situata(1:N)                                                   & Rastrelliera(1,1) - \newline Zona(0,N)         &
+    Situata(1,N)                                                   & Rastrelliera(1,1) - \newline Zona(0,N)         &
     -- Una rastrelliera è situata in una zona. \newline
     -- Una zona può contenere più rastrelliere.                    &
     /                                                                                                                                                           \\ \hline
 
-    Parcheggiata(1:N)                                              & Bicicletta(0,1) - \newline Rastrelliera(0,N)   &
+    Parcheggiata(1,N)                                              & Bicicletta(0,1) - \newline Rastrelliera(0,N)   &
     -- Una bicicletta può essere parcheggiata.\newline
     -- Una rastrelliera può contenere più biciclette.              &
     /                                                                                                                                                           \\ \hline
@@ -341,6 +341,7 @@ Il database è formato dalle seguenti relazioni:
 \end{itemize}
 
 %pagina 8
+
 \subsection{Schema E-R}
 \begin{figure}[!ht]
     \centering
@@ -418,7 +419,9 @@ Si assume infine che il peso delle scritture sia il doppio delle letture.
 
           \vspace{0.1cm}
           \noindent
-          Costo Operazione 2: $2 \times 15000$ accessi/mese.
+          Costo Operazione 2: $2 \times 15000$ accessi/mese. \\
+          Gli accessi su Noleggio sono 15000 dato che per sapere il guadagni totale del mese corrente devo leggere tutti i CostiTotali di tutti i noleggi fatti
+          durante il mese corrente, quindi 15000 noleggi di media richiedono 15000 accessi totali a CostoTotale per legge.
 
 \end{itemize}
 
@@ -472,11 +475,13 @@ Costo Totale con Ridondanza: $60000 + 30000 = \mathbf{90000}$ accessi/mese.
 \subsubsection{Analisi Risultati}
 Andando quindi a controllare i due casi ho:
 \begin{itemize}
-    \item Con ridondanza il costo è: $\mathbf{31660}$ accessi/giorno.
-    \item Senza ridondanza il costo è: $\mathbf{45260}$ accessi/giorno.
+    \item Con ridondanza il costo è: $\mathbf{90000}$ accessi/mese.
+    \item Senza ridondanza il costo è: $\mathbf{150000}$ accessi/mese.
 \end{itemize}
-Possiamo notare che il costo senza ridondanza è maggiore rispetto a quella con ridondanza di quasi 15000 accessi,
-quindi la posizione in risultato deve rimanere per mantenere l'efficenza che l'attributo porta con se.
+Possiamo notare che il costo senza ridondanza è maggiore rispetto a quella con ridondanza di quasi 60000 accessi,
+dove le operazioni che coinvolgono direttamente l'attributo ridondante sono fino a 3 volte meno costose di quanto non siano quele
+senza attributo ridondante.\\
+Quindi il costo totale in noleggio deve rimanere per mantenere l'efficenza che l'attributo porta con se.
 
 \subsection{Eliminazione delle Generalizzazioni}
 Le generalizzazioni presenti nel modello e rappresentate nel diagramma E-R sono
